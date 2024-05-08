@@ -1,7 +1,3 @@
-[build-system]
-requires = ["wheel", "setuptools"]
-build-backend = "setuptools.build_meta"
-
 [tool.poetry]
 name = "aurum-hikari"
 version = "0.1.0"
@@ -9,12 +5,16 @@ description = "Aurum - Hybrid command-component handler"
 authors = ["stefanlight <64615032+stefanlight8@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [{ include = "aurum" }]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = "<3.13,>=3.10.0"
-hikari = "^2.0.0.dev125"
+python = ">=3.10,<3.13"
+hikari = ">2.0.0.dev120"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"
 ruff = "^0.4.3"
-
