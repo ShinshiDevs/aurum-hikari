@@ -1,4 +1,9 @@
-from collections.abc import Sequence
+from __future__ import annotations
+
+import typing
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__: Sequence[str] = (
     "__author__",
