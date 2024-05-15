@@ -70,8 +70,7 @@ class HelloCommand(SlashCommand):
     def __init__(self) -> None:
         super().__init__(name="hello", description="Say hi to bot")
 
-    @callback  # This's a flag that give this command callback and it's cannot be used with sub commands
-    async def hello(self, context: InteractionContext) -> None:
+    async def callback(self, context: InteractionContext) -> None:
         await context.create_response(f"Hi, {context.user.mention}!")
 
 
