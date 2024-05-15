@@ -59,6 +59,16 @@ class CommandHandler:
         self.commands: typing.Dict[str, AppCommand] = {}
 
     async def sync(self, debug: bool = False) -> None:
+        """
+        Synchronizes the builders of commands with the Discord API for the bot application.
+
+        This method will handle both global commands and guild-specific commands,
+        ensuring they are up-to-date with the currently stored command builders.
+        
+        Args:
+            debug: A boolean flag that, when set to True, enables more verbose logging 
+                   of the synchronization process for debugging purposes.
+        """
         synchronized: typing.Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, Sequence[PartialCommand]
         ] = {}
