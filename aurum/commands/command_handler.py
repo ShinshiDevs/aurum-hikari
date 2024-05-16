@@ -5,17 +5,22 @@ from logging import getLogger
 
 from hikari.undefined import UNDEFINED
 
+from aurum.commands.context_menu_command import ContextMenuCommand
+from aurum.commands.slash_command import SlashCommand
+
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
     from logging import Logger
 
+    from hikari.api import CommandBuilder
     from hikari.commands import PartialCommand
     from hikari.guilds import PartialApplication, PartialGuild
-    from hikari.impl import CommandBuilder, GatewayBot
+    from hikari.impl import GatewayBot
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
     from aurum.commands.app_command import AppCommand
+    from aurum.l10n import LocalizationProviderInterface
 
 
 class CommandHandler:
@@ -23,16 +28,16 @@ class CommandHandler:
 
     This class is responsible for application commands.
     It registers commands, synchronizes them with the Discord API.
-    
+
     Attributes:
         commands (typing.Dict[str, AppCommand]): Dictionary that stores the actual AppCommand instances, keyed by their names.
-    
+
     Args:
         bot (GatewayBot): A bot instance.
 
     Methods:
         sync: Sync commands with the Discord API.
-        get_command: 
+        get_command:
             Get command.
 
             Returns:
@@ -44,31 +49,51 @@ class CommandHandler:
         "__logger",
         "_app",
         "_bot",
+        "_l10n",
         "_commands_builders",
         "commands",
     )
 
-    def __init__(self, bot: GatewayBot) -> None:
+    def __init__(self, bot: GatewayBot, l10n: LocalizationProviderInterface) -> None:
         self.__logger: Logger = getLogger("aurum.commands")
         self._app: PartialApplication | None = None
         self._bot: GatewayBot = bot
+        self._l10n: LocalizationProviderInterface = l10n
         self._commands_builders: typing.Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, typing.Dict[str, CommandBuilder]
         ] = {}
 
         self.commands: typing.Dict[str, AppCommand] = {}
 
-    async def sync(self, debug: bool = False) -> None:
+    async def sync(self, debug: bool = False, *, build: bool = True) -> None:
         """
         Synchronizes the builders of commands with the Discord API for the bot application.
 
         This method will handle both global commands and guild-specific commands,
         ensuring they are up-to-date with the currently stored command builders.
-        
+
         Args:
-            debug: A boolean flag that, when set to True, enables more verbose logging 
+            debug: A boolean flag that, when set to True, enables more verbose logging
                    of the synchronization process for debugging purposes.
+            build: A boolean flag to enable a automatic building of commands.
         """
+        if build:
+            for name, command in self.commands.items():
+                print(name, command)
+                self._commands_builders.setdefault(command.guild, {})
+                print(self._commands_builders)
+                if isinstance(command, SlashCommand):
+                    print(command, name)
+                    self._commands_builders[command.guild][name] = command.get_builder(
+                        self._bot.rest.slash_command_builder,
+                        self._l10n,
+                    )
+                elif isinstance(command, ContextMenuCommand):
+                    self._commands_builders[command.guild][name] = command.get_builder(
+                        self._bot.rest.context_menu_command_builder,
+                        self._l10n,
+                    )
+
         synchronized: typing.Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, Sequence[PartialCommand]
         ] = {}
@@ -97,6 +122,6 @@ class CommandHandler:
         *,
         group_name: str | None = None,
         subgroup_name: str | None = None,
-    ) -> AppCommand | None: 
+    ) -> AppCommand | None:
         command: AppCommand | None = None
         return command

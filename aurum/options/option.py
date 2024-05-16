@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 import typing
 from dataclasses import dataclass, field
 
-from hikari import ChannelType
+from hikari.channels import ChannelType
+
+from aurum.options.choice import Choice
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -9,7 +13,6 @@ if typing.TYPE_CHECKING:
     from hikari.commands import OptionType
 
     from aurum.l10n.types import LocalizedOr
-    from aurum.options.choice import Choice
 
 
 @dataclass(slots=True, kw_only=True)

@@ -1,21 +1,21 @@
 from __future__ import annotations
 
 import typing
-from collections.abc import Sequence
 from dataclasses import dataclass, field
 
+from aurum.options import Option
+
 if typing.TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
+    from collections.abc import Awaitable, Callable, Sequence
 
     from aurum.l10n.types import LocalizedOr
-    from aurum.options import Option
 
 
 @dataclass(slots=True, kw_only=True)
 class SubCommand:
     """
     A class representing a sub-command.
-    
+
     Attributes:
         callback (Callable[..., Awaitable[Any]]): A callback of sub-command.
         name (str): The internal name of the command used for identification, display if `display_name` is not provided.
@@ -23,7 +23,7 @@ class SubCommand:
         display_name (LocalizedOr[str] | None): Optional localized display name of the command.
         options (Sequence[Option]): Options to the command.
         sub_commands (Dict[str, SubCommand]): Sub-commands of the sub-command.
-    
+
     Methods:
         sub_command: A decorator method used to add a new sub-command to this.
 
@@ -42,6 +42,7 @@ class SubCommand:
                 ...
         ```
     """
+
     callback: Callable[..., Awaitable[typing.Any]]
 
     name: str

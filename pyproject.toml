@@ -8,7 +8,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 packages = [{ include = "aurum" }]
 name = "aurum-hikari"
-version = "0.1.1"
+version = "0.1.2"
 license = "MIT"
 authors = ["stefanlight <64615032+stefanlight8@users.noreply.github.com>"]
 description = "A flexible command & component handler"
@@ -21,7 +21,7 @@ keywords = [
     "component-handler",
 ]
 classifiers = [
-    "Development Status :: 1 - Planning",                           # TODO: Set `Development Status :: 3 - Alpha` later
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3 :: Only",

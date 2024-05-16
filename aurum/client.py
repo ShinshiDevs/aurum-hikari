@@ -1,23 +1,25 @@
 from __future__ import annotations
 
+import asyncio
 import typing
-from asyncio import create_task
 from logging import getLogger
 
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
 
+from aurum.commands.app_command import AppCommand
 from aurum.commands.command_handler import CommandHandler
 from aurum.enum.sync_commands import SyncCommandsFlag
+from aurum.includable import Includable
 from aurum.interactions.interaction_processor import InteractionProcessor
+from aurum.l10n import LocalizationProviderInterface
 
 if typing.TYPE_CHECKING:
-    from asyncio.tasks import Task
     from collections.abc import Coroutine, Sequence
     from logging import Logger
 
     from hikari.impl import GatewayBot
 
-    from aurum.l10n import LocalizationProviderInterface
+__all__: Sequence[str] = ("Client",)
 
 
 class Client:
@@ -68,24 +70,24 @@ class Client:
         ignore_unknown_interactions: bool = False,
     ) -> None:
         self.__logger: Logger = getLogger("aurum.client")
-        self._starting_tasks: typing.List[Task[typing.Any]] = []
-
-        self._commands: CommandHandler = CommandHandler()
-        self._interaction_processor: InteractionProcessor = InteractionProcessor(
-            bot, self._commands, None, ignore_unknown_interactions
-        )
-        self._sync_commands: SyncCommandsFlag = sync_commands
+        self._starting_tasks: typing.List[Coroutine[None, None, typing.Any]] = []
 
         self.bot: GatewayBot = bot
 
         if not l10n and not ignore_l10n:
-            self.__logger.warn(
+            self.__logger.warning(
                 "A localization provider has not been specified and localization will not be available. "
                 "If you require localization, please use one of the available localization providers "
                 "or create your own implementation based on the LocalizationProviderInterface."
             )
         self.l10n: LocalizationProviderInterface = l10n or EmptyLocalizationProvider()
-        self.add_starting_task(self.l10n.start(), name=str(self.l10n))
+        self.add_starting_task(self.l10n.start())
+
+        self._commands: CommandHandler = CommandHandler(bot, self.l10n)
+        self._interaction_processor: InteractionProcessor = InteractionProcessor(
+            bot, self._commands, None, ignore_unknown_interactions
+        )
+        self._sync_commands: SyncCommandsFlag = sync_commands
 
         for event, callback in {
             StartingEvent: self._on_starting,
@@ -94,17 +96,13 @@ class Client:
             self.bot.event_manager.subscribe(event, callback)
 
     async def _on_starting(self, _: StartingEvent) -> None:
-        for task in self._starting_tasks:
-            try:
-                await task
-            except Exception as exception:
-                self.__logger.warn(
-                    "Task %s wasn't completed, because of exception",
-                    task.get_name(),
-                    exc_info=exception,
-                )
-                continue
-        self.__logger.debug("Completed all tasks")
+        try:
+            await asyncio.gather(*self._starting_tasks)
+            self.__logger.debug("Completed all tasks")
+        except Exception as exception:
+            self.__logger.warning(
+                "Some tasks weren't completed because of an exception", exc_info=exception
+            )
 
     async def _on_started(self, _: StartedEvent) -> None:
         if self._sync_commands.value:
@@ -113,10 +111,13 @@ class Client:
             InteractionCreateEvent, self._interaction_processor.on_interaction
         )
 
-    def add_starting_task(
-        self, coro: Coroutine[None, None, typing.Any], *, name: str | None = None
-    ) -> None:
-        self._starting_tasks.append(create_task(coro, name=name))
+    def add_starting_task(self, coro: Coroutine[None, None, typing.Any]) -> None:
+        self._starting_tasks.append(coro)
+
+    def include(self, includable: typing.Type[Includable]) -> None:
+        if issubclass(includable, AppCommand):
+            instance: AppCommand = includable()
+            self._commands.commands[instance.name] = instance
 
 
 class EmptyLocalizationProvider(LocalizationProviderInterface): ...

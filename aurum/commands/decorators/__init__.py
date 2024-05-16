@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import typing
 
-from .interaction_context import InteractionContext
+from .sub_command import sub_command
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
-__all__: Sequence[str] = ("InteractionContext",)
+__all__: Sequence[str] = ("sub_command",)

@@ -1,3 +1,7 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
 .idea
 .vscode
 
@@ -5,3 +9,5 @@
 .mypy_cache
 
 poetry.lock
+
+test_bot

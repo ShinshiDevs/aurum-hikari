@@ -10,7 +10,6 @@ __all__: Sequence[str] = (
     "__copyright__",
     "__license__",
 )
-
-__author__: str = "Shinshi Developers Team"
-__copyright__: str = "Copyright (c) 2024 Shinshi Developers Team"
-__license__: str = "MIT"
+__author__: typing.Final[str] = "Shinshi Developers Team"
+__copyright__: typing.Final[str] = "Copyright (c) 2024 Shinshi Developers Team"
+__license__: typing.Final[str] = "MIT"
