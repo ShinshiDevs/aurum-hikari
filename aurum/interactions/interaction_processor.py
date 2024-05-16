@@ -2,35 +2,164 @@ from __future__ import annotations
 
 import typing
 
+from hikari.commands import CommandType, OptionType
 from hikari.events import InteractionCreateEvent
+from hikari.interactions import CommandInteraction
+from hikari.snowflakes import Snowflake
+
+from aurum.commands.message_command import MessageCommand
+from aurum.commands.slash_command import SlashCommand
+from aurum.commands.user_command import UserCommand
+from aurum.exceptions.commands_exceptions import UnknownCommandException
+from aurum.interactions.interaction_context import InteractionContext
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
     from hikari.impl import GatewayBot
+    from hikari.interactions import (
+        CommandInteractionOption,
+        ComponentInteraction,
+        PartialInteraction,
+    )
 
+    from aurum.client import Client
+    from aurum.commands.app_command import AppCommand
     from aurum.commands.command_handler import CommandHandler
+    from aurum.commands.sub_commands import SubCommand
+    from aurum.l10n import Locale, LocalizationProviderInterface
+
 
 type ComponentHandler = None  # TODO: Remove that, when ComponentHandler will appear
 
 
 class InteractionProcessor:
-    __slots__: Sequence[str] = ("bot", "commands", "components", "ignore_unknown_interactions")
+    __slots__: Sequence[str] = (
+        "bot",
+        "client",
+        "l10n",
+        "commands",
+        "components",
+        "ignore_unknown_interactions",
+        "get_locale_func",
+    )
 
     def __init__(
         self,
         bot: GatewayBot,
+        client: Client,
+        l10n: LocalizationProviderInterface,
         commands: CommandHandler,
         components: ComponentHandler,
         ignore_unknown_interactions: bool,
+        get_locale_func: Callable[[CommandInteraction | ComponentInteraction], Locale],
     ) -> None:
         self.bot: GatewayBot = bot
+        self.client: Client = client
+        self.l10n: LocalizationProviderInterface = l10n
 
         self.commands: CommandHandler = commands
         self.components: ComponentHandler = components
 
         self.ignore_unknown_interactions: bool = ignore_unknown_interactions
 
-    async def on_interaction(
-        self, event: InteractionCreateEvent
-    ) -> None: ...  # TODO: Interaction proceed
+        self.get_locale_func: Callable[[CommandInteraction | ComponentInteraction], Locale] = (
+            get_locale_func
+        )
+
+    def create_interaction_context(
+        self, interaction: ComponentInteraction | CommandInteraction
+    ) -> InteractionContext:
+        return InteractionContext(
+            interaction=interaction,
+            bot=self.bot,
+            client=self.client,
+            locale=self.get_locale_func(interaction),
+        )
+
+    async def on_interaction(self, event: InteractionCreateEvent) -> None:
+        interaction: PartialInteraction = event.interaction
+        if isinstance(interaction, CommandInteraction):
+            return await self.proceed_command(interaction)
+
+    async def proceed_command(self, interaction: CommandInteraction) -> None:
+        context: InteractionContext = self.create_interaction_context(interaction)
+        command: AppCommand | None = self.commands.commands.get(interaction.command_name, None)
+        if not command and not self.ignore_unknown_interactions:
+            raise UnknownCommandException(interaction.command_name)
+        if interaction.command_type is CommandType.SLASH:
+            assert isinstance(command, SlashCommand)
+            if options := interaction.options:
+                arguments: typing.Dict[str, typing.Any] = {}
+                if options[0].type is OptionType.SUB_COMMAND_GROUP:
+                    sub_command_group: SubCommand | None = command.sub_commands.get(options[0].name)
+                    if not sub_command_group and not self.ignore_unknown_interactions:
+                        raise UnknownCommandException(options[0].name, interaction.command_name)
+                    if options := options[0].options:
+                        sub_command: SubCommand | None = sub_command_group.sub_commands.get(
+                            options[0].name
+                        )
+                        if not sub_command and not self.ignore_unknown_interactions:
+                            raise UnknownCommandException(
+                                options[0].name, sub_command_group.name, interaction.command_name
+                            )
+                        if options := options[0].options:
+                            for option in options:
+                                arguments[option.name] = self.resolve_command_argument(
+                                    interaction, option
+                                )
+                        return await sub_command.callback(context, **arguments)
+                elif options[0].type is OptionType.SUB_COMMAND:
+                    sub_command: SubCommand | None = command.sub_commands.get(options[0].name)
+                    if not sub_command and not self.ignore_unknown_interactions:
+                        raise UnknownCommandException(options[0].name, interaction.command_name)
+                    if options := options[0].options:
+                        for option in options:
+                            arguments[option.name] = self.resolve_command_argument(
+                                interaction, option
+                            )
+                    return await sub_command.callback(context, **arguments)
+                else:
+                    for option in options:
+                        arguments[option.name] = self.resolve_command_argument(interaction, option)
+                    return await command.callback(context, **arguments)
+            return await command.callback(context)
+        if interaction.command_type is CommandType.MESSAGE:
+            assert isinstance(command, MessageCommand)
+            if not interaction.resolved:
+                raise ValueError("No resolved data")
+            return await command.callback(
+                context,
+                list(interaction.resolved.messages.values())[0],
+            )
+        if interaction.command_type is CommandType.USER:
+            assert isinstance(command, UserCommand)
+            if not interaction.resolved:
+                raise ValueError("No resolved data")
+            return await command.callback(
+                context,
+                list(interaction.resolved.users.values())[0],
+            )
+
+    def resolve_command_argument(
+        self, interaction: CommandInteraction, option: CommandInteractionOption
+    ) -> typing.Any:
+        if not interaction.resolved or not isinstance(option.value, Snowflake):
+            return option.value
+        match option.type:
+            case OptionType.USER:
+                return interaction.resolved.members.get(
+                    option.value,
+                    interaction.resolved.users.get(option.value),
+                )
+            case OptionType.CHANNEL:
+                return interaction.resolved.channels.get(option.value)
+            case OptionType.ROLE:
+                return interaction.resolved.roles.get(option.value)
+            case OptionType.MENTIONABLE:
+                return interaction.resolved.members.get(
+                    option.value,
+                    interaction.resolved.roles.get(option.value),
+                )
+            case OptionType.ATTACHMENT:
+                return interaction.resolved.attachments.get(option.value)

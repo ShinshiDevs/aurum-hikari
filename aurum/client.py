@@ -85,7 +85,13 @@ class Client:
 
         self._commands: CommandHandler = CommandHandler(bot, self.l10n)
         self._interaction_processor: InteractionProcessor = InteractionProcessor(
-            bot, self._commands, None, ignore_unknown_interactions
+            bot=bot,
+            client=self,
+            l10n=self.l10n,
+            commands=self._commands,
+            components=None,
+            ignore_unknown_interactions=ignore_unknown_interactions,
+            get_locale_func=self.l10n.get_locale_from_interaction,
         )
         self._sync_commands: SyncCommandsFlag = sync_commands
 
@@ -106,7 +112,7 @@ class Client:
 
     async def _on_started(self, _: StartedEvent) -> None:
         if self._sync_commands.value:
-            await self._commands.sync(debug=self._sync_commands is SyncCommandsFlag.DEBUG)
+            await self._commands.sync(debug=self._sync_commands == SyncCommandsFlag.DEBUG)
         self.bot.event_manager.subscribe(
             InteractionCreateEvent, self._interaction_processor.on_interaction
         )
