@@ -28,9 +28,8 @@ class AppCommand(Includable):
     Attributes:
         _app (PartialCommand): Command application instance, available after sync.
         command_type (CommandType): Type of the command.
-        name (str): The internal name of the command used for identification, display if `display_name` is not provided.
+        name (str): The command name.
         description (LocalizedOr[str] | None): Optional description of the command for help documentation.
-        display_name (LocalizedOr[str] | None): Optional localized display name of the command.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the command is available.
         default_member_permissions (Permissions): The permissions a user must have to use the command by default.
         dm_enabled (bool): Whether the command can be used in direct messages.
@@ -67,7 +66,6 @@ class AppCommand(Includable):
         name: str,
         description: LocalizedOr[str] | None = None,
         *,
-        display_name: LocalizedOr[str] | None = None,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
         dm_enabled: bool = False,
@@ -78,7 +76,6 @@ class AppCommand(Includable):
         self.command_type: CommandType = command_type
         self.description: LocalizedOr[str] | None = description
 
-        self.display_name: LocalizedOr[str] | None = display_name
         self.guild: SnowflakeishOr[PartialGuild] | UndefinedType = guild
         self.default_member_permissions: Permissions = default_member_permissions
         self.dm_enabled: bool = dm_enabled

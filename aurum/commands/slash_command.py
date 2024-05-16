@@ -31,9 +31,8 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     Attributes:
         _app (PartialCommand): Command application instance, available after sync.
         command_type (CommandType): Type of the command.
-        name (str): The internal name of the command used for identification, display if `display_name` is not provided.
+        name (str): The command name.
         description (LocalizedOr[str] | None): Optional description of the command for help documentation.
-        display_name (LocalizedOr[str] | None): Optional localized display name of the command.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the command is available.
         default_member_permissions (Permissions): The permissions a user must have to use the command by default.
         dm_enabled (bool): Whether the command can be used in direct messages.
@@ -44,7 +43,6 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     Args:
         name (str): The unique name of the command.
         description (LocalizedOr[str] | None): A description of command.
-        display_name (LocalizedOr[str] | None): The localized name of the command.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): The guild in which the command is available.
         default_member_permissions (Permissions): Permissions required to use the command, if any. Defaults to NONE.
         dm_enabled (bool): Flag indicating whether the command is available in direct messages. Defaults to `False`.
@@ -88,7 +86,6 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         "command_type",
         "name",
         "description",
-        "display_name",
         "guild",
         "default_member_permissions",
         "dm_enabled",
@@ -102,7 +99,6 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         name: str,
         description: LocalizedOr[str] | None = None,
         *,
-        display_name: LocalizedOr[str] | None = None,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
         dm_enabled: bool = False,
@@ -113,7 +109,6 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             command_type=CommandType.SLASH,
             name=name,
             description=description,
-            display_name=display_name,
             guild=guild,
             default_member_permissions=default_member_permissions,
             dm_enabled=dm_enabled,
@@ -190,13 +185,11 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     ) -> SlashCommandBuilder:
         description: str = str(self.description) if not self.sub_commands else self.name
         builder: SlashCommandBuilder = (
-            factory(str(self.display_name) if self.display_name else self.name, description)
+            factory(self.name, description)
             .set_default_member_permissions(self.default_member_permissions)
             .set_is_dm_enabled(self.dm_enabled)
             .set_is_nsfw(self.is_nsfw)
         )
-        if isinstance(self.display_name, Localized):
-            builder.set_name_localizations(l10n.build_localized(self.display_name))
         if not self.sub_commands:
             if isinstance(self.description, Localized):
                 builder.set_description_localizations(l10n.build_localized(self.description))

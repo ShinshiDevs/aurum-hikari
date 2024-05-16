@@ -16,7 +16,7 @@ if typing.TYPE_CHECKING:
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
-    from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
+    from aurum.l10n import LocalizationProviderInterface, Localized
 
 
 class ContextMenuCommand(AppCommand):
@@ -36,7 +36,6 @@ class ContextMenuCommand(AppCommand):
         command_type: CommandType,
         name: str,
         *,
-        display_name: LocalizedOr[str] | None = None,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
         dm_enabled: bool = False,
@@ -46,7 +45,6 @@ class ContextMenuCommand(AppCommand):
             command_type=command_type,
             name=name,
             description=None,
-            display_name=display_name,
             guild=guild,
             default_member_permissions=default_member_permissions,
             dm_enabled=dm_enabled,

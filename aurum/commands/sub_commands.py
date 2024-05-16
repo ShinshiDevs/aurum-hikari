@@ -47,7 +47,6 @@ class SubCommand:
 
     name: str
     description: LocalizedOr[str] | None = None
-    display_name: LocalizedOr[str] | None = None
 
     options: Sequence[Option] = field(default_factory=tuple[Option])
 
@@ -57,7 +56,6 @@ class SubCommand:
         self,
         name: str,
         description: LocalizedOr[str] | None = None,
-        display_name: LocalizedOr[str] | None = None,
         options: Sequence[Option] = (),
     ) -> Callable[..., None]:
         def decorator(func: Callable[..., Awaitable[None]]) -> None:
@@ -65,7 +63,6 @@ class SubCommand:
                 callback=func,
                 name=name,
                 description=description,
-                display_name=display_name,
                 options=options,
             )
 
