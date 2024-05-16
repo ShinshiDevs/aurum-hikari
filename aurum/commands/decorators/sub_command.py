@@ -14,7 +14,6 @@ if typing.TYPE_CHECKING:
 def sub_command(
     name: str,
     description: LocalizedOr[str] | None = None,
-    display_name: LocalizedOr[str] | None = None,
     options: Sequence[Option] = (),
 ) -> Callable[..., SubCommand]:
     def decorator(func: Callable[..., Awaitable[None]]) -> SubCommand:
@@ -22,7 +21,6 @@ def sub_command(
             callback=func,
             name=name,
             description=description,
-            display_name=display_name,
             options=options,
         )
 
