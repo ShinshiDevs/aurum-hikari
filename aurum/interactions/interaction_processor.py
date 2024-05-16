@@ -84,62 +84,60 @@ class InteractionProcessor:
 
     async def proceed_command(self, interaction: CommandInteraction) -> None:
         context: InteractionContext = self.create_interaction_context(interaction)
-        command: AppCommand | None = self.commands.commands.get(interaction.command_name, None)
+        command: AppCommand | None = self.commands.commands.get(interaction.command_name)
         if not command and not self.ignore_unknown_interactions:
             raise UnknownCommandException(interaction.command_name)
         if interaction.command_type is CommandType.SLASH:
             assert isinstance(command, SlashCommand)
+            arguments: typing.Dict[str, typing.Any] = {}
             if options := interaction.options:
-                arguments: typing.Dict[str, typing.Any] = {}
                 if options[0].type is OptionType.SUB_COMMAND_GROUP:
-                    sub_command_group: SubCommand | None = command.sub_commands.get(options[0].name)
-                    if not sub_command_group and not self.ignore_unknown_interactions:
-                        raise UnknownCommandException(options[0].name, interaction.command_name)
-                    if options := options[0].options:
-                        sub_command: SubCommand | None = sub_command_group.sub_commands.get(
-                            options[0].name
-                        )
-                        if not sub_command and not self.ignore_unknown_interactions:
-                            raise UnknownCommandException(
-                                options[0].name, sub_command_group.name, interaction.command_name
-                            )
-                        if options := options[0].options:
-                            for option in options:
-                                arguments[option.name] = self.resolve_command_argument(
-                                    interaction, option
-                                )
-                        return await sub_command.callback(context, **arguments)
+                    return await self.proceed_sub_command_group(context, interaction, command)
                 elif options[0].type is OptionType.SUB_COMMAND:
-                    sub_command: SubCommand | None = command.sub_commands.get(options[0].name)
-                    if not sub_command and not self.ignore_unknown_interactions:
-                        raise UnknownCommandException(options[0].name, interaction.command_name)
-                    if options := options[0].options:
-                        for option in options:
-                            arguments[option.name] = self.resolve_command_argument(
-                                interaction, option
-                            )
-                    return await sub_command.callback(context, **arguments)
+                    return await self.proceed_sub_command(context, interaction, command, options)
                 else:
                     for option in options:
                         arguments[option.name] = self.resolve_command_argument(interaction, option)
-                    return await command.callback(context, **arguments)
-            return await command.callback(context)
+            return await command.callback(context, **arguments)
         if interaction.command_type is CommandType.MESSAGE:
             assert isinstance(command, MessageCommand)
-            if not interaction.resolved:
-                raise ValueError("No resolved data")
+            assert interaction.resolved
             return await command.callback(
                 context,
                 list(interaction.resolved.messages.values())[0],
             )
         if interaction.command_type is CommandType.USER:
             assert isinstance(command, UserCommand)
-            if not interaction.resolved:
-                raise ValueError("No resolved data")
+            assert interaction.resolved
             return await command.callback(
                 context,
                 list(interaction.resolved.users.values())[0],
             )
+
+    async def proceed_sub_command(
+        self,
+        context: InteractionContext,
+        interaction: CommandInteraction,
+        command: SlashCommand | SubCommand,
+        options: Sequence[CommandInteractionOption],
+    ) -> None:
+        arguments: typing.Dict[str, typing.Any] = {}
+        sub_command: SubCommand | None = command.sub_commands.get(options[0].name)
+        if not sub_command and not self.ignore_unknown_interactions:
+            raise UnknownCommandException(interaction.options[0].name, interaction.command_name)
+        if options := interaction.options[0].options:
+            for option in options:
+                arguments[option.name] = self.resolve_command_argument(interaction, option)
+        await sub_command.callback(context, **arguments)
+
+    async def proceed_sub_command_group(
+        self, context: InteractionContext, interaction: CommandInteraction, command: SlashCommand
+    ) -> None:
+        sub_command_group: SubCommand | None = command.sub_commands.get(interaction.options[0].name)
+        if not sub_command_group and not self.ignore_unknown_interactions:
+            raise UnknownCommandException(interaction.options[0].name, interaction.command_name)
+        if options := interaction.options[0].options:
+            return await self.proceed_sub_command(context, interaction, sub_command_group, options)
 
     def resolve_command_argument(
         self, interaction: CommandInteraction, option: CommandInteractionOption
