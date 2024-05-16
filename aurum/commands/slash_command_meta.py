@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from aurum.commands.consts import SUB_COMMANDS_VAR
+from aurum.internal.consts import SUB_COMMANDS_VAR
 from aurum.commands.sub_commands import SubCommand
 
 

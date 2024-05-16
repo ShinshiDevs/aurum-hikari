@@ -5,8 +5,8 @@ from logging import getLogger
 
 from hikari.undefined import UNDEFINED
 
-from aurum.commands.context_menu_command import ContextMenuCommand
 from aurum.commands.slash_command import SlashCommand
+from aurum.internal.commands.context_menu_command import ContextMenuCommand
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
-    from aurum.commands.app_command import AppCommand
+    from aurum.internal.commands.app_command import AppCommand
     from aurum.l10n import LocalizationProviderInterface
 
 

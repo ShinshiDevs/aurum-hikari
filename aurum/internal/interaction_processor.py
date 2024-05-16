@@ -10,8 +10,8 @@ from hikari.snowflakes import Snowflake
 from aurum.commands.message_command import MessageCommand
 from aurum.commands.slash_command import SlashCommand
 from aurum.commands.user_command import UserCommand
-from aurum.exceptions.commands_exceptions import UnknownCommandException
 from aurum.interactions.interaction_context import InteractionContext
+from aurum.internal.exceptions.commands_exceptions import UnknownCommandException
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -24,11 +24,10 @@ if typing.TYPE_CHECKING:
     )
 
     from aurum.client import Client
-    from aurum.commands.app_command import AppCommand
-    from aurum.commands.command_handler import CommandHandler
     from aurum.commands.sub_commands import SubCommand
+    from aurum.internal.commands.app_command import AppCommand
+    from aurum.internal.commands.command_handler import CommandHandler
     from aurum.l10n import Locale, LocalizationProviderInterface
-
 
 type ComponentHandler = None  # TODO: Remove that, when ComponentHandler will appear
 

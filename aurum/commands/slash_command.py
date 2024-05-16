@@ -6,8 +6,8 @@ from hikari.commands import CommandChoice, CommandOption, CommandType, OptionTyp
 from hikari.permissions import Permissions
 from hikari.undefined import UNDEFINED
 
-from aurum.commands.app_command import AppCommand
-from aurum.commands.consts import SUB_COMMANDS_VAR
+from aurum.internal.commands.app_command import AppCommand
+from aurum.internal.consts import SUB_COMMANDS_VAR
 from aurum.commands.slash_command_meta import SlashCommandMeta
 from aurum.l10n import Localized
 

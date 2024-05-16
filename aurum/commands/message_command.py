@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from aurum.commands.context_menu_command import ContextMenuCommand
+from aurum.internal.commands.context_menu_command import ContextMenuCommand
 
 if typing.TYPE_CHECKING:
     from hikari.messages import Message

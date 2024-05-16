@@ -5,7 +5,7 @@ import typing
 from hikari.permissions import Permissions
 from hikari.undefined import UNDEFINED
 
-from aurum.commands.app_command import AppCommand
+from aurum.internal.commands.app_command import AppCommand
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable, Sequence

@@ -6,11 +6,11 @@ from logging import getLogger
 
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
 
-from aurum.commands.app_command import AppCommand
-from aurum.commands.command_handler import CommandHandler
 from aurum.enum.sync_commands import SyncCommandsFlag
 from aurum.includable import Includable
-from aurum.interactions.interaction_processor import InteractionProcessor
+from aurum.internal.commands.app_command import AppCommand
+from aurum.internal.commands.command_handler import CommandHandler
+from aurum.internal.interaction_processor import InteractionProcessor
 from aurum.l10n import LocalizationProviderInterface
 
 if typing.TYPE_CHECKING:

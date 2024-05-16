@@ -1,6 +1,6 @@
 import typing
 
-from aurum.exceptions.base_exception import AurumException
+from aurum.internal.exceptions.base_exception import AurumException
 
 
 class UnknownCommandException(AurumException):
