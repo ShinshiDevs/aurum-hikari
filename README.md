@@ -40,9 +40,6 @@
 </div>
 
 # Installation
-> [!CAUTION]
-> This library is in the planning stage of development, it cannot be installed and used. Thanks!
-
 > [!NOTE]
 > This library requires Python version 3.10 or higher.
 
