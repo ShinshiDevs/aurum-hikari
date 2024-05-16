@@ -85,6 +85,8 @@ class InteractionProcessor:
     async def proceed_command(self, interaction: CommandInteraction) -> None:
         context: InteractionContext = self.create_interaction_context(interaction)
         parent_command: AppCommand | None = self.commands.commands.get(interaction.command_name)
+        if not parent_command:
+            raise UnknownCommandException(interaction.command_name)
         command: AppCommand | SubCommand | None = parent_command
         if interaction.command_type is CommandType.SLASH:
             assert isinstance(command, SlashCommand)
@@ -95,6 +97,8 @@ class InteractionProcessor:
                 if option.type is OptionType.SUB_COMMAND:
                     command = command.sub_commands.get(option.name)
                     options = option.options
+                    if not command:
+                        raise UnknownCommandException(option.name, interaction.command_name)
                 elif option.type is OptionType.SUB_COMMAND_GROUP:
                     sub_command_group: SubCommand | None = command.sub_commands.get(option.name)
                     if not sub_command_group:
@@ -102,6 +106,10 @@ class InteractionProcessor:
                     if options := option.options:
                         command = sub_command_group.sub_commands.get(options[0].name)
                         options = options[0].options
+                        if not command:
+                            raise UnknownCommandException(
+                                option.name, sub_command_group.name, interaction.command_name
+                            )
                 for option in options or ():
                     arguments[option.name] = self.resolve_command_argument(interaction, option)
             return await (
