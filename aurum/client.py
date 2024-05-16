@@ -116,7 +116,7 @@ class Client:
 
     def include(self, includable: typing.Type[Includable]) -> None:
         if issubclass(includable, AppCommand):
-            instance: AppCommand = includable()
+            instance: AppCommand = includable()  # type: ignore
             self._commands.commands[instance.name] = instance
 
 

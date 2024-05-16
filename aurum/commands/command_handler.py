@@ -65,7 +65,7 @@ class CommandHandler:
 
         self.commands: typing.Dict[str, AppCommand] = {}
 
-    async def sync(self, debug: bool = False, *, build: bool = True) -> None:
+    async def sync(self, debug: bool = False) -> None:
         """
         Synchronizes the builders of commands with the Discord API for the bot application.
 
@@ -77,23 +77,18 @@ class CommandHandler:
                    of the synchronization process for debugging purposes.
             build: A boolean flag to enable a automatic building of commands.
         """
-        if build:
-            for name, command in self.commands.items():
-                print(name, command)
-                self._commands_builders.setdefault(command.guild, {})
-                print(self._commands_builders)
-                if isinstance(command, SlashCommand):
-                    print(command, name)
-                    self._commands_builders[command.guild][name] = command.get_builder(
-                        self._bot.rest.slash_command_builder,
-                        self._l10n,
-                    )
-                elif isinstance(command, ContextMenuCommand):
-                    self._commands_builders[command.guild][name] = command.get_builder(
-                        self._bot.rest.context_menu_command_builder,
-                        self._l10n,
-                    )
-
+        for name, command in self.commands.items():
+            self._commands_builders.setdefault(command.guild, {})
+            if isinstance(command, SlashCommand):
+                self._commands_builders[command.guild][name] = command.get_builder(
+                    self._bot.rest.slash_command_builder,
+                    self._l10n,
+                )
+            elif isinstance(command, ContextMenuCommand):
+                self._commands_builders[command.guild][name] = command.get_builder(
+                    self._bot.rest.context_menu_command_builder,
+                    self._l10n,
+                )
         synchronized: typing.Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, Sequence[PartialCommand]
         ] = {}
@@ -115,13 +110,3 @@ class CommandHandler:
                     entity,
                     ", ".join(command.name for command in commands),
                 )
-
-    def get_command(
-        self,
-        command_name: str,
-        *,
-        group_name: str | None = None,
-        subgroup_name: str | None = None,
-    ) -> AppCommand | None:
-        command: AppCommand | None = None
-        return command
