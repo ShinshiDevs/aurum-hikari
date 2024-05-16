@@ -57,11 +57,9 @@ class ContextMenuCommand(AppCommand):
         l10n: LocalizationProviderInterface,
     ) -> ContextMenuCommandBuilder:
         builder = (
-            factory(self.command_type, str(self.display_name) if self.display_name else self.name)
+            factory(self.command_type, self.name)
             .set_default_member_permissions(self.default_member_permissions)
             .set_is_dm_enabled(self.dm_enabled)
             .set_is_nsfw(self.is_nsfw)
         )
-        if isinstance(self.display_name, Localized):
-            builder.set_name_localizations(l10n.build_localized(self.display_name))
         return builder

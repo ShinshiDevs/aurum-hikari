@@ -6,9 +6,9 @@ from hikari.commands import CommandChoice, CommandOption, CommandType, OptionTyp
 from hikari.permissions import Permissions
 from hikari.undefined import UNDEFINED
 
+from aurum.commands.sub_commands import SubCommand
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.consts import SUB_COMMANDS_VAR
-from aurum.commands.slash_command_meta import SlashCommandMeta
 from aurum.l10n import Localized
 
 if typing.TYPE_CHECKING:
@@ -19,9 +19,23 @@ if typing.TYPE_CHECKING:
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
-    from aurum.commands.sub_commands import SubCommand
     from aurum.l10n import LocalizationProviderInterface, LocalizedOr
     from aurum.options import Option
+
+
+class SlashCommandMeta(type):
+    def __new__(
+        mcs: typing.Type[SlashCommandMeta],
+        name: str,
+        bases: typing.Tuple[type, ...],
+        attrs: typing.Dict[str, typing.Any],
+    ) -> SlashCommandMeta:
+        cls: SlashCommandMeta = super().__new__(mcs, name, bases, attrs)
+        setattr(cls, SUB_COMMANDS_VAR, {})
+        for name, obj in attrs.items():
+            if isinstance(obj, SubCommand):
+                getattr(cls, SUB_COMMANDS_VAR)[obj.name] = obj
+        return cls
 
 
 class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
@@ -117,7 +131,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         self.options: Sequence[Option] = options
         self.sub_commands: typing.Dict[str, SubCommand] = getattr(self, SUB_COMMANDS_VAR, {})
 
-    def build_option(self, option: Option, l10n: LocalizationProviderInterface) -> CommandOption:
+    def __build_option(self, option: Option, l10n: LocalizationProviderInterface) -> CommandOption:
         choices: tuple[CommandChoice, ...] = tuple(
             CommandChoice(
                 name=str(choice.name),
@@ -170,7 +184,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             type=OptionType.SUB_COMMAND,
             name=command.name,
             description=str(command.description),
-            options=[self.build_option(option, l10n) for option in command.options],
+            options=[self.__build_option(option, l10n) for option in command.options],
             description_localizations=(
                 l10n.build_localized(command.description)
                 if isinstance(command.description, Localized)
@@ -198,4 +212,6 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
                 builder.add_option(self.__build_sub_group(command, l10n))
             else:
                 builder.add_option(self.__build_sub_command(command, l10n))
+        for option in self.options:
+            builder.add_option(self.__build_option(option, l10n))
         return builder
