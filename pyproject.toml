@@ -68,6 +68,6 @@ target-version = "py310"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = ">=9.5.3,<9.6"
-mkdocs = ">=1.5.3,<1.7"
-mkdocstrings-python = ">=1.8.0,<1.9"
+mkdocs = ">=1.5.3,<1.6"
+mkdocstrings-python = ">=1.8.0,<1.11"
 griffe-inherited-docstrings = "1.0.0"
