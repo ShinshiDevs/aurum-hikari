@@ -1,4 +1,4 @@
-name: docs
+name: Documentation
 
 on:
   push:
@@ -19,4 +19,4 @@ jobs:
       - name: Install dependencies
         run: poetry install --only docs
       - name: Build documentation
-        run: mkdocs build --strict
+        run: poetry run mkdocs build --strict
