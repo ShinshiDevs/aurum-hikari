@@ -19,11 +19,24 @@ if typing.TYPE_CHECKING:
 
 
 class UserCommand(ContextMenuCommand):
-    """
-    Represents a user-command.
+    """Represents a application command for user's context menu.
 
-    Raises:
-        NotImplementedError: This method should be overridden in a subclass and will raise an exception if called directly.
+    Args:
+        name (str): The unique name of the command.
+        guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the command is available.
+        default_member_permissions (Permissions): The permissions a user must have to use the command by default.
+        dm_enabled (bool): Whether the command can be used in direct messages.
+        is_nsfw (bool): Indicates whether the command is age-restricted.
+
+    Example:
+        ```py
+        class HelloUserCommand(UserCommand):
+            def __init__(self) -> None:
+                super().__init__(name="Hello to")
+
+            async def callback(self, context: InteractionContext, target: InteractionMember | User) -> None:
+                await context.create_response(f"Hi, {target.mention}!")
+        ```
     """
 
     def __init__(
@@ -47,4 +60,11 @@ class UserCommand(ContextMenuCommand):
     async def callback(
         self, context: InteractionContext, target: InteractionMember | PartialUser
     ) -> None:
+        """A callback of the command.
+        
+        Meant to override this method to set the callback to the command.
+        
+        Raises:
+            NotImplementedError: If callback wasn't overrided.
+        """
         raise NotImplementedError()

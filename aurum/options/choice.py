@@ -9,5 +9,7 @@ if typing.TYPE_CHECKING:
 
 @dataclass(slots=True, kw_only=True)
 class Choice:
+    """Represents the option's choice"""
+
     name: LocalizedOr[str]
     value: typing.Any

@@ -7,8 +7,9 @@ from hikari.permissions import Permissions
 from hikari.undefined import UNDEFINED
 
 from aurum.commands.sub_commands import SubCommand
+from aurum.interactions.interaction_context import InteractionContext
 from aurum.internal.commands.app_command import AppCommand
-from aurum.internal.consts import SUB_COMMANDS_VAR
+from aurum.internal.consts import SUB_COMMANDS_CONTAINER
 from aurum.l10n import Localized
 
 if typing.TYPE_CHECKING:
@@ -31,28 +32,15 @@ class SlashCommandMeta(type):
         attrs: typing.Dict[str, typing.Any],
     ) -> SlashCommandMeta:
         cls: SlashCommandMeta = super().__new__(mcs, name, bases, attrs)
-        setattr(cls, SUB_COMMANDS_VAR, {})
+        setattr(cls, SUB_COMMANDS_CONTAINER, {})
         for name, obj in attrs.items():
             if isinstance(obj, SubCommand):
-                getattr(cls, SUB_COMMANDS_VAR)[obj.name] = obj
+                getattr(cls, SUB_COMMANDS_CONTAINER)[obj.name] = obj
         return cls
 
 
 class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
-    """
-    Represents a slash-command.
-
-    Attributes:
-        _app (PartialCommand): Command application instance, available after sync.
-        command_type (CommandType): Type of the command.
-        name (str): The command name.
-        description (LocalizedOr[str] | None): Optional description of the command for help documentation.
-        guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the command is available.
-        default_member_permissions (Permissions): The permissions a user must have to use the command by default.
-        dm_enabled (bool): Whether the command can be used in direct messages.
-        is_nsfw (bool): Indicates whether the command is age-restricted.
-        options (Sequence[Option]): Options to the command.
-        sub_commands (Dict[str, SubCommand]): Sub-commands of the command.
+    """Represents a slash-command.
 
     Args:
         name (str): The unique name of the command.
@@ -63,13 +51,12 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         is_nsfw (bool): Flag indicating whether the command should only be available in NSFW channels. Defaults to `False`.
         options (Sequence[Option]): Options to the command.
 
-    Methods:
-        Inherited from AppCommand class.
-
-    Note:
-        If your command has sub-commands, the callback will not be executed.
+    Attributes:
+        options (Sequence[Option]): Options to the command.
+        sub_commands (Dict[str, SubCommand]): Sub-commands of the command.
 
     Example:
+        With callback:
         ```py
         class HelloCommand(SlashCommand):
             def __init__(self) -> None:
@@ -79,7 +66,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
                 await context.create_response(f"Hi, {context.user.mention}!")
         ```
 
-    Example with sub-commands:
+        With sub-commands:
         ```py
         class ABCCommand(SlashCommand):
             def __init__(self) -> None:
@@ -129,7 +116,17 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             is_nsfw=is_nsfw,
         )
         self.options: Sequence[Option] = options
-        self.sub_commands: typing.Dict[str, SubCommand] = getattr(self, SUB_COMMANDS_VAR, {})
+        self.sub_commands: typing.Dict[str, SubCommand] = getattr(self, SUB_COMMANDS_CONTAINER, {})
+
+    async def callback(self, context: InteractionContext) -> None:
+        """A callback of the command.
+
+        Meant to override this method to set the callback to the command.
+
+        Warning:
+            This callback will be ignored if the command has a sub-commands.
+        """
+        pass
 
     def __build_option(self, option: Option, l10n: LocalizationProviderInterface) -> CommandOption:
         choices: tuple[CommandChoice, ...] = tuple(

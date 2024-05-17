@@ -1,0 +1,98 @@
+# i need some help with this, i can't do this with myself
+# some settings from hikari-crescent, because hikari-crescent docs is sexy
+site_name: Aurum
+site_url: https://shinshidevs.github.io/aurum-hikari/docs/
+site_description: A flexible command & component handler.
+site_author: Shinshi Developers Team
+
+repo_url: https://github.com/ShinshiDevs/aurum-hikari/
+edit_uri: blob/main/docs/
+
+copyright: Copyright 2024 Shinshi Developers Team
+
+theme:
+  name: material
+  icon:
+    logo: octicons/dot-fill-24
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+    admonition:
+      note: octicons/dot-16
+      abstract: octicons/checklist-16
+      info: octicons/info-16
+      tip: octicons/squirrel-16
+      success: octicons/check-16
+      question: octicons/question-16
+      warning: octicons/alert-16
+      failure: octicons/x-circle-16
+      danger: octicons/zap-16
+      bug: octicons/bug-16
+      example: octicons/light-bulb-16
+      quote: octicons/quote-16
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+  features:
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3.10/objects.inv
+            - https://docs.hikari-py.dev/en/latest/objects.inv
+          options:
+            heading_level: 3
+            annotations_path: source
+            docstring_section_style: spacy
+            docstring_style: google
+            inherited_members: true
+            merge_init_into_class: true
+            separate_signature: true
+            show_signature_annotations: true
+            show_source: false
+            show_submodules: false
+            signature_crossrefs: true
+            show_symbol_type_heading: true
+            extensions:
+              - griffe_inherited_docstrings
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - tables
+  - attr_list
+  - toc:
+      permalink: "#"
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+nav:
+  - Introduction: index.md
+  - Quick start: quick-start.md
+  - API Reference:
+      - api/client.md
+      - Commands:
+          - api/commands/slash_command.md
+          - api/commands/user_command.md
+          - api/commands/message_command.md
+          - api/commands/decorators/sub_command.md
+          - Options:
+              - api/options/option.md
+              - api/options/choice.md
+      - Interactions:
+          - api/interactions/interaction_context.md
+  - "Issue Tracker": https://github.com/ShinshiDevs/aurum-hikari/issues

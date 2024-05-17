@@ -13,36 +13,6 @@ if typing.TYPE_CHECKING:
 
 @dataclass(slots=True, kw_only=True)
 class SubCommand:
-    """
-    A class representing a sub-command.
-
-    Attributes:
-        callback (Callable[..., Awaitable[Any]]): A callback of sub-command.
-        name (str): The internal name of the command used for identification, display if `display_name` is not provided.
-        description (LocalizedOr[str] | None): Optional description of the command for help documentation.
-        display_name (LocalizedOr[str] | None): Optional localized display name of the command.
-        options (Sequence[Option]): Options to the command.
-        sub_commands (Dict[str, SubCommand]): Sub-commands of the sub-command.
-
-    Methods:
-        sub_command: A decorator method used to add a new sub-command to this.
-
-    Example:
-        ```py
-        class ABCCommand(SlashCommand):
-            def __init__(self) -> None:
-                super().__init__(name="a")
-
-            @sub_command(name="b")
-            async def b_command(self, context: InteractionContext) -> None:
-                ...
-
-            @b_command.sub_command(name="c")
-            async def b_c_command(self, context: InteractionContext) -> None:
-                ...
-        ```
-    """
-
     callback: Callable[..., Awaitable[typing.Any]]
 
     name: str
@@ -58,6 +28,19 @@ class SubCommand:
         description: LocalizedOr[str] | None = None,
         options: Sequence[Option] = (),
     ) -> Callable[..., None]:
+        """Decorator for the sub-command.
+
+        Can be used only in a command class that inherits from `aurum.commands.slash_command.SlashCommand`.
+
+        Args:
+            name (str): The unique name for the sub-command.
+            description (LocalizedOr[str] | None): Optional description for the sub-command.
+            options (Sequence[Option]): Optional options of the sub-command.
+
+        Note:
+            The callback must be asynchronous.
+        """
+        
         def decorator(func: Callable[..., Awaitable[None]]) -> None:
             self.sub_commands[name] = SubCommand(
                 callback=func,

@@ -23,31 +23,24 @@ __all__: Sequence[str] = ("Client",)
 
 
 class Client:
-    """
-    A wrapper class for the main bot class, designed to work with the Aurum framework and its features.
+    """A wrapper class for the main bot class, designed to work with the Aurum framework and its features.
 
-    At the moment, the wrapper only supports gateway connections.
+    Note:
+        At the moment, the wrapper only supports gateway connections.
 
     Attributes:
         bot (GatewayBot): The bot instance.
         l10n (LocalizationProviderInterface): The localization provider instance for multi-language support.
             It is recommended to provide a localization provider if multi-language support is required.
-            You can use the our DefaultLocalizationProvider or create your own by inheriting from the LocalizationProviderInterface.
 
     Args:
-        bot: The bot instance that this client will interact with.
-        sync_commands: An optional SyncCommandsFlag enum value, indicating how to handle command synchronization.
-        l10n: Localization provider.
-            If a localization provider is not provided, an `EmptyLocalizationProvider` will be used, which will pass all functions and return the key.
-        ignore_l10n: An optional boolean flag. If `True`, the client will not emit a warning when a localization provider is not provided.
-        ignore_unknown_interactions: An optional boolean flag that, if set to `True`, will disable the warning message for unknown interactions.
-
-    Examples:
-        ```py
-        bot = hikari.GatewayBot("...")
-        l10n = MyCoolLocalizationProvider()
-        client = Client(bot, l10n=l10n)
-        ```
+        bot (GatewayBot): The bot instance that this client will interact with.
+        sync_commands (SyncCommandFlag): An optional SyncCommandsFlag enum value, indicating how to handle command synchronization.
+        l10n (LocalizationProviderInterface): Localization provider.
+            If a localization provider is not provided, an `EmptyLocalizationProvider`
+            will be used, which will pass all functions and return the key.
+        ignore_l10n (bool): An optional flag. If `True`, the client will not emit a warning when a localization provider is not provided.
+        ignore_unknown_interactions (bool): An optional flag that, if set to `True`, will disable the warning message for unknown interactions.
     """
 
     __slots__: Sequence[str] = (
@@ -89,7 +82,6 @@ class Client:
             client=self,
             l10n=self.l10n,
             commands=self._commands,
-            components=None,
             ignore_unknown_interactions=ignore_unknown_interactions,
             get_locale_func=self.l10n.get_locale_from_interaction,
         )

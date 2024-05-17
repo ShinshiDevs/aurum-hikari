@@ -1,0 +1,1 @@
+::: aurum.commands.decorators.sub_command.sub_command

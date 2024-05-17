@@ -16,7 +16,7 @@ if typing.TYPE_CHECKING:
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
-    from aurum.l10n import LocalizationProviderInterface, Localized
+    from aurum.l10n import LocalizationProviderInterface
 
 
 class ContextMenuCommand(AppCommand):
@@ -54,7 +54,7 @@ class ContextMenuCommand(AppCommand):
     def get_builder(
         self,
         factory: Callable[[CommandType | int, str], ContextMenuCommandBuilder],
-        l10n: LocalizationProviderInterface,
+        l10n: LocalizationProviderInterface,  # type: ignore  # TODO: display name
     ) -> ContextMenuCommandBuilder:
         builder = (
             factory(self.command_type, self.name)

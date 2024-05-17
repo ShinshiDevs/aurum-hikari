@@ -29,16 +29,15 @@ if typing.TYPE_CHECKING:
     from aurum.internal.commands.command_handler import CommandHandler
     from aurum.l10n import Locale, LocalizationProviderInterface
 
-type ComponentHandler = None  # TODO: Remove that, when ComponentHandler will appear
-
 
 class InteractionProcessor:
+    """Processor of interactions"""
+
     __slots__: Sequence[str] = (
         "bot",
         "client",
         "l10n",
         "commands",
-        "components",
         "ignore_unknown_interactions",
         "get_locale_func",
     )
@@ -49,7 +48,6 @@ class InteractionProcessor:
         client: Client,
         l10n: LocalizationProviderInterface,
         commands: CommandHandler,
-        components: ComponentHandler,
         ignore_unknown_interactions: bool,
         get_locale_func: Callable[[CommandInteraction | ComponentInteraction], Locale],
     ) -> None:
@@ -58,7 +56,6 @@ class InteractionProcessor:
         self.l10n: LocalizationProviderInterface = l10n
 
         self.commands: CommandHandler = commands
-        self.components: ComponentHandler = components
 
         self.ignore_unknown_interactions: bool = ignore_unknown_interactions
 

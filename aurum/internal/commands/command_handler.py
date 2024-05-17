@@ -31,18 +31,6 @@ class CommandHandler:
 
     Attributes:
         commands (typing.Dict[str, AppCommand]): Dictionary that stores the actual AppCommand instances, keyed by their names.
-
-    Args:
-        bot (GatewayBot): A bot instance.
-
-    Methods:
-        sync: Sync commands with the Discord API.
-        get_command:
-            Get command.
-
-            Returns:
-                AppCommand
-                None: If command wasn't found
     """
 
     __slots__: Sequence[str] = (
@@ -66,8 +54,7 @@ class CommandHandler:
         self.commands: typing.Dict[str, AppCommand] = {}
 
     async def sync(self, debug: bool = False) -> None:
-        """
-        Synchronizes the builders of commands with the Discord API for the bot application.
+        """Synchronizes the builders of commands with the Discord API for the bot application.
 
         This method will handle both global commands and guild-specific commands,
         ensuring they are up-to-date with the currently stored command builders.
@@ -102,8 +89,8 @@ class CommandHandler:
                 self._app, list(commands_builders.values()), guild=guild
             )
         for entity, commands in synchronized.items():
-            for command in commands:
-                self.commands[command.name]._app = command
+            for partial_command in commands:
+                self.commands[command.name]._app = partial_command
             if debug:
                 self.__logger.debug(
                     "Set commands for %s: %s",

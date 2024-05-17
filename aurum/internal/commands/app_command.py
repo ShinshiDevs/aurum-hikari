@@ -15,13 +15,11 @@ if typing.TYPE_CHECKING:
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
-    from aurum.interactions import InteractionContext
     from aurum.l10n.types import LocalizedOr
 
 
 class AppCommand(Includable):
-    """
-    Represents a application command.
+    """Represents a application command.
 
     !!! This class is not suitable for use, please use the pre-existing implementations.
 
@@ -43,9 +41,6 @@ class AppCommand(Includable):
         default_member_permissions (Permissions): Permissions required to use the command, if any. Defaults to NONE.
         dm_enabled (bool): Flag indicating whether the command is available in direct messages. Defaults to `False`.
         is_nsfw (bool): Flag indicating whether the command should only be available in NSFW channels. Defaults to `False`.
-
-    Methods:
-        callback: An asynchronous method meant to be overridden that defines the command's callback.
     """
 
     __slots__: Sequence[str] = (
@@ -74,13 +69,13 @@ class AppCommand(Includable):
         self._app: PartialCommand | None = None
 
         self.command_type: CommandType = command_type
+        
         self.description: LocalizedOr[str] | None = description
 
         self.guild: SnowflakeishOr[PartialGuild] | UndefinedType = guild
         self.default_member_permissions: Permissions = default_member_permissions
         self.dm_enabled: bool = dm_enabled
         self.is_nsfw: bool = is_nsfw
-
         super().__init__(name=name)
 
     @property
@@ -90,6 +85,3 @@ class AppCommand(Includable):
     @app.setter
     def app(self, application: PartialCommand) -> None:
         self._app = application
-
-    async def callback(self, context: InteractionContext) -> None:
-        pass
