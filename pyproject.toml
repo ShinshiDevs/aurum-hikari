@@ -40,7 +40,7 @@ readme = "README.md"
 
 [tool.poetry.urls]
 repository = "https://github.com/ShinshiDevs/aurum-hikari"
-documentation = "https://shinshidevs.github.io/aurum-hikari/docs/"
+documentation = "https://shinshidevs.github.io/aurum-hikari/"
 "Issue Tracker" = "https://github.com/ShinshiDevs/aurum-hikari/issues"
 # TODO: Add discord later
 

@@ -1,7 +1,7 @@
 # i need some help with this, i can't do this with myself
 # some settings from hikari-crescent, because hikari-crescent docs is sexy
 site_name: Aurum
-site_url: https://shinshidevs.github.io/aurum-hikari/docs/
+site_url: https://shinshidevs.github.io/aurum-hikari/
 site_description: A flexible command & component handler.
 site_author: Shinshi Developers Team
 

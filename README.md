@@ -18,7 +18,7 @@
         </a>
     </p>
     <p>
-        <a href="https://shinshidevs.github.io/aurum-hikari/docs/">Documentation</a>
+        <a href="https://shinshidevs.github.io/aurum-hikari/">Documentation</a>
         ·
         <a href="https://github.com/ShinshiDevs/aurum-hikari/releases">Releases</a>
         ·
