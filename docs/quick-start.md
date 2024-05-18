@@ -11,7 +11,7 @@ Run command `pip install (1) aurum-hikari` or:
 1. You can use the -U flag with the `install` command (e.g., `pip install -U ...`) to update a package.
 
 === "Unix" 
-    `python -m pip install (1) aurum-hikari`
+    `python3 -m pip install (1) aurum-hikari`
     { .annotate }
     
     1. You can use the -U flag with the `install` command (e.g., `pip install -U ...`) to update a package.
