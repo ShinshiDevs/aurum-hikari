@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import typing
 
-from hikari.undefined import UNDEFINED
 from hikari.permissions import Permissions
+from hikari.undefined import UNDEFINED
 
 from aurum.includable import Includable
 
@@ -24,35 +24,26 @@ class AppCommand(Includable):
     !!! This class is not suitable for use, please use the pre-existing implementations.
 
     Attributes:
-        _app (PartialCommand): Command application instance, available after sync.
+        app (PartialCommand): Command application instance, available after sync.
         command_type (CommandType): Type of the command.
         name (str): The command name.
-        description (LocalizedOr[str] | None): Optional description of the command for help documentation.
-        guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the command is available.
+        description (LocalizedOr[str] | None): An optional description of the command.
+        guild (SnowflakeishOr[PartialGuild] | UndefinedType): An optional guild (server) where the command is available.
         default_member_permissions (Permissions): The permissions a user must have to use the command by default.
         dm_enabled (bool): Whether the command can be used in direct messages.
         is_nsfw (bool): Indicates whether the command is age-restricted.
-
-    Args:
-        name (str): The unique name of the command.
-        description (LocalizedOr[str] | None): A description of command.
-        display_name (LocalizedOr[str] | None): The localized name of the command.
-        guild (SnowflakeishOr[PartialGuild] | UndefinedType): The guild in which the command is available.
-        default_member_permissions (Permissions): Permissions required to use the command, if any. Defaults to NONE.
-        dm_enabled (bool): Flag indicating whether the command is available in direct messages. Defaults to `False`.
-        is_nsfw (bool): Flag indicating whether the command should only be available in NSFW channels. Defaults to `False`.
     """
 
     __slots__: Sequence[str] = (
-        "_app",
-        "command_type",
+        "app",
         "name",
-        "description",
         "display_name",
         "guild",
         "default_member_permissions",
-        "dm_enabled",
+        "is_dm_enabled",
         "is_nsfw",
+        "description",
+        "command_type",
     )
 
     def __init__(
@@ -63,25 +54,37 @@ class AppCommand(Includable):
         *,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
-        dm_enabled: bool = False,
+        is_dm_enabled: bool = False,
         is_nsfw: bool = False,
     ) -> None:
-        self._app: PartialCommand | None = None
-
-        self.command_type: CommandType = command_type
-
-        self.description: LocalizedOr[str] | None = description
+        super().__init__(name=name)
+        self.app: PartialCommand | None = None
 
         self.guild: SnowflakeishOr[PartialGuild] | UndefinedType = guild
+
         self.default_member_permissions: Permissions = default_member_permissions
-        self.dm_enabled: bool = dm_enabled
+        self.is_dm_enabled: bool = is_dm_enabled
         self.is_nsfw: bool = is_nsfw
-        super().__init__(name=name)
 
-    @property
-    def app(self) -> PartialCommand | None:
-        return self._app
+        self.description: LocalizedOr[str] | None = description
+        self.command_type: CommandType = command_type
 
-    @app.setter
-    def app(self, application: PartialCommand) -> None:
-        self._app = application
+    def set_app(self, application: PartialCommand) -> AppCommand:
+        self.app = application
+        return self
+
+    def set_guild(self, guild: SnowflakeishOr[PartialGuild] | UndefinedType) -> AppCommand:
+        self.guild = guild
+        return self
+
+    def set_default_member_permissions(self, permissions: Permissions) -> AppCommand:
+        self.default_member_permissions = permissions
+        return self
+
+    def set_is_dm_enabled(self, dm_enabled: bool) -> AppCommand:
+        self.is_dm_enabled = dm_enabled
+        return self
+
+    def set_is_nsfw(self, nsfw: bool) -> AppCommand:
+        self.is_nsfw = nsfw
+        return self

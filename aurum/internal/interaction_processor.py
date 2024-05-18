@@ -49,7 +49,7 @@ class InteractionProcessor:
         l10n: LocalizationProviderInterface,
         commands: CommandHandler,
         ignore_unknown_interactions: bool,
-        get_locale_func: Callable[[CommandInteraction | ComponentInteraction], Locale],
+        get_locale_func: Callable[[str | CommandInteraction | ComponentInteraction], Locale | None],
     ) -> None:
         self.bot: GatewayBot = bot
         self.client: Client = client
@@ -59,9 +59,9 @@ class InteractionProcessor:
 
         self.ignore_unknown_interactions: bool = ignore_unknown_interactions
 
-        self.get_locale_func: Callable[[CommandInteraction | ComponentInteraction], Locale] = (
-            get_locale_func
-        )
+        self.get_locale_func: Callable[
+            [str | CommandInteraction | ComponentInteraction], Locale | None
+        ] = get_locale_func
 
     def create_interaction_context(
         self, interaction: ComponentInteraction | CommandInteraction

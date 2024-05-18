@@ -1,0 +1,1 @@
+::: aurum.ext.plugins.plugin_manager

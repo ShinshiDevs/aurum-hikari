@@ -47,7 +47,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         description (LocalizedOr[str] | None): A description of command.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): The guild in which the command is available.
         default_member_permissions (Permissions): Permissions required to use the command, if any. Defaults to NONE.
-        dm_enabled (bool): Flag indicating whether the command is available in direct messages. Defaults to `False`.
+        is_dm_enabled (bool): Flag indicating whether the command is available in direct messages. Defaults to `False`.
         is_nsfw (bool): Flag indicating whether the command should only be available in NSFW channels. Defaults to `False`.
         options (Sequence[Option]): Options to the command.
 
@@ -110,7 +110,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         *,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
-        dm_enabled: bool = False,
+        is_dm_enabled: bool = False,
         is_nsfw: bool = False,
         options: Sequence[Option] = (),
     ) -> None:
@@ -120,7 +120,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             description=description,
             guild=guild,
             default_member_permissions=default_member_permissions,
-            dm_enabled=dm_enabled,
+            is_dm_enabled=is_dm_enabled,
             is_nsfw=is_nsfw,
         )
         self.options: Sequence[Option] = options
@@ -134,6 +134,9 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         Warning:
             This callback will be ignored if the command has a sub-commands.
         """
+        # TODO: a callback decorator or something to fix this error
+        # Current problem is `Signature of "callback" incompatible with supertype "SlashCommand" - Mypy(override)`
+        # because `callback(self, context: InteractionContext)` != `callback(self, context: InteractionContext, arg_1, arg_2, etc)`
         pass
 
     def __build_option(self, option: Option, l10n: LocalizationProviderInterface) -> CommandOption:
@@ -202,11 +205,13 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         factory: Callable[[str, str], SlashCommandBuilder],
         l10n: LocalizationProviderInterface,
     ) -> SlashCommandBuilder:
-        description: str = str(self.description) if not self.sub_commands else self.name
+        description: str = (
+            str(self.description or "No description") if not self.sub_commands else self.name
+        )
         builder: SlashCommandBuilder = (
             factory(self.name, description)
             .set_default_member_permissions(self.default_member_permissions)
-            .set_is_dm_enabled(self.dm_enabled)
+            .set_is_dm_enabled(self.is_dm_enabled)
             .set_is_nsfw(self.is_nsfw)
         )
         if not self.sub_commands:
