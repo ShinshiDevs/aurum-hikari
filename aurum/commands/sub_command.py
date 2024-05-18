@@ -30,7 +30,7 @@ class SubCommand:
     ) -> Callable[..., None]:
         """Decorator for the sub-command.
 
-        This object can only be created by using the decorator [@sub_command][aurum.commands.decorators.sub_command.sub_command] 
+        This object can only be created by using the decorator [@sub_command][aurum.commands.decorators.sub_command.sub_command]
         on a function in a class that inherits from [SlashCommand][aurum.commands.slash_command.SlashCommand].
 
         Args:

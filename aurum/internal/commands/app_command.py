@@ -69,7 +69,7 @@ class AppCommand(Includable):
         self._app: PartialCommand | None = None
 
         self.command_type: CommandType = command_type
-        
+
         self.description: LocalizedOr[str] | None = description
 
         self.guild: SnowflakeishOr[PartialGuild] | UndefinedType = guild

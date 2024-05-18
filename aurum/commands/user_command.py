@@ -61,9 +61,9 @@ class UserCommand(ContextMenuCommand):
         self, context: InteractionContext, target: InteractionMember | PartialUser
     ) -> None:
         """A callback of the command.
-        
+
         Meant to override this method to set the callback to the command.
-        
+
         Raises:
             NotImplementedError: If callback wasn't overrided.
         """
