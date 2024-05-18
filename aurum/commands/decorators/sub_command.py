@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from aurum.commands.sub_commands import SubCommand
+from aurum.commands.sub_command import SubCommand
 
 if typing.TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence

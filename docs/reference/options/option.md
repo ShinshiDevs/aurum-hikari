@@ -1,7 +1,7 @@
-::: aurum.options.option.Option
+::: aurum.options.option
 
 ### Example
-```py
+```{.py3 hl_lines="9-14"}
 class UserCommand(SlashCommand):
     def __init__(self) -> None:
         super().__init__(name="user")

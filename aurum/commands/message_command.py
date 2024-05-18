@@ -18,7 +18,7 @@ if typing.TYPE_CHECKING:
 
 
 class MessageCommand(ContextMenuCommand):
-    """Represents a application command for message's context menu.
+    """Represents an application command for message's context menu.
 
     Args:
         name (str): The unique name of the command.

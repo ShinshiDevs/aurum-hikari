@@ -1,21 +1,7 @@
-from dataclasses import dataclass
-from typing import Any, Mapping, TypeVar, Union
+import typing
+
+from aurum.l10n.localized import Localized
 
 
-@dataclass(slots=True)
-class Localized:
-    key: str | None = None
-    fallback: str | None = None
-
-    def __str__(self) -> str:
-        return str(self.fallback)
-
-
-@dataclass
-class Locale:
-    name: str
-    value: Mapping[str, Any]
-
-
-T = TypeVar("T", covariant=True)
-LocalizedOr = Union[Localized, T]
+T = typing.TypeVar("T", covariant=True)
+LocalizedOr = typing.Union[Localized, T]

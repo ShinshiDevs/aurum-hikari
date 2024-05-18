@@ -1,1 +1,0 @@
-::: aurum.commands.user_command.UserCommand

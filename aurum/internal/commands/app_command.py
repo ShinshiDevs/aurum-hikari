@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
 
 
 class AppCommand(Includable):
-    """Represents a application command.
+    """Represents an application command.
 
     !!! This class is not suitable for use, please use the pre-existing implementations.
 

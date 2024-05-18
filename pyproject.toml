@@ -51,6 +51,14 @@ python = ">=3.10,<3.13"
 hikari = ">2.0.0.dev120"
 
 
+[tool.poetry.group.docs.dependencies]
+mkdocs = ">=1.5.3,<1.7"
+mkdocstrings-python = ">=1.8.0,<1.11"
+mkdocs-material = { version = "^9.5.23", extras = ["imaging"] }
+griffe-inherited-docstrings = "^1.0.0"
+mkdocs-material-extensions = "^1.3.1"
+
+
 # Developers stuff 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"
@@ -64,10 +72,3 @@ target-version = "py310"
 
 [tool.ruff.per-file-ignores] # borrowed from hikari-lightbulb
 "__init__.py" = ["F401", "F403", "F405"]
-
-
-[tool.poetry.group.docs.dependencies]
-mkdocs-material = ">=9.5.3,<9.6"
-mkdocs = ">=1.5.3,<1.7"
-mkdocstrings-python = ">=1.8.0,<1.11"
-griffe-inherited-docstrings = "1.0.0"

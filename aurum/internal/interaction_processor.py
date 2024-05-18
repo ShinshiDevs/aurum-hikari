@@ -24,7 +24,7 @@ if typing.TYPE_CHECKING:
     )
 
     from aurum.client import Client
-    from aurum.commands.sub_commands import SubCommand
+    from aurum.commands.sub_command import SubCommand
     from aurum.internal.commands.app_command import AppCommand
     from aurum.internal.commands.command_handler import CommandHandler
     from aurum.l10n import Locale, LocalizationProviderInterface

@@ -1,1 +1,0 @@
-::: aurum.commands.slash_command.SlashCommand

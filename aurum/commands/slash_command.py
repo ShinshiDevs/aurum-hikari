@@ -6,8 +6,7 @@ from hikari.commands import CommandChoice, CommandOption, CommandType, OptionTyp
 from hikari.permissions import Permissions
 from hikari.undefined import UNDEFINED
 
-from aurum.commands.sub_commands import SubCommand
-from aurum.interactions.interaction_context import InteractionContext
+from aurum.commands.sub_command import SubCommand
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.consts import SUB_COMMANDS_CONTAINER
 from aurum.l10n import Localized
@@ -20,6 +19,7 @@ if typing.TYPE_CHECKING:
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
+    from aurum.interactions import InteractionContext
     from aurum.l10n import LocalizationProviderInterface, LocalizedOr
     from aurum.options import Option
 
@@ -56,30 +56,38 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         sub_commands (Dict[str, SubCommand]): Sub-commands of the command.
 
     Example:
-        With callback:
-        ```py
-        class HelloCommand(SlashCommand):
+        === "With callback"
+            ```py
+            class HelloCommand(SlashCommand):
             def __init__(self) -> None:
-                super().__init__(name="hello", description="Say hi to bot")
+                super().__init__(name="hello", description="Say hi to bot")  # (1)
 
             async def callback(self, context: InteractionContext) -> None:
                 await context.create_response(f"Hi, {context.user.mention}!")
-        ```
+            ```
 
-        With sub-commands:
-        ```py
-        class ABCCommand(SlashCommand):
+            1. Base information about your command: name, description, default member permissions and etc.
+
+        === "With sub-commands"
+            ```py
+            class ABCCommand(SlashCommand):  # (1)
             def __init__(self) -> None:
-                super().__init__(name="a")
+                super().__init__(name="a")  # (2)
 
-            @sub_command(name="b")
+            @sub_command(name="b")  # (3)
             async def b_command(self, context: InteractionContext) -> None:
-                ...
+                ...  # (4)
 
             @b_command.sub_command(name="c")
             async def b_c_command(self, context: InteractionContext) -> None:
                 ...
-        ```
+            ```
+
+            1. When command has a sub-commands, callback will be ignored.
+            2. Base information about your command: name, description, default member permissions and etc.
+            3. Base information about your sub-command.
+                The same fields with slash-command, but without guild, default member permissions, is nsfw, dm enabled flags.
+            4. If sub-command have another sub-command, callback of parent sub-command will be ignored too.
     """
 
     __slots__: Sequence[str] = (

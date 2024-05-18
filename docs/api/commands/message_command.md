@@ -1,1 +1,0 @@
-::: aurum.commands.message_command.MessageCommand

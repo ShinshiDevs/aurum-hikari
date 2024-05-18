@@ -41,7 +41,7 @@
 
 # Installation
 > [!NOTE]
-> This library requires Python version 3.10 or higher.
+> Aurum requires Python 3.10 or higher.
 
 Run command:
 ```md

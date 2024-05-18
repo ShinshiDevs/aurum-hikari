@@ -30,7 +30,8 @@ class SubCommand:
     ) -> Callable[..., None]:
         """Decorator for the sub-command.
 
-        Can be used only in a command class that inherits from `aurum.commands.slash_command.SlashCommand`.
+        This object can only be created by using the decorator [@sub_command][aurum.commands.decorators.sub_command.sub_command] 
+        on a function in a class that inherits from [SlashCommand][aurum.commands.slash_command.SlashCommand].
 
         Args:
             name (str): The unique name for the sub-command.
@@ -40,7 +41,7 @@ class SubCommand:
         Note:
             The callback must be asynchronous.
         """
-        
+
         def decorator(func: Callable[..., Awaitable[None]]) -> None:
             self.sub_commands[name] = SubCommand(
                 callback=func,

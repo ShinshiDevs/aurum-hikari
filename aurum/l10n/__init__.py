@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import typing
 
+from .locale import Locale
 from .localization_provider_interface import LocalizationProviderInterface
-from .types import Locale, Localized, LocalizedOr
+from .localized import Localized
+from .types import LocalizedOr
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence

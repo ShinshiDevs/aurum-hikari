@@ -1,1 +1,0 @@
-::: aurum.options.choice.Choice

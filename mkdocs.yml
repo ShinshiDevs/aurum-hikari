@@ -1,98 +1,112 @@
-# i need some help with this, i can't do this with myself
-# some settings from hikari-crescent, because hikari-crescent docs is sexy
-site_name: Aurum
-site_url: https://shinshidevs.github.io/aurum-hikari/
-site_description: A flexible command & component handler.
 site_author: Shinshi Developers Team
+site_name: Aurum
+site_description: A flexible command & component handler
+site_url: https://shinshidevs.github.io/aurum-hikari
 
-repo_url: https://github.com/ShinshiDevs/aurum-hikari/
-edit_uri: blob/main/docs/
+repo_name: ShinshiDevs/aurum-hikari
+repo_url: https://github.com/ShinshiDevs/aurum-hikari
 
-copyright: Copyright 2024 Shinshi Developers Team
+copyright: Copyright &copy; 2024 Shinshi Developers Team
+
+plugins:
+  - search
+  - social:
+      cards_layout_options:
+        font_family: Inter
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            heading_level: 2
+            annotations_path: source
+            inherited_members: true
+            docstring_style: google
+            docstring_section_style: list
+            show_source: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_signature_annotations: true
+            separate_signature: true
+            signature_crossrefs: true
+            group_by_category: true
+            extensions:
+              - griffe_inherited_docstrings
+          import:
+            - https://docs.python.org/3.11/objects.inv
+            - https://docs.hikari-py.dev/en/latest/objects.inv
+            - https://shinshidevs.github.io/aurum-hikari/objects.inv
+
+markdown_extensions:
+  - tables
+  - attr_list
+  - def_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: "#"
 
 theme:
   name: material
+
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      toggle:
+        icon: octicons/sun-24
+        name: Switch to dark mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      toggle:
+        icon: octicons/moon-24
+        name: Switch to light mode
+
   icon:
-    logo: octicons/dot-fill-24
     repo: fontawesome/brands/github
-    edit: material/pencil
-    view: material/eye
     admonition:
-      note: octicons/dot-16
+      note: octicons/note-16
       abstract: octicons/checklist-16
       info: octicons/info-16
-      tip: octicons/squirrel-16
+      tip: octicons/flame-16
       success: octicons/check-16
       question: octicons/question-16
       warning: octicons/alert-16
       failure: octicons/x-circle-16
       danger: octicons/zap-16
       bug: octicons/bug-16
-      example: octicons/light-bulb-16
-      quote: octicons/quote-16
-  palette:
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: black
+      example: octicons/code-16
+      quote: octicons/code-16
+
+  font:
+    text: Inter
+    code: Fira Code
+
   features:
-    - search.highlight
-    - search.suggest
     - content.code.copy
-
-plugins:
-  - search
-  - mkdocstrings:
-      default_handler: python
-      handlers:
-        python:
-          import:
-            - https://docs.python.org/3.10/objects.inv
-            - https://docs.hikari-py.dev/en/latest/objects.inv
-          options:
-            heading_level: 3
-            annotations_path: source
-            docstring_section_style: spacy
-            docstring_style: google
-            inherited_members: true
-            merge_init_into_class: true
-            separate_signature: true
-            show_signature_annotations: true
-            show_source: false
-            show_submodules: false
-            signature_crossrefs: true
-            show_symbol_type_heading: true
-            extensions:
-              - griffe_inherited_docstrings
-
-markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences
-  - tables
-  - attr_list
-  - toc:
-      permalink: "#"
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
-
-nav:
-  - Introduction: index.md
-  - Quick start: quick-start.md
-  - API Reference:
-      - api/client.md
-      - Commands:
-          - api/commands/slash_command.md
-          - api/commands/user_command.md
-          - api/commands/message_command.md
-          - api/commands/decorators/sub_command.md
-          - Options:
-              - api/options/option.md
-              - api/options/choice.md
-      - Interactions:
-          - api/interactions/interaction_context.md
-  - "Issue Tracker": https://github.com/ShinshiDevs/aurum-hikari/issues
+    - content.code.annotate
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - search.share
+    - toc.integrate

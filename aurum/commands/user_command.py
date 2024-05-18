@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
 
 
 class UserCommand(ContextMenuCommand):
-    """Represents a application command for user's context menu.
+    """Represents an application command for user's context menu.
 
     Args:
         name (str): The unique name of the command.
