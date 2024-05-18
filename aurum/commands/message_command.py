@@ -24,7 +24,7 @@ class MessageCommand(ContextMenuCommand):
         name (str): The unique name of the command.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the command is available.
         default_member_permissions (Permissions): The permissions a user must have to use the command by default.
-        dm_enabled (bool): Whether the command can be used in direct messages.
+        is_dm_enabled (bool): Whether the command can be used in direct messages.
         is_nsfw (bool): Indicates whether the command is age-restricted.
 
     Example:
@@ -44,7 +44,7 @@ class MessageCommand(ContextMenuCommand):
         *,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
-        dm_enabled: bool = False,
+        is_dm_enabled: bool = False,
         is_nsfw: bool = False,
     ) -> None:
         super().__init__(
@@ -52,7 +52,7 @@ class MessageCommand(ContextMenuCommand):
             name=name,
             guild=guild,
             default_member_permissions=default_member_permissions,
-            dm_enabled=dm_enabled,
+            is_dm_enabled=is_dm_enabled,
             is_nsfw=is_nsfw,
         )
 

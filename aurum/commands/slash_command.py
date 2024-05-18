@@ -202,7 +202,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         factory: Callable[[str, str], SlashCommandBuilder],
         l10n: LocalizationProviderInterface,
     ) -> SlashCommandBuilder:
-        description: str = str(self.description) if not self.sub_commands else self.name
+        description: str = str(self.description or "No description") if not self.sub_commands else self.name
         builder: SlashCommandBuilder = (
             factory(self.name, description)
             .set_default_member_permissions(self.default_member_permissions)

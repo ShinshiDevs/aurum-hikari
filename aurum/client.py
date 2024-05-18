@@ -7,17 +7,18 @@ from logging import getLogger
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
 
 from aurum.enum.sync_commands import SyncCommandsFlag
-from aurum.includable import Includable
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.commands.command_handler import CommandHandler
+from aurum.internal.exceptions.base_exception import AurumException
 from aurum.internal.interaction_processor import InteractionProcessor
-from aurum.l10n import LocalizationProviderInterface
 
 if typing.TYPE_CHECKING:
     from collections.abc import Coroutine, Sequence
     from logging import Logger
 
-    from hikari.impl import GatewayBot
+    from aurum.l10n import LocalizationProviderInterface
+    from aurum.types import BotT
+    from aurum.includable import Includable
 
 __all__: Sequence[str] = ("Client",)
 
@@ -29,12 +30,12 @@ class Client:
         At the moment, the wrapper only supports gateway connections.
 
     Attributes:
-        bot (GatewayBot): The bot instance.
+        bot (BotT): The bot instance.
         l10n (LocalizationProviderInterface): The localization provider instance for multi-language support.
             It is recommended to provide a localization provider if multi-language support is required.
 
     Args:
-        bot (GatewayBot): The bot instance that this client will interact with.
+        bot (BotT): The bot instance that this client will interact with.
         sync_commands (SyncCommandFlag): An optional SyncCommandsFlag enum value, indicating how to handle command synchronization.
         l10n (LocalizationProviderInterface): Localization provider.
             If a localization provider is not provided, an `EmptyLocalizationProvider`
@@ -55,7 +56,7 @@ class Client:
 
     def __init__(
         self,
-        bot: GatewayBot,
+        bot: BotT,
         *,
         sync_commands: SyncCommandsFlag = SyncCommandsFlag.SYNC,
         l10n: LocalizationProviderInterface | None = None,
@@ -65,7 +66,7 @@ class Client:
         self.__logger: Logger = getLogger("aurum.client")
         self._starting_tasks: typing.List[Coroutine[None, None, typing.Any]] = []
 
-        self.bot: GatewayBot = bot
+        self.bot: BotT = bot
 
         if not l10n and not ignore_l10n:
             self.__logger.warning(
@@ -114,8 +115,12 @@ class Client:
 
     def include(self, includable: typing.Type[Includable]) -> None:
         if issubclass(includable, AppCommand):
-            instance: AppCommand = includable()  # type: ignore
+            try:
+                instance: AppCommand = includable()  # type: ignore
+            except ValueError:
+                raise AurumException("`__init__` of base includable wasn't overrided")
             self._commands.commands[instance.name] = instance
 
 
-class EmptyLocalizationProvider(LocalizationProviderInterface): ...
+class EmptyLocalizationProvider(LocalizationProviderInterface):
+    ...

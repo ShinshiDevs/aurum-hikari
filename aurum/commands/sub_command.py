@@ -46,7 +46,7 @@ class SubCommand:
             self.sub_commands[name] = SubCommand(
                 callback=func,
                 name=name,
-                description=description,
+                description=description or "No description",
                 options=options,
             )
 

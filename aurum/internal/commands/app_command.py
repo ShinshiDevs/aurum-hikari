@@ -37,12 +37,12 @@ class AppCommand(Includable):
     __slots__: Sequence[str] = (
         "_app",
         "_name",
-        "_description",
         "_display_name",
         "_guild",
         "_default_member_permissions",
         "_is_dm_enabled",
         "_is_nsfw",
+        "description",
         "command_type",
     )
 
@@ -57,9 +57,9 @@ class AppCommand(Includable):
         is_dm_enabled: bool = False,
         is_nsfw: bool = False,
     ) -> None:
-        self._app: PartialCommand | None = None
+        super().__init__(name=name)
 
-        self._description: LocalizedOr[str] | None = description
+        self._app: PartialCommand | None = None
 
         self._guild: SnowflakeishOr[PartialGuild] | UndefinedType = guild
 
@@ -67,13 +67,13 @@ class AppCommand(Includable):
         self._is_dm_enabled: bool = is_dm_enabled
         self._is_nsfw: bool = is_nsfw
 
+        self.description: LocalizedOr[str] | None = description
         self.command_type: CommandType = command_type
-        super().__init__(name=name)
 
     @property
     def app(self) -> PartialCommand | None:
         return self._app
-    
+
     @app.setter
     def app(self, application: PartialCommand) -> None:
         self._app = application
@@ -81,7 +81,7 @@ class AppCommand(Includable):
     @property
     def guild(self) -> SnowflakeishOr[PartialGuild] | UndefinedType:
         return self._guild
-    
+
     @guild.setter
     def guild(self, guild: SnowflakeishOr[PartialGuild]) -> None:
         self._guild = guild
@@ -89,7 +89,7 @@ class AppCommand(Includable):
     @property
     def default_member_permissions(self) -> Permissions:
         return self._default_member_permissions
-    
+
     @default_member_permissions.setter
     def default_member_permissions(self, permissions: Permissions) -> None:
         self._default_member_permissions = permissions
@@ -97,7 +97,7 @@ class AppCommand(Includable):
     @property
     def is_dm_enabled(self) -> bool:
         return self._is_dm_enabled
-    
+
     @is_dm_enabled.setter
     def is_dm_enabled(self, dm_enabled: bool) -> None:
         self._is_dm_enabled = dm_enabled
@@ -105,7 +105,7 @@ class AppCommand(Includable):
     @property
     def is_nsfw(self) -> bool:
         return self._is_nsfw
-    
+
     @is_nsfw.setter
     def is_nsfw(self, nsfw: bool) -> None:
         self._is_nsfw = nsfw
