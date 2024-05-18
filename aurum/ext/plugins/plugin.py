@@ -5,21 +5,75 @@ import typing
 from hikari.permissions import Permissions
 from hikari.undefined import UNDEFINED
 
-from aurum.includable import Includable
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.exceptions.base_exception import AurumException
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from hikari.guilds import PartialGuild
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
     from aurum.client import Client
+    from aurum.includable import Includable
     from aurum.l10n import LocalizedOr
     from aurum.types import BotT
 
 
 class Plugin:
+    """
+    Plugins include commands and components and provide bot, client, and etc.
+
+    Attributes:
+        name (str): The plugin name.
+        description (LocalizedOr[str] | None): Optional description of the plugin.
+        guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the plugin is available.
+        default_member_permissions (Permissions): The permissions a user must have to use the plugin by default.
+        dm_enabled (bool): Whether the plugin can be used in direct messages.
+        is_nsfw (bool): Indicates whether the plugin is age-restricted.
+        included (Dict[str, Includable]): Included objects of plugin.
+
+    Example:
+        ```py
+        plugin = Plugin(
+            "Admin Plugin",
+            default_member_permissions=Permissions.ADMINISTRATOR
+        )
+
+
+        @plugin.include
+        class BanHammerCommand(SlashCommand):
+            def __init__(self) -> None:
+                super().__init__(
+                    name="ban",
+                    options=[
+                        Option(
+                            type=OptionType.USER,
+                            name="target",
+                            description="Who was bad today?"
+                        )
+                    ]
+                )
+
+            async def callback(self, context: InteractionContext, target: InteractionMember | User) -> None:
+                await context.guild.ban(target)
+                return await context.create_response("**\@{target.username}** was ban hammered!")
+        ```
+    """
+
+    __slots__: Sequence[str] = (
+        "_bot",
+        "_client",
+        "name",
+        "description",
+        "guild",
+        "default_member_permissions",
+        "is_dm_enabled",
+        "is_nsfw",
+        "included",
+    )
+
     def __init__(
         self,
         name: str,
@@ -42,6 +96,22 @@ class Plugin:
         self.is_nsfw: bool = is_nsfw
 
         self.included: typing.Dict[str, Includable] = {}
+
+    @property
+    def bot(self) -> BotT | None:
+        return self._bot
+
+    @bot.setter
+    def bot(self, bot: BotT) -> None:
+        self._bot = bot
+
+    @property
+    def client(self) -> Client | None:
+        return self._client
+
+    @client.setter
+    def client(self, client: Client) -> None:
+        self._client = client
 
     def include(self, includable: typing.Type[Includable]) -> None:
         if issubclass(includable, AppCommand):

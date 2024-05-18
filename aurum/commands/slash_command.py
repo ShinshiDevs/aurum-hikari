@@ -47,7 +47,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         description (LocalizedOr[str] | None): A description of command.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): The guild in which the command is available.
         default_member_permissions (Permissions): Permissions required to use the command, if any. Defaults to NONE.
-        dm_enabled (bool): Flag indicating whether the command is available in direct messages. Defaults to `False`.
+        is_dm_enabled (bool): Flag indicating whether the command is available in direct messages. Defaults to `False`.
         is_nsfw (bool): Flag indicating whether the command should only be available in NSFW channels. Defaults to `False`.
         options (Sequence[Option]): Options to the command.
 

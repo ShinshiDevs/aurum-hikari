@@ -7,6 +7,7 @@ from logging import getLogger
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
 
 from aurum.enum.sync_commands import SyncCommandsFlag
+from aurum.ext.plugins import PluginManager
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.commands.command_handler import CommandHandler
 from aurum.internal.exceptions.base_exception import AurumException
@@ -31,9 +32,11 @@ class Client:
         At the moment, the wrapper only supports gateway connections.
 
     Attributes:
-        bot (BotT): The bot instance.
         l10n (LocalizationProviderInterface): The localization provider instance for multi-language support.
             It is recommended to provide a localization provider if multi-language support is required.
+        bot (BotT): The bot instance.
+        commands (CommandHandler): The command handler.
+        plugins (PluginManager): The plugin manager.
 
     Args:
         bot (BotT): The bot instance that this client will interact with.
@@ -46,13 +49,14 @@ class Client:
     """
 
     __slots__: Sequence[str] = (
+        "l10n",
         "__logger",
         "_starting_tasks",
-        "_commands",
-        "_interaction_processor",
         "_sync_commands",
+        "_interaction_processor",
         "bot",
-        "l10n",
+        "commands",
+        "plugins",
     )
 
     def __init__(
@@ -66,28 +70,28 @@ class Client:
     ) -> None:
         self.__logger: Logger = getLogger("aurum.client")
         self._starting_tasks: typing.List[Coroutine[None, None, typing.Any]] = []
-
-        self.bot: BotT = bot
+        self._sync_commands: SyncCommandsFlag = sync_commands
 
         if not l10n and not ignore_l10n:
             self.__logger.warning(
-                "A localization provider has not been specified and localization will not be available. "
+                "a localization provider has not been specified and localization will not be available. "
                 "If you require localization, please use one of the available localization providers "
                 "or create your own implementation based on the LocalizationProviderInterface."
             )
         self.l10n: LocalizationProviderInterface = l10n or PassLocalizationProvider()
         self.add_starting_task(self.l10n.start())
 
-        self._commands: CommandHandler = CommandHandler(bot, self.l10n)
+        self.bot: BotT = bot
+        self.commands: CommandHandler = CommandHandler(bot, self.l10n)
+        self.plugins: PluginManager = PluginManager(bot, self)
         self._interaction_processor: InteractionProcessor = InteractionProcessor(
             bot=bot,
             client=self,
             l10n=self.l10n,
-            commands=self._commands,
+            commands=self.commands,
             ignore_unknown_interactions=ignore_unknown_interactions,
             get_locale_func=self.l10n.get_locale,
         )
-        self._sync_commands: SyncCommandsFlag = sync_commands
 
         for event, callback in {
             StartingEvent: self._on_starting,
@@ -98,15 +102,15 @@ class Client:
     async def _on_starting(self, _: StartingEvent) -> None:
         try:
             await asyncio.gather(*self._starting_tasks)
-            self.__logger.debug("Completed all tasks")
+            self.__logger.debug("completed all tasks")
         except Exception as exception:
             self.__logger.warning(
-                "Some tasks weren't completed because of an exception", exc_info=exception
+                "some tasks weren't completed because of an exception", exc_info=exception
             )
 
     async def _on_started(self, _: StartedEvent) -> None:
         if self._sync_commands.value:
-            await self._commands.sync(debug=self._sync_commands == SyncCommandsFlag.DEBUG)
+            await self.commands.sync(debug=self._sync_commands == SyncCommandsFlag.DEBUG)
         self.bot.event_manager.subscribe(
             InteractionCreateEvent, self._interaction_processor.on_interaction
         )
@@ -120,4 +124,4 @@ class Client:
                 instance: AppCommand = includable()  # type: ignore
             except ValueError:
                 raise AurumException("`__init__` of base includable wasn't overrided")
-            self._commands.commands[instance.name] = instance
+            self.commands.commands[instance.name] = instance

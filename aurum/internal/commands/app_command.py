@@ -27,8 +27,8 @@ class AppCommand(Includable):
         app (PartialCommand): Command application instance, available after sync.
         command_type (CommandType): Type of the command.
         name (str): The command name.
-        description (LocalizedOr[str] | None): Optional description of the command for help documentation.
-        guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the command is available.
+        description (LocalizedOr[str] | None): An optional description of the command.
+        guild (SnowflakeishOr[PartialGuild] | UndefinedType): An optional guild (server) where the command is available.
         default_member_permissions (Permissions): The permissions a user must have to use the command by default.
         dm_enabled (bool): Whether the command can be used in direct messages.
         is_nsfw (bool): Indicates whether the command is age-restricted.

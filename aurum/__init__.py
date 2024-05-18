@@ -21,4 +21,4 @@ __all__: Sequence[str] = (
     "Localized",
     "LocalizedOr",
 )
-__version__: str = "0.1.2-alpha"
+__version__: str = "0.1.4-alpha"
