@@ -134,6 +134,9 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         Warning:
             This callback will be ignored if the command has a sub-commands.
         """
+        # TODO: a callback decorator or something to fix this error
+        # Current problem is `Signature of "callback" incompatible with supertype "SlashCommand" - Mypy(override)`
+        # because `callback(self, context: InteractionContext)` != `callback(self, context: InteractionContext, arg_1, arg_2, etc)`
         pass
 
     def __build_option(self, option: Option, l10n: LocalizationProviderInterface) -> CommandOption:
@@ -202,7 +205,9 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         factory: Callable[[str, str], SlashCommandBuilder],
         l10n: LocalizationProviderInterface,
     ) -> SlashCommandBuilder:
-        description: str = str(self.description or "No description") if not self.sub_commands else self.name
+        description: str = (
+            str(self.description or "No description") if not self.sub_commands else self.name
+        )
         builder: SlashCommandBuilder = (
             factory(self.name, description)
             .set_default_member_permissions(self.default_member_permissions)

@@ -35,12 +35,6 @@ class LocalizationProviderInterface(typing.Protocol):
         """
         ...
 
-    @typing.overload
-    def get_locale(self, by: str) -> Locale:
-        """Get locale by name"""
-        ...
-
-    @typing.overload
-    def get_locale(self, by: CommandInteraction | ComponentInteraction) -> Locale:
-        """Get locale by interaction"""
+    def get_locale(self, by: str | CommandInteraction | ComponentInteraction) -> Locale | None:
+        """Get locale by name or interaction"""
         ...

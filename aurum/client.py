@@ -11,14 +11,15 @@ from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.commands.command_handler import CommandHandler
 from aurum.internal.exceptions.base_exception import AurumException
 from aurum.internal.interaction_processor import InteractionProcessor
+from aurum.l10n.pass_localization_provider import PassLocalizationProvider
 
 if typing.TYPE_CHECKING:
     from collections.abc import Coroutine, Sequence
     from logging import Logger
 
+    from aurum.includable import Includable
     from aurum.l10n import LocalizationProviderInterface
     from aurum.types import BotT
-    from aurum.includable import Includable
 
 __all__: Sequence[str] = ("Client",)
 
@@ -74,7 +75,7 @@ class Client:
                 "If you require localization, please use one of the available localization providers "
                 "or create your own implementation based on the LocalizationProviderInterface."
             )
-        self.l10n: LocalizationProviderInterface = l10n or EmptyLocalizationProvider()
+        self.l10n: LocalizationProviderInterface = l10n or PassLocalizationProvider()
         self.add_starting_task(self.l10n.start())
 
         self._commands: CommandHandler = CommandHandler(bot, self.l10n)
@@ -92,7 +93,7 @@ class Client:
             StartingEvent: self._on_starting,
             StartedEvent: self._on_started,
         }.items():
-            self.bot.event_manager.subscribe(event, callback)
+            self.bot.event_manager.subscribe(event, callback)  # type: ignore
 
     async def _on_starting(self, _: StartingEvent) -> None:
         try:
@@ -120,7 +121,3 @@ class Client:
             except ValueError:
                 raise AurumException("`__init__` of base includable wasn't overrided")
             self._commands.commands[instance.name] = instance
-
-
-class EmptyLocalizationProvider(LocalizationProviderInterface):
-    ...

@@ -36,7 +36,7 @@ class InteractionContext:
         interaction (CommandInteraction | ComponentInteraction): The interaction.
         bot (GatewayBot): The instance of the bot.
         client (Client): The client.
-        locale (Locale): A locale for the interaction.
+        locale (Locale | None): An Aurum locale for the interaction.
     """
 
     interaction: CommandInteraction | ComponentInteraction
@@ -44,7 +44,7 @@ class InteractionContext:
     bot: GatewayBot
     client: Client
 
-    locale: Locale
+    locale: Locale | None
 
     async def defer(
         self, flags: MessageFlag = MessageFlag.NONE, *, ephemeral: bool = False
