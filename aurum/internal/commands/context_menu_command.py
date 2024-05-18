@@ -38,7 +38,7 @@ class ContextMenuCommand(AppCommand):
         *,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
-        dm_enabled: bool = False,
+        is_dm_enabled: bool = False,
         is_nsfw: bool = False,
     ) -> None:
         super().__init__(
@@ -47,7 +47,7 @@ class ContextMenuCommand(AppCommand):
             description=None,
             guild=guild,
             default_member_permissions=default_member_permissions,
-            dm_enabled=dm_enabled,
+            is_dm_enabled=is_dm_enabled,
             is_nsfw=is_nsfw,
         )
 
@@ -59,7 +59,7 @@ class ContextMenuCommand(AppCommand):
         builder = (
             factory(self.command_type, self.name)
             .set_default_member_permissions(self.default_member_permissions)
-            .set_is_dm_enabled(self.dm_enabled)
+            .set_is_dm_enabled(self.is_dm_enabled)
             .set_is_nsfw(self.is_nsfw)
         )
         return builder

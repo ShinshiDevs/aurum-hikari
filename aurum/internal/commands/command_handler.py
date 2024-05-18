@@ -90,7 +90,7 @@ class CommandHandler:
             )
         for entity, commands in synchronized.items():
             for partial_command in commands:
-                self.commands[command.name]._app = partial_command
+                self.commands[command.name].app = partial_command
             if debug:
                 self.__logger.debug(
                     "Set commands for %s: %s",
