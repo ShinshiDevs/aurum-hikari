@@ -48,7 +48,7 @@ documentation = "https://shinshidevs.github.io/aurum-hikari/"
 # Package dependencies
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
-hikari = ">2.0.0.dev120"
+hikari = ">2.0.0.dev122"
 
 
 [tool.poetry.group.docs.dependencies]

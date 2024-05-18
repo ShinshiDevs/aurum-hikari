@@ -83,7 +83,7 @@ class Client:
             l10n=self.l10n,
             commands=self._commands,
             ignore_unknown_interactions=ignore_unknown_interactions,
-            get_locale_func=self.l10n.get_locale_from_interaction,
+            get_locale_func=self.l10n.get_locale,
         )
         self._sync_commands: SyncCommandsFlag = sync_commands
 
