@@ -3,11 +3,15 @@ from __future__ import annotations
 import typing
 from dataclasses import dataclass, field
 
+from hikari.commands import CommandOption, OptionType
+
+from aurum.internal.utils.commands import build_option
 from aurum.options import Option
 
 if typing.TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence
 
+    from aurum.l10n import LocalizationProviderInterface
     from aurum.l10n.types import LocalizedOr
 
 
@@ -51,3 +55,18 @@ class SubCommand:
             )
 
         return decorator
+
+    def as_option(self, l10n: LocalizationProviderInterface) -> CommandOption:
+        options: Sequence[CommandOption]
+        if not self.sub_commands:
+            options = [build_option(option, l10n) for option in self.options]
+        else:
+            options = [sub_command.as_option(l10n) for sub_command in self.sub_commands.values()]
+        return CommandOption(
+            type=OptionType.SUB_COMMAND if not self.sub_commands else OptionType.SUB_COMMAND_GROUP,
+            name=str(self.name),
+            name_localizations=l10n.build_localized(self.name),
+            description=str(self.description),
+            description_localizations=l10n.build_localized(self.description or "No description"),
+            options=options,
+        )

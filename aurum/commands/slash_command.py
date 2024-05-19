@@ -9,6 +9,7 @@ from hikari.undefined import UNDEFINED
 from aurum.commands.sub_command import SubCommand
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.consts import SUB_COMMANDS_CONTAINER
+from aurum.internal.utils.commands import build_option
 from aurum.l10n import Localized
 
 if typing.TYPE_CHECKING:
@@ -139,89 +140,25 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         # because `callback(self, context: InteractionContext)` != `callback(self, context: InteractionContext, arg_1, arg_2, etc)`
         pass
 
-    def __build_option(self, option: Option, l10n: LocalizationProviderInterface) -> CommandOption:
-        choices: tuple[CommandChoice, ...] = tuple(
-            CommandChoice(
-                name=str(choice.name),
-                name_localizations=(
-                    l10n.build_localized(choice.name) if isinstance(choice.name, Localized) else {}
-                ),
-                value=choice.value,
-            )
-            for choice in option.choices
-        )
-        return CommandOption(
-            type=option.type,
-            name=str(option.name),
-            name_localizations=(
-                l10n.build_localized(option.name) if isinstance(option.name, Localized) else {}
-            ),
-            description=str(option.description),
-            description_localizations=(
-                l10n.build_localized(option.description)
-                if isinstance(option.description, Localized)
-                else {}
-            ),
-            is_required=option.is_required,
-            choices=choices,
-            channel_types=getattr(option, "channel_types", None),
-            autocomplete=False,  # TODO: autocomplete
-            min_value=getattr(option, "min_value", None),
-            max_value=getattr(option, "max_value", None),
-            min_length=getattr(option, "min_length", None),
-            max_length=getattr(option, "max_length", None),
-        )
-
-    def __build_sub_group(
-        self, command_group: SubCommand, l10n: LocalizationProviderInterface
-    ) -> CommandOption:
-        return CommandOption(
-            type=OptionType.SUB_COMMAND_GROUP,
-            name=command_group.name,
-            description=command_group.name,
-            options=[
-                self.__build_sub_command(command, l10n)
-                for command in command_group.sub_commands.values()
-            ],
-        )
-
-    def __build_sub_command(
-        self, command: SubCommand, l10n: LocalizationProviderInterface
-    ) -> CommandOption:
-        return CommandOption(
-            type=OptionType.SUB_COMMAND,
-            name=command.name,
-            description=str(command.description),
-            options=[self.__build_option(option, l10n) for option in command.options],
-            description_localizations=(
-                l10n.build_localized(command.description)
-                if isinstance(command.description, Localized)
-                else {}
-            ),
-        )
-
     def get_builder(
         self,
         factory: Callable[[str, str], SlashCommandBuilder],
         l10n: LocalizationProviderInterface,
     ) -> SlashCommandBuilder:
-        description: str = (
-            str(self.description or "No description") if not self.sub_commands else self.name
-        )
+        description: LocalizedOr[str] = self.description or "No description"
         builder: SlashCommandBuilder = (
-            factory(self.name, description)
+            factory(self.name, str(description))
             .set_default_member_permissions(self.default_member_permissions)
             .set_is_dm_enabled(self.is_dm_enabled)
             .set_is_nsfw(self.is_nsfw)
+            .set_description_localizations(l10n.build_localized(description))
         )
         if not self.sub_commands:
             if isinstance(self.description, Localized):
                 builder.set_description_localizations(l10n.build_localized(self.description))
-        for command in self.sub_commands.values():
-            if command.sub_commands:
-                builder.add_option(self.__build_sub_group(command, l10n))
-            else:
-                builder.add_option(self.__build_sub_command(command, l10n))
-        for option in self.options:
-            builder.add_option(self.__build_option(option, l10n))
+            for option in self.options:
+                builder.add_option(build_option(option, l10n))
+        else:
+            for sub_command in self.sub_commands.values():
+                builder.add_option(sub_command.as_option(l10n))
         return builder
