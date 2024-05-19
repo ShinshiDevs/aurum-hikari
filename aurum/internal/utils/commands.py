@@ -25,6 +25,7 @@ def build_option(option: Option, l10n: LocalizationProviderInterface) -> Command
         description=str(option.description),
         description_localizations=l10n.build_localized(option.description),
         choices=[build_choice(choice, l10n) for choice in option.choices],
+        is_required=option.is_required,
         max_length=option.max_length,
         min_length=option.min_length,
         max_value=option.max_value,
