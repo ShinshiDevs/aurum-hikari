@@ -30,7 +30,6 @@ def sub_command(
     """
 
     def decorator(func: Callable[..., Awaitable[None]]) -> SubCommand:
-        print(func.__class__)
         return SubCommand(
             callback=func,
             name=name,
