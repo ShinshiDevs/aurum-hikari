@@ -8,7 +8,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 packages = [{ include = "aurum" }]
 name = "aurum-hikari"
-version = "0.1.4"
+version = "0.1.4.1"
 license = "MIT"
 authors = ["stefanlight <64615032+stefanlight8@users.noreply.github.com>"]
 description = "A flexible command & component handler"

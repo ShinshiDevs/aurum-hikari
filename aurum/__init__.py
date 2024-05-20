@@ -10,7 +10,6 @@ from aurum.interactions import *
 from aurum.l10n import *
 
 __all__: Sequence[str] = (
-    "__version__",
     "Client",
     "MessageCommand",
     "SlashCommand",
@@ -21,4 +20,3 @@ __all__: Sequence[str] = (
     "Localized",
     "LocalizedOr",
 )
-__version__: str = "0.1.4-alpha"
