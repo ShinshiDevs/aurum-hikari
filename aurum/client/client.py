@@ -53,6 +53,7 @@ class Client:
         ignore_l10n (bool): An optional flag. If `True`, the client will not emit a warning when a localization provider is not provided.
         ignore_unknown_interactions (bool): An optional flag that, if set to `True`, will disable the warning message for unknown interactions.
     """
+
     # __slots__ was removed, because integrations
     # integrations add a new variables to a class and __slots__ broke this conception
     # idk how bad is this
