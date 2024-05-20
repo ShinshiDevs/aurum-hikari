@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.util
-import os
 import typing
 from logging import getLogger
 from pathlib import Path
@@ -14,6 +13,7 @@ if typing.TYPE_CHECKING:
     from collections.abc import Sequence
     from importlib.machinery import ModuleSpec
     from logging import Logger
+    from os import PathLike
     from types import ModuleType
 
     from aurum.client import Client
@@ -42,7 +42,7 @@ class PluginManager:
 
         self.plugins: typing.Dict[str, Plugin] = {}
 
-    def load_plugin_from_file(self, file: os.PathLike[str]) -> Plugin | None:
+    def load_plugin_from_file(self, file: PathLike[str]) -> Plugin | None:
         """Load plugin from file"""
         if not isinstance(file, Path):
             file = Path(file)
@@ -64,6 +64,8 @@ class PluginManager:
             spec.loader.exec_module(module)
             plugin: Plugin | None = getattr(module, "plugin", None)
             if isinstance(plugin, Plugin):
+                plugin.bot = self.bot
+                plugin.client = self.client
                 return plugin
             self.__logger.error(
                 "variable `plugin` in %s is not an instance of Plugin class or not detected.",
@@ -76,7 +78,7 @@ class PluginManager:
             return None
         return None
 
-    def load_folder(self, directory: os.PathLike) -> None:
+    async def load_folder(self, directory: PathLike) -> None:
         """Load plugins from folder"""
         loaded: typing.List[Plugin] = []
         directory = Path(directory)

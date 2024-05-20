@@ -58,7 +58,7 @@ class Plugin:
 
             async def callback(self, context: InteractionContext, target: InteractionMember | User) -> None:
                 await context.guild.ban(target)
-                return await context.create_response("**\@{target.username}** was ban hammered!")
+                return await context.create_response("**@{target.username}** was ban hammered!")
         ```
     """
 

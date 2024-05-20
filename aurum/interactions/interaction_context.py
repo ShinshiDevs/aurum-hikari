@@ -3,8 +3,10 @@ from __future__ import annotations
 import typing
 from dataclasses import dataclass
 
+from hikari.commands import OptionType
 from hikari.interactions import ResponseType
 from hikari.messages import MessageFlag
+from hikari.snowflakes import Snowflake
 from hikari.undefined import UNDEFINED
 
 if typing.TYPE_CHECKING:
@@ -17,6 +19,7 @@ if typing.TYPE_CHECKING:
     from hikari.impl import GatewayBot
     from hikari.interactions import (
         CommandInteraction,
+        CommandInteractionOption,
         ComponentInteraction,
     )
     from hikari.messages import Message
@@ -172,3 +175,24 @@ class InteractionContext:
         await self.bot.rest.delete_interaction_response(
             application=self.interaction.application_id, token=self.interaction.token
         )
+
+    def resolve_command_argument(self, option: CommandInteractionOption) -> typing.Any:
+        if not self.interaction.resolved or not isinstance(option.value, Snowflake):
+            return option.value
+        match option.type:
+            case OptionType.USER:
+                return self.interaction.resolved.members.get(
+                    option.value,
+                    self.interaction.resolved.users.get(option.value),
+                )
+            case OptionType.CHANNEL:
+                return self.interaction.resolved.channels.get(option.value)
+            case OptionType.ROLE:
+                return self.interaction.resolved.roles.get(option.value)
+            case OptionType.MENTIONABLE:
+                return self.interaction.resolved.members.get(
+                    option.value,
+                    self.interaction.resolved.roles.get(option.value),
+                )
+            case OptionType.ATTACHMENT:
+                return self.interaction.resolved.attachments.get(option.value)

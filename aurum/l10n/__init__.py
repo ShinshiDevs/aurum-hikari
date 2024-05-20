@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+__all__: Sequence[str] = (
+    "LocalizationProviderInterface",
+    "Locale",
+    "Localized",
+    "LocalizedOr",
+)
+
 import typing
 
 from .locale import Locale
@@ -9,10 +16,3 @@ from .types import LocalizedOr
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
-
-__all__: Sequence[str] = (
-    "LocalizationProviderInterface",
-    "Locale",
-    "Localized",
-    "LocalizedOr",
-)
