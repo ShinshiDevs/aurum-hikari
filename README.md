@@ -2,7 +2,7 @@
     <div>
         <div align=left>
             <h1>
-                <img align="center" src="docs/assets/logo.svg" width=32> Aurum
+                <img src="docs/assets/logo.svg" width=25> Aurum
             </h1>
             <p>
                 <a href="https://shinshidevs.github.io/aurum-hikari/">Documentation</a>
