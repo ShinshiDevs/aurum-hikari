@@ -1,16 +1,22 @@
 from __future__ import annotations
 
+import importlib.util
+import inspect
 import typing
 from logging import getLogger
+from pathlib import Path
 
 from hikari.undefined import UNDEFINED
 
 from aurum.commands.slash_command import SlashCommand
 from aurum.internal.commands.context_menu_command import ContextMenuCommand
+from aurum.internal.exceptions.base_exception import AurumException
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
+    from importlib.machinery import ModuleSpec
     from logging import Logger
+    from os import PathLike
 
     from hikari.api import CommandBuilder
     from hikari.commands import PartialCommand
@@ -97,3 +103,32 @@ class CommandHandler:
                     entity,
                     ", ".join(command.name for command in commands),
                 )
+
+    def load_commands_from_file(self, file: Path) -> Sequence[AppCommand]:
+        commands: typing.List[AppCommand] = []
+        spec: ModuleSpec | None = importlib.util.spec_from_file_location(file.name, file)
+        if not spec:
+            raise
+        if not spec.loader:
+            raise
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for _, obj in inspect.getmembers(module):
+            if inspect.isclass(obj) and issubclass(obj, AppCommand) and obj is not AppCommand:
+                try:
+                    commands.append(obj())  # type: ignore
+                except ValueError:
+                    raise AurumException("`__init__` of base includable wasn't overrided")
+        return commands
+
+    def load_folder(self, directory: PathLike[str]) -> None:
+        """Load commands from folder"""
+        for file in Path(directory).rglob("*.py"):
+            commands: Sequence[AppCommand] = self.load_commands_from_file(file)
+            if not commands:
+                return
+            for command in commands:
+                self.commands[command.name] = command
+        self.__logger.debug(
+            "loaded %s", ", ".join([command.name for command in self.commands.values()])
+        )

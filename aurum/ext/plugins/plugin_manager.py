@@ -43,7 +43,10 @@ class PluginManager:
         self.plugins: typing.Dict[str, Plugin] = {}
 
     def load_plugin_from_file(self, file: PathLike[str]) -> Plugin | None:
-        """Load plugin from file"""
+        """Load plugin from file
+
+        File must have a `plugin` variable
+        """
         if not isinstance(file, Path):
             file = Path(file)
         if not file.is_file():
@@ -81,8 +84,7 @@ class PluginManager:
     async def load_folder(self, directory: PathLike) -> None:
         """Load plugins from folder"""
         loaded: typing.List[Plugin] = []
-        directory = Path(directory)
-        for file in directory.glob("*.py"):
+        for file in Path(directory).rglob("*.py"):
             plugin: Plugin | None = self.load_plugin_from_file(file)
             if not plugin:
                 return
