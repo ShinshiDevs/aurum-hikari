@@ -93,5 +93,9 @@ You need to import the [MessageCommand class][aurum.commands.message_command.Mes
 
 * * *
 
+
+#### Work with plugins
+Look out a [plugins integration](integrations/plugins.md).
+
 #### Work with components
 Sadly, but at the moment Aurum don't have a components. :octicons-clock-fill-24:

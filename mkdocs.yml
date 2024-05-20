@@ -1,6 +1,6 @@
 site_author: Shinshi Developers Team
 site_name: Aurum
-site_description: A flexible command & component handler
+site_description: A flexible framework for handling commands and components with integrations.
 site_url: https://shinshidevs.github.io/aurum-hikari
 
 repo_name: ShinshiDevs/aurum-hikari

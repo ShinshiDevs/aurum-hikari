@@ -1,6 +1,4 @@
-"""
-Aurum - Flexible framework for command and component handling with integrations.
-"""
+"""Aurum - A flexible framework for handling commands and components with integrations."""
 
 from __future__ import annotations
 
@@ -14,6 +12,8 @@ __all__: Sequence[str] = (
     "Locale",
     "Localized",
     "LocalizedOr",
+    "Option",
+    "Choice",
 )
 
 import typing

@@ -19,8 +19,23 @@ class PluginIntegration(IClientIntegration):
 
     Args:
         plugin_manager (Type[PluginManager]): An optional class of plugin manager.
+            Plugin integration initialize plugin manager yourself.
         base_directory (PathLike[str]): An optional base directory with plugins.
-            If a base directory is specified, the integration will automatically add a task to load the specified folder."""
+            If a base directory is specified, the integration will automatically add a task to load the specified folder.
+
+    Example:
+        ```py
+        client = Client(
+            bot,
+            integrations=[
+                PluginIntegration(base_directory=Path("bot", "plugins")) # (1)
+            ]
+        )
+        ```
+        { .annotate }
+
+        1. If a base directory is specified, the integration will automatically add a task to load the specified folder.
+    """
 
     def __init__(
         self,

@@ -11,7 +11,7 @@ name = "aurum-hikari"
 version = "0.1.4.1"
 license = "MIT"
 authors = ["stefanlight <64615032+stefanlight8@users.noreply.github.com>"]
-description = "A flexible command & component handler"
+description = "A flexible framework for handling commands and components with integrations."
 keywords = [
     "discord",
     "hikari",
@@ -19,6 +19,7 @@ keywords = [
     "components",
     "command-handler",
     "component-handler",
+    "integrations",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
