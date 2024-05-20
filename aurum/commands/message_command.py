@@ -31,7 +31,7 @@ class MessageCommand(ContextMenuCommand):
         ```py
         class ReverseTextCommand(MessageCommand):
             def __init__(self) -> None:
-                super().__init__(name="Reverse", dm_enabled=True)
+                super().__init__(name="Reverse", is_dm_enabled=True)
 
             async def callback(self, context: InteractionContext, message: Message) -> None:
                 await context.create_response(message.content[::-1])

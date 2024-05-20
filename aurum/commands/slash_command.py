@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import abstractmethod
 import typing
 
 from hikari.commands import CommandType
@@ -11,7 +10,6 @@ from aurum.commands.sub_command import SubCommand
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.consts import SUB_COMMANDS_CONTAINER
 from aurum.internal.utils.commands import build_option
-from aurum.l10n import Localized
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -21,7 +19,6 @@ if typing.TYPE_CHECKING:
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
-    from aurum.interactions import InteractionContext
     from aurum.l10n import LocalizationProviderInterface, LocalizedOr
     from aurum.options import Option
 
@@ -142,8 +139,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             .set_description_localizations(l10n.build_localized(description))
         )
         if not self.sub_commands:
-            if isinstance(self.description, Localized):
-                builder.set_description_localizations(l10n.build_localized(self.description))
+            builder.set_description_localizations(l10n.build_localized(description))
             for option in self.options:
                 builder.add_option(build_option(option, l10n))
         else:

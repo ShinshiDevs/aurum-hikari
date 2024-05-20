@@ -22,7 +22,7 @@ class LocalizationProviderInterface(typing.Protocol):
     async def start(self) -> None:
         """Start the localization provider.
 
-        Note:
+        Warning:
             Important function, must be implemented.
         """
         ...
@@ -30,8 +30,9 @@ class LocalizationProviderInterface(typing.Protocol):
     def build_localized(self, value: LocalizedOr[str]) -> typing.Dict[str, str]:
         """Build [Localized object][aurum.l10n.localized.Localized] for Discord API.
 
-        Note:
-            Important function, must be implemented.
+        Warning:
+            - Important function, must be implemented.
+            - When str is passed to value, this function must return empty dictionary.
         """
         ...
 
