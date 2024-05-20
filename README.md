@@ -1,10 +1,9 @@
 <div align="center">
     <div>
         <div align=left>
-            <p style="display: flex; grid-gap: 20px;">
-                <img src="docs/assets/logo.svg" width=64>
-                <text style="font-size: 300%">Aurum</text>
-            </p>
+            <h1>
+                <img align="center" src="docs/assets/logo.svg" width=32 style="margin-right: 5px;"> Aurum
+            </h1>
             <p>
                 <a href="https://shinshidevs.github.io/aurum-hikari/">Documentation</a>
                 ·
