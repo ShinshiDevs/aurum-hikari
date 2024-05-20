@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 import typing
 
-from hikari.commands import CommandChoice, CommandOption, CommandType, OptionType
+from hikari.commands import CommandType
 from hikari.permissions import Permissions
 from hikari.undefined import UNDEFINED
 
@@ -126,19 +127,6 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         )
         self.options: Sequence[Option] = options
         self.sub_commands: typing.Dict[str, SubCommand] = getattr(self, SUB_COMMANDS_CONTAINER, {})
-
-    async def callback(self, context: InteractionContext) -> None:
-        """A callback of the command.
-
-        Meant to override this method to set the callback to the command.
-
-        Warning:
-            This callback will be ignored if the command has a sub-commands.
-        """
-        # TODO: a callback decorator or something to fix this error
-        # Current problem is `Signature of "callback" incompatible with supertype "SlashCommand" - Mypy(override)`
-        # because `callback(self, context: InteractionContext)` != `callback(self, context: InteractionContext, arg_1, arg_2, etc)`
-        pass
 
     def get_builder(
         self,

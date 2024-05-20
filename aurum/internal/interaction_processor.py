@@ -14,7 +14,7 @@ from aurum.interactions.interaction_context import InteractionContext
 from aurum.internal.exceptions.commands_exceptions import UnknownCommandException
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Awaitable, Callable, Sequence
 
     from hikari.impl import GatewayBot
     from hikari.interactions import (
@@ -108,11 +108,10 @@ class InteractionProcessor:
                             )
                 for option in options or ():
                     arguments[option.name] = self.resolve_command_argument(interaction, option)
-            return await (
-                command.callback(context, **arguments)
-                if isinstance(command, SlashCommand)
-                else command.callback(parent_command, context, **arguments)
-            )
+            callback: Callable[..., Awaitable[typing.Any]] = getattr(command, "callback")
+            if isinstance(command, SlashCommand):
+                return await callback(context, **arguments)
+            return await callback(parent_command, context, **arguments)
         if interaction.command_type is CommandType.MESSAGE:
             assert isinstance(command, MessageCommand)
             assert interaction.resolved
