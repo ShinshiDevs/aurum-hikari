@@ -1,1 +1,0 @@
-::: aurum.l10n.locale
