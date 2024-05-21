@@ -119,7 +119,7 @@ class CommandHandler:
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         for _, obj in inspect.getmembers(module):
-            if inspect.isclass(obj) and issubclass(obj, CommandsTypes) and obj is not CommandsTypes:
+            if inspect.isclass(obj) and issubclass(obj, CommandsTypes) and obj not in CommandsTypes:
                 try:
                     commands.append(obj())  # type: ignore
                 except TypeError:
