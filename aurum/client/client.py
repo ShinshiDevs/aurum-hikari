@@ -13,7 +13,8 @@ from aurum.client.integration import IClientIntegration
 from aurum.commands import MessageCommand, SlashCommand, SubCommand, UserCommand
 from aurum.enum.sync_commands import SyncCommandsFlag
 from aurum.interactions import InteractionContext
-from aurum.internal.commands import AppCommand, CommandHandler
+from aurum.internal.commands.app_command import AppCommand
+from aurum.internal.commands.command_handler import CommandHandler
 from aurum.internal.exceptions import AurumException, UnknownCommandException
 from aurum.l10n.pass_localization_provider import PassLocalizationProvider
 

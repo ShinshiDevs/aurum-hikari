@@ -3,13 +3,14 @@ from __future__ import annotations
 import contextlib
 import importlib.util
 import inspect
+import re
 import typing
 from logging import getLogger
 from pathlib import Path
 
 from hikari.undefined import UNDEFINED
 
-from aurum.commands.slash_command import SlashCommand
+from aurum.commands import MessageCommand, SlashCommand, UserCommand
 from aurum.internal.commands.context_menu_command import ContextMenuCommand
 from aurum.internal.exceptions.base_exception import AurumException
 
@@ -28,6 +29,8 @@ if typing.TYPE_CHECKING:
 
     from aurum.internal.commands.app_command import AppCommand
     from aurum.l10n import LocalizationProviderInterface
+
+CommandsTypes = MessageCommand, SlashCommand, UserCommand
 
 
 class CommandHandler:
@@ -126,6 +129,8 @@ class CommandHandler:
     def load_folder(self, directory: PathLike[str]) -> None:
         """Load commands from folder"""
         for file in Path(directory).rglob("*.py"):
+            if re.compile("(^_.*|.*_$)").match(file.name):
+                continue
             commands: Sequence[AppCommand] = self.load_commands_from_file(file)
             if not commands:
                 return
