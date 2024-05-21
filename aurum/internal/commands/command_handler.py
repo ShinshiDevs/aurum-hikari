@@ -119,10 +119,10 @@ class CommandHandler:
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         for _, obj in inspect.getmembers(module):
-            if inspect.isclass(obj) and issubclass(obj, AppCommand) and obj is not AppCommand:
+            if inspect.isclass(obj) and issubclass(obj, CommandsTypes) and obj is not CommandsTypes:
                 try:
                     commands.append(obj())  # type: ignore
-                except ValueError:
+                except TypeError:
                     raise AurumException("`__init__` of base includable wasn't overrided")
         return commands
 

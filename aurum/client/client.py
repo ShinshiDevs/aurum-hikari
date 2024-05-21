@@ -125,7 +125,7 @@ class Client:
         if issubclass(includable, AppCommand):
             try:
                 instance: AppCommand = includable()  # type: ignore
-            except ValueError:
+            except TypeError:
                 raise AurumException("`__init__` of base includable wasn't overrided")
             self.commands.commands[instance.name] = instance
 
