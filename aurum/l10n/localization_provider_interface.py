@@ -5,8 +5,7 @@ import typing
 if typing.TYPE_CHECKING:
     from hikari import CommandInteraction, ComponentInteraction
 
-    from aurum.l10n.locale import Locale
-    from aurum.l10n.types import LocalizedOr
+    from aurum.l10n.localized import Localized
 
 
 class LocalizationProviderInterface(typing.Protocol):
@@ -27,15 +26,14 @@ class LocalizationProviderInterface(typing.Protocol):
         """
         ...
 
-    def build_localized(self, value: LocalizedOr[str]) -> typing.Dict[str, str]:
+    def build_localized(self, value: Localized) -> typing.Dict[str, str]:
         """Build [Localized object][aurum.l10n.localized.Localized] for Discord API.
 
         Warning:
-            - Important function, must be implemented.
-            - When str is passed to value, this function must return empty dictionary.
+            Important function, must be implemented.
         """
         ...
 
-    def get_locale(self, by: str | CommandInteraction | ComponentInteraction) -> Locale | None:
+    def get_locale(self, by: str | CommandInteraction | ComponentInteraction) -> typing.Any:
         """Get locale by name or interaction"""
         ...

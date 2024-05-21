@@ -5,7 +5,6 @@ import typing
 from aurum.l10n.localization_provider_interface import LocalizationProviderInterface
 
 if typing.TYPE_CHECKING:
-    from aurum.l10n.locale import Locale
     from aurum.l10n.localized import Localized
 
 
@@ -16,5 +15,5 @@ class PassLocalizationProvider(LocalizationProviderInterface):
     def build_localized(self, value: Localized) -> typing.Dict[str, str]:
         return {}
 
-    def get_locale(self, by: typing.Any) -> Locale | None:
+    def get_locale(self, by: typing.Any) -> None:
         pass

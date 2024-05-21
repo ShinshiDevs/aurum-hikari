@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from hikari.commands import CommandOption, OptionType
 
 from aurum.internal.utils.commands import build_option
+from aurum.l10n.localized import Localized
 from aurum.options import Option
 
 if typing.TYPE_CHECKING:
@@ -62,11 +63,13 @@ class SubCommand:
             options = [build_option(option, l10n) for option in self.options]
         else:
             options = [sub_command.as_option(l10n) for sub_command in self.sub_commands.values()]
+        description: LocalizedOr[str] = self.description or "No description"
         return CommandOption(
             type=OptionType.SUB_COMMAND if not self.sub_commands else OptionType.SUB_COMMAND_GROUP,
-            name=str(self.name),
-            name_localizations=l10n.build_localized(self.name),
-            description=str(self.description),
-            description_localizations=l10n.build_localized(self.description or "No description"),
+            name=str(self.name),  # TODO: display name
+            description=str(description),
+            description_localizations=(
+                l10n.build_localized(description) if isinstance(description, Localized) else {}
+            ),
             options=options,
         )

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import importlib.util
 import inspect
 import typing
@@ -70,6 +71,11 @@ class CommandHandler:
                    of the synchronization process for debugging purposes.
             build: A boolean flag to enable a automatic building of commands.
         """
+        if not self._app:
+            self._app = await self._bot.rest.fetch_application()
+        synchronized: typing.Dict[
+            SnowflakeishOr[PartialGuild] | UndefinedType, Sequence[PartialCommand]
+        ] = {}
         for name, command in self.commands.items():
             self._commands_builders.setdefault(command.guild, {})
             if isinstance(command, SlashCommand):
@@ -82,14 +88,10 @@ class CommandHandler:
                     self._bot.rest.context_menu_command_builder,
                     self._l10n,
                 )
-        synchronized: typing.Dict[
-            SnowflakeishOr[PartialGuild] | UndefinedType, Sequence[PartialCommand]
-        ] = {}
-        if not self._app:
-            self._app = await self._bot.rest.fetch_application()
-        synchronized[UNDEFINED] = await self._bot.rest.set_application_commands(
-            self._app, list(self._commands_builders.pop(UNDEFINED).values())
-        )
+        with contextlib.suppress(KeyError):
+            synchronized[UNDEFINED] = await self._bot.rest.set_application_commands(
+                self._app, list(self._commands_builders.pop(UNDEFINED).values())
+            )
         for guild, commands_builders in self._commands_builders.items():
             synchronized[guild] = await self._bot.rest.set_application_commands(
                 self._app, list(commands_builders.values()), guild=guild

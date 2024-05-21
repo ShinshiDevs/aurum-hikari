@@ -10,6 +10,7 @@ from aurum.commands.sub_command import SubCommand
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.consts import SUB_COMMANDS_CONTAINER
 from aurum.internal.utils.commands import build_option
+from aurum.l10n.localized import Localized
 
 if typing.TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -136,10 +137,10 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             .set_default_member_permissions(self.default_member_permissions)
             .set_is_dm_enabled(self.is_dm_enabled)
             .set_is_nsfw(self.is_nsfw)
-            .set_description_localizations(l10n.build_localized(description))
         )
         if not self.sub_commands:
-            builder.set_description_localizations(l10n.build_localized(description))
+            if isinstance(description, Localized):
+                builder.set_description_localizations(l10n.build_localized(description))
             for option in self.options:
                 builder.add_option(build_option(option, l10n))
         else:
