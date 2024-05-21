@@ -9,7 +9,6 @@ __all__: Sequence[str] = (
 
 import typing
 
-from .locale import Locale
 from .localization_provider_interface import LocalizationProviderInterface
 from .localized import Localized
 from .types import LocalizedOr
