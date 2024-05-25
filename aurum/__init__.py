@@ -9,7 +9,6 @@ __all__: Sequence[str] = (
     "UserCommand",
     "InteractionContext",
     "LocalizationProviderInterface",
-    "Locale",
     "Localized",
     "LocalizedOr",
     "Option",

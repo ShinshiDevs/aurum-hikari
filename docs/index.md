@@ -1,3 +1,7 @@
+---
+title: Welcome
+---
+
 # :octicons-home-fill-24: Welcome
 The current version of the documentation is designed for Hikari. 
 
