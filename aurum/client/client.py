@@ -27,6 +27,7 @@ if typing.TYPE_CHECKING:
         PartialInteraction,
     )
 
+    from aurum.ext.plugins import PluginManager
     from aurum.includable import Includable
     from aurum.l10n import LocalizationProviderInterface
     from aurum.types import BotT
@@ -86,6 +87,7 @@ class Client:
 
         self.bot: BotT = bot
         self.commands: CommandHandler = CommandHandler(bot, self.l10n)
+        self.plugins: PluginManager | None = None
 
         for integration in integrations:
             integration.install(self)
