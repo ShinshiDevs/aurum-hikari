@@ -3,6 +3,7 @@ from __future__ import annotations
 __author__: typing.Final[str] = "Shinshi Developers Team"
 __copyright__: typing.Final[str] = "Copyright (c) 2024 Shinshi Developers Team"
 __license__: typing.Final[str] = "MIT"
+__version__: str = "0.1.5.3"
 
 __all__: Sequence[str] = (
     "__author__",
@@ -11,11 +12,7 @@ __all__: Sequence[str] = (
     "__version__",
 )
 
-import os
 import typing
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
-
-with open(os.path.join("VERSION")) as stream:
-    __version__: str = stream.readline()
