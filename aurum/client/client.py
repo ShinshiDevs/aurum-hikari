@@ -180,19 +180,19 @@ class Client:
                 command, "callback"
             )
             if isinstance(command, SlashCommand):
-                return await callback(context, **arguments)
-            return await callback(parent_command, context, **arguments)
+                await callback(context, **arguments)
+            await callback(parent_command, context, **arguments)
         if interaction.command_type is CommandType.MESSAGE:
             assert isinstance(command, MessageCommand)
             assert interaction.resolved
-            return await command.callback(
+            await command.callback(
                 context,
                 list(interaction.resolved.messages.values())[0],
             )
         if interaction.command_type is CommandType.USER:
             assert isinstance(command, UserCommand)
             assert interaction.resolved
-            return await command.callback(
+            await command.callback(
                 context,
                 list(interaction.resolved.users.values())[0],
             )
