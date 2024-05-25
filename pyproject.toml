@@ -30,7 +30,7 @@ keywords = [
     "integrations",
 ]
 packages = [{ include = "aurum" }]
-include = ["VERSION"]
+include = ["./VERSION"]
 
 [tool.poetry.urls]
 repository = "https://github.com/ShinshiDevs/aurum-hikari"
