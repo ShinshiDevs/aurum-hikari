@@ -11,11 +11,11 @@ __all__: Sequence[str] = (
     "__version__",
 )
 
+import os
 import typing
-from pathlib import Path
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
-with open(Path.cwd() / "VERSION") as stream:
+with open(os.path.join("VERSION")) as stream:
     __version__: str = stream.readline()
