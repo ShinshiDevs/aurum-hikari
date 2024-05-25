@@ -12,9 +12,9 @@ __all__: Sequence[str] = (
 )
 
 import typing
-from importlib.metadata import version
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
-__version__: str = version("aurum-hikari")
+with open("VERSION") as stream:
+    __version__: str = stream.readline()
