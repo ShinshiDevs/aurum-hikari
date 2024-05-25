@@ -16,11 +16,11 @@ if typing.TYPE_CHECKING:
     from hikari.embeds import Embed
     from hikari.files import Resourceish
     from hikari.guilds import PartialRole
-    from hikari.impl import GatewayBot
     from hikari.interactions import (
         CommandInteraction,
         CommandInteractionOption,
         ComponentInteraction,
+        InteractionMember,
     )
     from hikari.messages import Message
     from hikari.snowflakes import SnowflakeishSequence
@@ -28,7 +28,7 @@ if typing.TYPE_CHECKING:
     from hikari.users import PartialUser
 
     from aurum.client import Client
-    from aurum.l10n import Locale
+    from aurum.types import BotT
 
 
 @dataclass(slots=True, kw_only=True)
@@ -37,17 +37,27 @@ class InteractionContext:
 
     Attributes:
         interaction (CommandInteraction | ComponentInteraction): The interaction.
-        bot (GatewayBot): The instance of the bot.
+        bot (BotT): The instance of the bot.
         client (Client): The client.
-        locale (Locale | None): An Aurum locale for the interaction.
+        locale (typing.Any): An any locale object for the interaction.
     """
 
     interaction: CommandInteraction | ComponentInteraction
 
-    bot: GatewayBot
+    bot: BotT
     client: Client
 
-    locale: Locale | None
+    locale: typing.Any
+
+    @property
+    def user(self) -> PartialUser | None:
+        """User of the interaction"""
+        return self.interaction.user
+
+    @property
+    def member(self) -> InteractionMember | None:
+        """Member of the interaction"""
+        return self.interaction.member
 
     async def defer(
         self, flags: MessageFlag = MessageFlag.NONE, *, ephemeral: bool = False
@@ -196,3 +206,5 @@ class InteractionContext:
                 )
             case OptionType.ATTACHMENT:
                 return self.interaction.resolved.attachments.get(option.value)
+            case _:
+                return None

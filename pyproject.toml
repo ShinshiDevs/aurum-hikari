@@ -1,5 +1,5 @@
 [tool.poetry]
-version = "0.1.5.3"
+version = "0.1.5.4"
 name = "aurum-hikari"
 authors = ["stefanlight8 <64615032+stefanlight8@users.noreply.github.com>"]
 description = "A flexible framework for handling commands and components with integrations."
@@ -30,6 +30,7 @@ keywords = [
     "integrations",
 ]
 packages = [{ include = "aurum" }]
+include = ["./VERSION"]
 
 [tool.poetry.urls]
 repository = "https://github.com/ShinshiDevs/aurum-hikari"

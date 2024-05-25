@@ -81,7 +81,7 @@ class PluginManager:
             return None
         return None
 
-    async def load_folder(self, directory: PathLike) -> None:
+    async def load_folder(self, directory: PathLike[str]) -> None:
         """Load plugins from folder"""
         loaded: typing.List[Plugin] = []
         for file in Path(directory).rglob("*.py"):

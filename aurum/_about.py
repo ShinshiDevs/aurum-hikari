@@ -8,13 +8,16 @@ __all__: Sequence[str] = (
     "__author__",
     "__copyright__",
     "__license__",
+    "__version_tuple__",
     "__version__",
 )
 
 import typing
-from importlib.metadata import version
+
+from aurum.internal.version import Version
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
-__version__: str = version("aurum-hikari")
+__version_tuple__: Version = Version(0, 1, 5, 4)
+__version__: str = str(__version_tuple__)

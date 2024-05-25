@@ -27,6 +27,7 @@ if typing.TYPE_CHECKING:
         PartialInteraction,
     )
 
+    from aurum.ext.plugins import PluginManager
     from aurum.includable import Includable
     from aurum.l10n import LocalizationProviderInterface
     from aurum.types import BotT
@@ -86,6 +87,7 @@ class Client:
 
         self.bot: BotT = bot
         self.commands: CommandHandler = CommandHandler(bot, self.l10n)
+        self.plugins: PluginManager | None = None
 
         for integration in integrations:
             integration.install(self)
@@ -122,6 +124,7 @@ class Client:
         self.__logger.debug(f"add starting task: {coro.__qualname__}")
 
     def include(self, includable: typing.Type[Includable]) -> None:
+        """Decorator to include an includable object to client"""
         if issubclass(includable, AppCommand):
             try:
                 instance: AppCommand = includable()  # type: ignore
@@ -178,19 +181,19 @@ class Client:
                 command, "callback"
             )
             if isinstance(command, SlashCommand):
-                return await callback(context, **arguments)
-            return await callback(parent_command, context, **arguments)
+                await callback(context, **arguments)
+            await callback(parent_command, context, **arguments)
         if interaction.command_type is CommandType.MESSAGE:
             assert isinstance(command, MessageCommand)
             assert interaction.resolved
-            return await command.callback(
+            await command.callback(
                 context,
                 list(interaction.resolved.messages.values())[0],
             )
         if interaction.command_type is CommandType.USER:
             assert isinstance(command, UserCommand)
             assert interaction.resolved
-            return await command.callback(
+            await command.callback(
                 context,
                 list(interaction.resolved.users.values())[0],
             )
