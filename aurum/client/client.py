@@ -124,6 +124,7 @@ class Client:
         self.__logger.debug(f"add starting task: {coro.__qualname__}")
 
     def include(self, includable: typing.Type[Includable]) -> None:
+        """Decorator to include an includable object to client"""
         if issubclass(includable, AppCommand):
             try:
                 instance: AppCommand = includable()  # type: ignore
