@@ -47,6 +47,6 @@ class PluginIntegration(IClientIntegration):
         self.base_directory: Path | None = Path(base_directory) if base_directory else None
 
     def install(self, client: Client) -> None:
-        self.plugins = self.plugin_manager(client.bot, client)
+        client.plugins = self.plugin_manager(client.bot, client)
         if self.base_directory:
-            client.add_starting_task(self.plugins.load_folder(self.base_directory))
+            client.add_starting_task(client.plugins.load_folder(self.base_directory))
