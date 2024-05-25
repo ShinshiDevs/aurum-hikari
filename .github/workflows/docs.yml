@@ -1,8 +1,10 @@
 name: Documentation
 
 on:
-  release:
-    types: [published]
+  push:
+    branches-ignore:
+      - "dependabot/**"
+      - "unstable"
 
 permissions:
   contents: write
