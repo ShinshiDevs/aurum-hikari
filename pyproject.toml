@@ -1,5 +1,5 @@
 [tool.poetry]
-version = "0.1.5.4"
+version = "0.1.5.5"
 name = "aurum-hikari"
 authors = ["stefanlight8 <64615032+stefanlight8@users.noreply.github.com>"]
 description = "A flexible framework for handling commands and components with integrations."
