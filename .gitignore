@@ -14,3 +14,5 @@ __pycache__/
 poetry.lock
 
 *.env
+
+test_project

@@ -13,9 +13,10 @@ if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
     from hikari.api import ComponentBuilder
+    from hikari.channels import PartialChannel
     from hikari.embeds import Embed
     from hikari.files import Resourceish
-    from hikari.guilds import PartialRole
+    from hikari.guilds import GatewayGuild, PartialRole
     from hikari.interactions import (
         CommandInteraction,
         CommandInteractionOption,
@@ -59,6 +60,14 @@ class InteractionContext:
         """Member of the interaction"""
         return self.interaction.member
 
+    @property
+    def guild(self) -> GatewayGuild | None:
+        return self.interaction.get_guild()
+
+    @property
+    def channel(self) -> PartialChannel | None:
+        return self.interaction.get_channel()
+
     async def defer(
         self, flags: MessageFlag = MessageFlag.NONE, *, ephemeral: bool = False
     ) -> None:
@@ -73,7 +82,7 @@ class InteractionContext:
                 Ephemeral messages that only the author of the interaction can see.
                 They are similar to Clyde's messages.
         """
-        if flags and ephemeral:
+        if ephemeral:
             flags |= MessageFlag.EPHEMERAL
         return await self.bot.rest.create_interaction_response(
             interaction=self.interaction.id,
@@ -127,7 +136,7 @@ class InteractionContext:
                 - Allows to ping roles is set to `True`.
                 - A list of roles that can be pinged in response.
         """
-        if flags and ephemeral:
+        if ephemeral:
             flags |= MessageFlag.EPHEMERAL
         return await self.bot.rest.create_interaction_response(
             interaction=self.interaction.id,

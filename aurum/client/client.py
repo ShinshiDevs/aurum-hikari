@@ -56,9 +56,16 @@ class Client:
         ignore_unknown_interactions (bool): An optional flag that, if set to `True`, will disable the warning message for unknown interactions.
     """
 
-    # __slots__ was removed, because integrations
-    # integrations add a new variables to a class and __slots__ broke this conception
-    # idk how bad is this
+    __slots__: Sequence[str] = (
+        "__logger",
+        "_starting_tasks",
+        "_sync_commands",
+        "_ignore_unknown_interactions",
+        "l10n",
+        "bot",
+        "commands",
+        "plugins",
+    )
 
     def __init__(
         self,
@@ -182,7 +189,9 @@ class Client:
             )
             if isinstance(command, SlashCommand):
                 await callback(context, **arguments)
+                return
             await callback(parent_command, context, **arguments)
+            return
         if interaction.command_type is CommandType.MESSAGE:
             assert isinstance(command, MessageCommand)
             assert interaction.resolved
@@ -190,6 +199,7 @@ class Client:
                 context,
                 list(interaction.resolved.messages.values())[0],
             )
+            return
         if interaction.command_type is CommandType.USER:
             assert isinstance(command, UserCommand)
             assert interaction.resolved
@@ -197,3 +207,4 @@ class Client:
                 context,
                 list(interaction.resolved.users.values())[0],
             )
+            return
