@@ -19,5 +19,5 @@ from aurum.internal.version import Version
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
-__version_tuple__: Version = Version(0, 1, 5, 4)
+__version_tuple__: Version = Version(0, 1, 5, 5)
 __version__: str = str(__version_tuple__)
