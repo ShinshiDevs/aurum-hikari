@@ -57,28 +57,7 @@ py -m pip install aurum-hikari # for windows
 ```
 
 # Usage
-```py
-from hikari import GatewayBot
-
-from aurum import Client, SlashCommand, callback
-
-bot = GatewayBot("...")
-client = Client(bot)
-
-
-@client.include
-class HelloCommand(SlashCommand):
-    def __init__(self) -> None:
-        super().__init__(name="hello", description="Say hi to bot")
-
-    async def callback(self, context: InteractionContext) -> None:
-        await context.create_response(f"Hi, {context.user.mention}!")
-
-
-if __name__ == "__main__":
-    client.run()
-```
-More in [examples folder](./examples).
+View in [examples folder](./examples).
 
 # Projects
 So far, no one has been using our library.

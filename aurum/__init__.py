@@ -7,6 +7,7 @@ __all__: Sequence[str] = (
     "MessageCommand",
     "SlashCommand",
     "UserCommand",
+    "sub_command",
     "InteractionContext",
     "LocalizationProviderInterface",
     "Localized",
@@ -19,6 +20,7 @@ import typing
 
 from aurum.client import *
 from aurum.commands import *
+from aurum.commands.decorators import *
 from aurum.interactions import *
 from aurum.l10n import *
 from aurum.options import *
