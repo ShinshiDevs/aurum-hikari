@@ -16,15 +16,16 @@ if typing.TYPE_CHECKING:
     from os import PathLike
     from types import ModuleType
 
+    from hikari.traits import GatewayBotAware
+
     from aurum.client import Client
-    from aurum.types import BotT
 
 
 class PluginManager:
     """Plugin manager.
 
     Attributes:
-        bot (BotT): The bot instance.
+        bot (GatewayBotAware): The bot instance.
         client (Client): The client.
         commands (CommandHandler): The command handler.
         plugins (Dict[str, Plugin]): A dictionary of loaded plugins, keyed by their names.
@@ -32,10 +33,10 @@ class PluginManager:
 
     __slots__: Sequence[str] = ("__logger", "bot", "client", "commands", "plugins")
 
-    def __init__(self, bot: BotT, client: Client) -> None:
+    def __init__(self, bot: GatewayBotAware, client: Client) -> None:
         self.__logger: Logger = getLogger("aurum.plugins")
 
-        self.bot: BotT = bot
+        self.bot: GatewayBotAware = bot
         self.client: Client = client
 
         self.commands: CommandHandler = client.commands

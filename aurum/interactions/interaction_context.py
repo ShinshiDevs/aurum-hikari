@@ -12,6 +12,7 @@ from hikari.undefined import UNDEFINED
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from hikari.traits import GatewayBotAware
     from hikari.api import ComponentBuilder
     from hikari.channels import PartialChannel
     from hikari.embeds import Embed
@@ -29,7 +30,6 @@ if typing.TYPE_CHECKING:
     from hikari.users import PartialUser
 
     from aurum.client import Client
-    from aurum.types import BotT
 
 
 @dataclass(slots=True, kw_only=True)
@@ -38,14 +38,14 @@ class InteractionContext:
 
     Attributes:
         interaction (CommandInteraction | ComponentInteraction): The interaction.
-        bot (BotT): The instance of the bot.
+        bot (GatewayBotAware): The instance of the bot.
         client (Client): The client.
         locale (typing.Any): An any locale object for the interaction.
     """
 
     interaction: CommandInteraction | ComponentInteraction
 
-    bot: BotT
+    bot: GatewayBotAware
     client: Client
 
     locale: typing.Any

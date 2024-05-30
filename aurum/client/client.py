@@ -23,6 +23,7 @@ if typing.TYPE_CHECKING:
     from collections.abc import Coroutine, Sequence
     from logging import Logger
 
+    from hikari.traits import GatewayBotAware
     from hikari.interactions import (
         CommandInteractionOption,
         PartialInteraction,
@@ -31,7 +32,6 @@ if typing.TYPE_CHECKING:
     from aurum.ext.plugins import PluginManager
     from aurum.internal.includable import Includable
     from aurum.l10n import LocalizationProviderInterface
-    from aurum.types import BotT
 
 
 class Client:
@@ -43,11 +43,11 @@ class Client:
     Attributes:
         l10n (LocalizationProviderInterface): The localization provider instance for multi-language support.
             It is recommended to provide a localization provider if multi-language support is required.
-        bot (BotT): The bot instance.
+        bot (GatewayBotAware): The bot instance.
         commands (CommandHandler): The command handler.
 
     Args:
-        bot (BotT): The bot instance that this client will interact with.
+        bot (GatewayBotAware): The bot instance that this client will interact with.
         l10n (LocalizationProviderInterface): Localization provider.
             If a localization provider is not provided, an `EmptyLocalizationProvider`
             will be used, which will pass all functions and return the key.
@@ -70,7 +70,7 @@ class Client:
 
     def __init__(
         self,
-        bot: BotT,
+        bot: GatewayBotAware,
         *,
         l10n: LocalizationProviderInterface | None = None,
         integrations: Sequence[IClientIntegration] = (),
@@ -93,7 +93,7 @@ class Client:
         else:
             self.add_starting_task(self.l10n.start())
 
-        self.bot: BotT = bot
+        self.bot: GatewayBotAware = bot
         self.commands: CommandHandler = CommandHandler(bot, self.l10n)
         self.plugins: PluginManager | None = None
 

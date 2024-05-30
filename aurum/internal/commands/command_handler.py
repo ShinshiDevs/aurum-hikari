@@ -20,6 +20,7 @@ if typing.TYPE_CHECKING:
     from logging import Logger
     from os import PathLike
 
+    from hikari.traits import GatewayBotAware
     from hikari.api import CommandBuilder
     from hikari.commands import PartialCommand
     from hikari.guilds import PartialApplication, PartialGuild
@@ -28,7 +29,6 @@ if typing.TYPE_CHECKING:
 
     from aurum.internal.commands.app_command import AppCommand
     from aurum.l10n import LocalizationProviderInterface
-    from aurum.types import BotT
 
 CommandsTypes = MessageCommand, SlashCommand, UserCommand
 
@@ -52,10 +52,10 @@ class CommandHandler:
         "commands",
     )
 
-    def __init__(self, bot: BotT, l10n: LocalizationProviderInterface) -> None:
+    def __init__(self, bot: GatewayBotAware, l10n: LocalizationProviderInterface) -> None:
         self.__logger: Logger = getLogger("aurum.commands")
         self._app: PartialApplication | None = None
-        self._bot: BotT = bot
+        self._bot: GatewayBotAware = bot
         self._l10n: LocalizationProviderInterface = l10n
         self._commands_builders: typing.Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, typing.Dict[str, CommandBuilder]

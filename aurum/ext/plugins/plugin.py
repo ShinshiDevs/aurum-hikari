@@ -12,6 +12,7 @@ from aurum.internal.exceptions.base_exception import AurumException
 if typing.TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
+    from hikari.traits import GatewayBotAware
     from hikari.api.event_manager import CallbackT
     from hikari.events.base_events import EventT
     from hikari.guilds import PartialGuild
@@ -21,7 +22,6 @@ if typing.TYPE_CHECKING:
     from aurum.client import Client
     from aurum.internal.includable import Includable
     from aurum.l10n import LocalizedOr
-    from aurum.types import BotT
 
 
 class Plugin:
@@ -89,7 +89,7 @@ class Plugin:
         is_dm_enabled: bool = False,
         is_nsfw: bool = False,
     ) -> None:
-        self._bot: BotT | None = None
+        self._bot: GatewayBotAware | None = None
         self._client: Client | None = None
 
         self.name: str = name
@@ -103,7 +103,7 @@ class Plugin:
         self.included: typing.Dict[str, Includable] = {}
         self.events: typing.List[Event] = []
 
-    def __call__(self, bot: BotT, client: Client) -> Plugin:
+    def __call__(self, bot: GatewayBotAware, client: Client) -> Plugin:
         self._bot = bot
         self._client = client
         for event in self.events:
@@ -111,7 +111,7 @@ class Plugin:
         return self
 
     @property
-    def bot(self) -> BotT | None:
+    def bot(self) -> GatewayBotAware | None:
         return self._bot
 
     @property

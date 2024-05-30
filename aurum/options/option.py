@@ -23,7 +23,7 @@ class Option:
     """The option type"""
     name: str  # TODO: make a display_name soon
     """The unique name of the option"""
-    description: LocalizedOr[str]
+    description: LocalizedOr[str] | None = None
     """The description of the option"""
     is_required: bool = True
     """An optional flag is the option is required.
