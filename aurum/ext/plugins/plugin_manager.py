@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import re
 import typing
 from logging import getLogger
 from pathlib import Path
@@ -25,21 +26,17 @@ class PluginManager:
     """Plugin manager.
 
     Attributes:
-        bot (GatewayBotAware): The bot instance.
-        client (Client): The client.
-        commands (CommandHandler): The command handler.
         plugins (Dict[str, Plugin]): A dictionary of loaded plugins, keyed by their names.
     """
 
-    __slots__: Sequence[str] = ("__logger", "bot", "client", "commands", "plugins")
+    __slots__: Sequence[str] = ("__logger", "_bot", "_client", "_commands", "plugins")
 
     def __init__(self, bot: GatewayBotAware, client: Client) -> None:
         self.__logger: Logger = getLogger("aurum.plugins")
 
-        self.bot: GatewayBotAware = bot
-        self.client: Client = client
-
-        self.commands: CommandHandler = client.commands
+        self._bot: GatewayBotAware = bot
+        self._client: Client = client
+        self._commands: CommandHandler = client.commands
 
         self.plugins: typing.Dict[str, Plugin] = {}
 
@@ -67,7 +64,7 @@ class PluginManager:
             spec.loader.exec_module(module)
             plugin: Plugin | None = getattr(module, "plugin", None)
             if isinstance(plugin, Plugin):
-                return plugin(self.bot, self.client)
+                return plugin(self._bot, self._client)
             self.__logger.error(
                 "plugin in %s is not not detected.",
                 file,
@@ -83,11 +80,13 @@ class PluginManager:
         """Load plugins from folder"""
         loaded: typing.List[Plugin] = []
         for file in Path(directory).rglob("*.py"):
+            if re.compile("(^_.*|.*_$)").match(file.name):
+                continue
             plugin: Plugin | None = self.load_plugin_from_file(file)
             if not plugin:
                 return
             for includable in plugin.included.values():
                 if isinstance(includable, AppCommand):
-                    self.commands.commands[includable.name] = includable
+                    self._commands.commands[includable.name] = includable
             loaded.append(plugin)
         self.__logger.debug("loaded %s", ", ".join([plugin.name for plugin in loaded]))
