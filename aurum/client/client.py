@@ -6,6 +6,7 @@ from collections.abc import Callable
 from logging import getLogger
 
 from hikari.commands import CommandType, OptionType
+from hikari.errors import HikariError
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
 from hikari.interactions import CommandInteraction, ComponentInteraction
 
@@ -187,11 +188,16 @@ class Client:
             callback: Callable[..., Coroutine[None, None, typing.Any]] = getattr(
                 command, "callback"
             )
-            if isinstance(command, SlashCommand):
-                await callback(context, **arguments)
-                return
-            await callback(parent_command, context, **arguments)
-            return
+            try:
+                if isinstance(command, SlashCommand):
+                    await callback(context, **arguments)
+                    return
+                await callback(parent_command, context, **arguments)
+            except Exception as error:
+                self.__logger.exception(
+                    "An unexcepted error occurred in command %s", command.name, exc_info=error
+                )
+                return await self.on_command_error(context, error)
         if interaction.command_type is CommandType.MESSAGE:
             assert isinstance(command, MessageCommand)
             assert interaction.resolved
@@ -208,3 +214,15 @@ class Client:
                 list(interaction.resolved.users.values())[0],
             )
             return
+
+    async def on_unexcepted_error(self, context: InteractionContext, error: Exception) -> None:
+        """Response on unexcepted error"""
+        try:
+            await context.create_response("An unexcepted error occurred.", ephemeral=True)
+        except HikariError:
+            await context.edit_response("An unexcepted error occurred.")
+        return
+
+    async def on_command_error(self, context: InteractionContext, error: Exception) -> None:
+        """Handler of commands' errors"""
+        await self.on_unexcepted_error(context, error)

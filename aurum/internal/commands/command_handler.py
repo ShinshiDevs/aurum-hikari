@@ -23,12 +23,12 @@ if typing.TYPE_CHECKING:
     from hikari.api import CommandBuilder
     from hikari.commands import PartialCommand
     from hikari.guilds import PartialApplication, PartialGuild
-    from hikari.impl import GatewayBot
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
     from aurum.internal.commands.app_command import AppCommand
     from aurum.l10n import LocalizationProviderInterface
+    from aurum.types import BotT
 
 CommandsTypes = MessageCommand, SlashCommand, UserCommand
 
@@ -52,10 +52,10 @@ class CommandHandler:
         "commands",
     )
 
-    def __init__(self, bot: GatewayBot, l10n: LocalizationProviderInterface) -> None:
+    def __init__(self, bot: BotT, l10n: LocalizationProviderInterface) -> None:
         self.__logger: Logger = getLogger("aurum.commands")
         self._app: PartialApplication | None = None
-        self._bot: GatewayBot = bot
+        self._bot: BotT = bot
         self._l10n: LocalizationProviderInterface = l10n
         self._commands_builders: typing.Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, typing.Dict[str, CommandBuilder]
@@ -101,7 +101,7 @@ class CommandHandler:
             )
         for entity, commands in synchronized.items():
             for partial_command in commands:
-                self.commands[command.name].set_app(partial_command)
+                self.commands[command.name].set_app(partial_command) # type: ignore
             if debug:
                 self.__logger.debug(
                     "Set commands for %s: %s",
