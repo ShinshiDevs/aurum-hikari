@@ -47,8 +47,7 @@ class PluginManager:
 
         File must have a `plugin` variable
         """
-        if not isinstance(file, Path):
-            file = Path(file)
+        file = Path(file) if not isinstance(file, Path) else file
         if not file.is_file():
             return None
         module_name: str = file.stem
@@ -67,11 +66,9 @@ class PluginManager:
             spec.loader.exec_module(module)
             plugin: Plugin | None = getattr(module, "plugin", None)
             if isinstance(plugin, Plugin):
-                plugin.bot = self.bot
-                plugin.client = self.client
-                return plugin
+                return plugin(self.bot, self.client)
             self.__logger.error(
-                "variable `plugin` in %s is not an instance of Plugin class or not detected.",
+                "plugin in %s is not not detected.",
                 file,
             )
         except Exception as exception:
@@ -88,8 +85,6 @@ class PluginManager:
             plugin: Plugin | None = self.load_plugin_from_file(file)
             if not plugin:
                 return
-            plugin.bot = self.bot
-            plugin.client = self.client
             for includable in plugin.included.values():
                 if isinstance(includable, AppCommand):
                     self.commands.commands[includable.name] = includable
