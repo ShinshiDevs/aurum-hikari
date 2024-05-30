@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
     from hikari.undefined import UndefinedType
 
     from aurum.client import Client
-    from aurum.includable import Includable
+    from aurum.internal.includable import Includable
     from aurum.l10n import LocalizedOr
     from aurum.types import BotT
 

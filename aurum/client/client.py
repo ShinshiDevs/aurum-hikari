@@ -28,7 +28,7 @@ if typing.TYPE_CHECKING:
     )
 
     from aurum.ext.plugins import PluginManager
-    from aurum.includable import Includable
+    from aurum.internal.includable import Includable
     from aurum.l10n import LocalizationProviderInterface
     from aurum.types import BotT
 
