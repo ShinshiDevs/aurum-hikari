@@ -61,7 +61,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             class HelloCommand(SlashCommand):
                 def __init__(self) -> None:
                     super().__init__(name="hello", description="Say hi to bot")  # (1)
-                
+
                 async def callback(self, context: InteractionContext) -> None:
                     await context.create_response(f"Hi, {context.user.mention}!")
             ```
