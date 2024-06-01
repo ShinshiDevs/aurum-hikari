@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import typing
-from collections.abc import Callable
 from logging import getLogger
 
 from hikari.commands import CommandType, OptionType
+from hikari.errors import HikariError
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
 from hikari.interactions import CommandInteraction, ComponentInteraction
 
-from aurum.client.integration import IClientIntegration
 from aurum.commands import MessageCommand, SlashCommand, SubCommand, UserCommand
 from aurum.enum.sync_commands import SyncCommandsFlag
 from aurum.interactions import InteractionContext
@@ -26,11 +25,12 @@ if typing.TYPE_CHECKING:
         CommandInteractionOption,
         PartialInteraction,
     )
+    from hikari.traits import GatewayBotAware
 
+    from aurum.client.integration import IClientIntegration
     from aurum.ext.plugins import PluginManager
-    from aurum.includable import Includable
+    from aurum.internal.includable import Includable
     from aurum.l10n import LocalizationProviderInterface
-    from aurum.types import BotT
 
 
 class Client:
@@ -42,11 +42,11 @@ class Client:
     Attributes:
         l10n (LocalizationProviderInterface): The localization provider instance for multi-language support.
             It is recommended to provide a localization provider if multi-language support is required.
-        bot (BotT): The bot instance.
+        bot (GatewayBotAware): The bot instance.
         commands (CommandHandler): The command handler.
 
     Args:
-        bot (BotT): The bot instance that this client will interact with.
+        bot (GatewayBotAware): The bot instance that this client will interact with.
         l10n (LocalizationProviderInterface): Localization provider.
             If a localization provider is not provided, an `EmptyLocalizationProvider`
             will be used, which will pass all functions and return the key.
@@ -69,7 +69,7 @@ class Client:
 
     def __init__(
         self,
-        bot: BotT,
+        bot: GatewayBotAware,
         *,
         l10n: LocalizationProviderInterface | None = None,
         integrations: Sequence[IClientIntegration] = (),
@@ -92,7 +92,7 @@ class Client:
         else:
             self.add_starting_task(self.l10n.start())
 
-        self.bot: BotT = bot
+        self.bot: GatewayBotAware = bot
         self.commands: CommandHandler = CommandHandler(bot, self.l10n)
         self.plugins: PluginManager | None = None
 
@@ -156,14 +156,18 @@ class Client:
 
     async def proceed_command(self, interaction: CommandInteraction) -> None:
         context: InteractionContext = self.create_interaction_context(interaction)
-        parent_command: AppCommand | None = self.commands.commands.get(interaction.command_name)
+
+        parent_command: AppCommand | None = self.commands.app_commands.get(interaction.command_id)
         if not parent_command and not self._ignore_unknown_interactions:
             raise UnknownCommandException(interaction.command_name)
-        command: AppCommand | SubCommand | None = parent_command
+
         if interaction.command_type is CommandType.SLASH:
-            assert isinstance(command, SlashCommand)
+            assert isinstance(parent_command, SlashCommand)
+            command: SlashCommand | SubCommand = parent_command
+
             options: Sequence[CommandInteractionOption] | None = interaction.options
             arguments: typing.Dict[str, typing.Any] = {}
+
             if options:
                 option: CommandInteractionOption = options[0]
                 if option.type is OptionType.SUB_COMMAND:
@@ -184,27 +188,42 @@ class Client:
                             )
                 for option in options or ():
                     arguments[option.name] = context.resolve_command_argument(option)
-            callback: Callable[..., Coroutine[None, None, typing.Any]] = getattr(
-                command, "callback"
-            )
-            if isinstance(command, SlashCommand):
-                await callback(context, **arguments)
-                return
-            await callback(parent_command, context, **arguments)
+            try:
+                if isinstance(command, SlashCommand):
+                    await command.callback(context, **arguments)
+                    return
+                await command.callback(parent_command, context, **arguments)
+            except Exception as error:
+                self.__logger.exception(
+                    "An unexcepted error occurred in command %s", command.name, exc_info=error
+                )
+                await self.on_command_error(context, error)
             return
         if interaction.command_type is CommandType.MESSAGE:
-            assert isinstance(command, MessageCommand)
+            assert isinstance(parent_command, MessageCommand)
             assert interaction.resolved
-            await command.callback(
+            await parent_command.callback(
                 context,
                 list(interaction.resolved.messages.values())[0],
             )
             return
         if interaction.command_type is CommandType.USER:
-            assert isinstance(command, UserCommand)
+            assert isinstance(parent_command, UserCommand)
             assert interaction.resolved
-            await command.callback(
+            await parent_command.callback(
                 context,
                 list(interaction.resolved.users.values())[0],
             )
             return
+
+    async def on_unexcepted_error(self, context: InteractionContext, error: Exception) -> None:
+        """Response on unexcepted error"""
+        try:
+            await context.create_response("An unexcepted error occurred.", ephemeral=True)
+        except HikariError:
+            await context.edit_response("An unexcepted error occurred.")
+        return
+
+    async def on_command_error(self, context: InteractionContext, error: Exception) -> None:
+        """Handler of commands' errors"""
+        await self.on_unexcepted_error(context, error)

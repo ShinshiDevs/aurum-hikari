@@ -5,20 +5,23 @@ import typing
 from hikari.permissions import Permissions
 from hikari.undefined import UNDEFINED
 
+from aurum.events import Event
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.exceptions.base_exception import AurumException
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
+    from hikari.traits import GatewayBotAware
+    from hikari.api.event_manager import CallbackT
+    from hikari.events.base_events import EventT
     from hikari.guilds import PartialGuild
     from hikari.snowflakes import SnowflakeishOr
     from hikari.undefined import UndefinedType
 
     from aurum.client import Client
-    from aurum.includable import Includable
+    from aurum.internal.includable import Includable
     from aurum.l10n import LocalizedOr
-    from aurum.types import BotT
 
 
 class Plugin:
@@ -33,6 +36,7 @@ class Plugin:
         dm_enabled (bool): Whether the plugin can be used in direct messages.
         is_nsfw (bool): Indicates whether the plugin is age-restricted.
         included (Dict[str, Includable]): Included objects of plugin.
+        events (List[Event]): Events of plugin.
 
     Example:
         ```py
@@ -72,6 +76,7 @@ class Plugin:
         "is_dm_enabled",
         "is_nsfw",
         "included",
+        "events",
     )
 
     def __init__(
@@ -84,7 +89,7 @@ class Plugin:
         is_dm_enabled: bool = False,
         is_nsfw: bool = False,
     ) -> None:
-        self._bot: BotT | None = None
+        self._bot: GatewayBotAware | None = None
         self._client: Client | None = None
 
         self.name: str = name
@@ -96,22 +101,22 @@ class Plugin:
         self.is_nsfw: bool = is_nsfw
 
         self.included: typing.Dict[str, Includable] = {}
+        self.events: typing.List[Event] = []
+
+    def __call__(self, bot: GatewayBotAware, client: Client) -> Plugin:
+        self._bot = bot
+        self._client = client
+        for event in self.events:
+            bot.event_manager.listen(*event.event_types)(event.callback)
+        return self
 
     @property
-    def bot(self) -> BotT | None:
+    def bot(self) -> GatewayBotAware | None:
         return self._bot
-
-    @bot.setter
-    def bot(self, bot: BotT) -> None:
-        self._bot = bot
 
     @property
     def client(self) -> Client | None:
         return self._client
-
-    @client.setter
-    def client(self, client: Client) -> None:
-        self._client = client
 
     def include(self, includable: typing.Type[Includable]) -> None:
         if issubclass(includable, AppCommand):
@@ -126,3 +131,9 @@ class Plugin:
             except ValueError:
                 raise AurumException("`__init__` of base includable wasn't overrided")
             self.included[instance.name] = instance
+
+    def listen(self, *event_types: typing.Type[EventT]) -> Callable[[CallbackT[EventT]], None]:
+        def decorator(callback: CallbackT[EventT]) -> None:
+            self.events.append(Event(event_types=event_types, callback=callback))
+
+        return decorator

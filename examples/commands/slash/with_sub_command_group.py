@@ -45,7 +45,7 @@ class StatsCommand(SlashCommand):
     async def channel_massages(
         self, context: InteractionContext, channel: PartialChannel | None = None
     ) -> None:
-        channel = context.channel
+        channel = await context.bot.rest.fetch_channel(channel) if channel else context.channel
         assert isinstance(channel, TextableGuildChannel)
         now: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         data: dict[str, Statistic] = {

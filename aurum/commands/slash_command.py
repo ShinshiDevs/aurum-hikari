@@ -59,11 +59,11 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         === "With callback"
             ```py
             class HelloCommand(SlashCommand):
-            def __init__(self) -> None:
-                super().__init__(name="hello", description="Say hi to bot")  # (1)
+                def __init__(self) -> None:
+                    super().__init__(name="hello", description="Say hi to bot")  # (1)
 
-            async def callback(self, context: InteractionContext) -> None:
-                await context.create_response(f"Hi, {context.user.mention}!")
+                async def callback(self, context: InteractionContext) -> None:
+                    await context.create_response(f"Hi, {context.user.mention}!")
             ```
 
             1. Base information about your command: name, description, default member permissions and etc.
@@ -71,16 +71,16 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         === "With sub-commands"
             ```py
             class ABCCommand(SlashCommand):  # (1)
-            def __init__(self) -> None:
-                super().__init__(name="a")  # (2)
+                def __init__(self) -> None:
+                    super().__init__(name="a")  # (2)
 
-            @sub_command(name="b")  # (3)
-            async def b_command(self, context: InteractionContext) -> None:
-                ...  # (4)
+                @sub_command(name="b")  # (3)
+                async def b_command(self, context: InteractionContext) -> None:
+                    ...  # (4)
 
-            @b_command.sub_command(name="c")
-            async def b_c_command(self, context: InteractionContext) -> None:
-                ...
+                @b_command.sub_command(name="c")
+                async def b_c_command(self, context: InteractionContext) -> None:
+                    ...
             ```
 
             1. When command has a sub-commands, callback will be ignored.
@@ -91,7 +91,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     """
 
     __slots__: Sequence[str] = (
-        "_app",
+        "app",
         "command_type",
         "name",
         "description",

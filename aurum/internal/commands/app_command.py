@@ -5,7 +5,7 @@ import typing
 from hikari.permissions import Permissions
 from hikari.undefined import UNDEFINED
 
-from aurum.includable import Includable
+from aurum.internal.includable import Includable
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -37,7 +37,6 @@ class AppCommand(Includable):
     __slots__: Sequence[str] = (
         "app",
         "name",
-        "display_name",
         "guild",
         "default_member_permissions",
         "is_dm_enabled",
