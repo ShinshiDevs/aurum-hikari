@@ -59,11 +59,11 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         === "With callback"
             ```py
             class HelloCommand(SlashCommand):
-            def __init__(self) -> None:
-                super().__init__(name="hello", description="Say hi to bot")  # (1)
-
-            async def callback(self, context: InteractionContext) -> None:
-                await context.create_response(f"Hi, {context.user.mention}!")
+                def __init__(self) -> None:
+                    super().__init__(name="hello", description="Say hi to bot")  # (1)
+                
+                async def callback(self, context: InteractionContext) -> None:
+                    await context.create_response(f"Hi, {context.user.mention}!")
             ```
 
             1. Base information about your command: name, description, default member permissions and etc.
