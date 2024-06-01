@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-import contextlib
 import importlib.util
 import inspect
 import re
 import typing
 from logging import getLogger
 from pathlib import Path
-
-from hikari.undefined import UNDEFINED
 
 from aurum.commands import MessageCommand, SlashCommand, UserCommand
 from aurum.internal.commands.context_menu_command import ContextMenuCommand
@@ -20,11 +17,11 @@ if typing.TYPE_CHECKING:
     from logging import Logger
     from os import PathLike
 
-    from hikari.traits import GatewayBotAware
     from hikari.api import CommandBuilder
     from hikari.commands import PartialCommand
     from hikari.guilds import PartialApplication, PartialGuild
-    from hikari.snowflakes import SnowflakeishOr
+    from hikari.snowflakes import Snowflake, SnowflakeishOr
+    from hikari.traits import GatewayBotAware
     from hikari.undefined import UndefinedType
 
     from aurum.internal.commands.app_command import AppCommand
@@ -40,7 +37,8 @@ class CommandHandler:
     It registers commands, synchronizes them with the Discord API.
 
     Attributes:
-        commands (typing.Dict[str, AppCommand]): Dictionary that stores the actual AppCommand instances, keyed by their names.
+        commands (typing.Dict[str, AppCommand]): Dictionary that stores the AppCommand instances, keyed by their names.
+        app_commands (typing.Dict[Snowflake, AppCommand]): Dictionary that stores AppCommand instances, keyed by their application ID
     """
 
     __slots__: Sequence[str] = (
@@ -50,6 +48,7 @@ class CommandHandler:
         "_l10n",
         "_commands_builders",
         "commands",
+        "app_commands",
     )
 
     def __init__(self, bot: GatewayBotAware, l10n: LocalizationProviderInterface) -> None:
@@ -57,11 +56,13 @@ class CommandHandler:
         self._app: PartialApplication | None = None
         self._bot: GatewayBotAware = bot
         self._l10n: LocalizationProviderInterface = l10n
+
         self._commands_builders: typing.Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, typing.Dict[str, CommandBuilder]
         ] = {}
 
         self.commands: typing.Dict[str, AppCommand] = {}
+        self.app_commands: typing.Dict[Snowflake, AppCommand] = {}
 
     async def sync(self, debug: bool = False) -> None:
         """Synchronizes the builders of commands with the Discord API for the bot application.
@@ -79,35 +80,37 @@ class CommandHandler:
         synchronized: typing.Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, Sequence[PartialCommand]
         ] = {}
-        for name, command in self.commands.items():
+        for command in self.commands.values():
             self._commands_builders.setdefault(command.guild, {})
-            if isinstance(command, SlashCommand):
-                self._commands_builders[command.guild][name] = command.get_builder(
-                    self._bot.rest.slash_command_builder,
-                    self._l10n,
-                )
-            elif isinstance(command, ContextMenuCommand):
-                self._commands_builders[command.guild][name] = command.get_builder(
-                    self._bot.rest.context_menu_command_builder,
-                    self._l10n,
-                )
-        with contextlib.suppress(KeyError):
-            synchronized[UNDEFINED] = await self._bot.rest.set_application_commands(
-                self._app, list(self._commands_builders.pop(UNDEFINED).values())
-            )
-        for guild, commands_builders in self._commands_builders.items():
+            if builder := self.get_command_builder(command):
+                self._commands_builders[command.guild][command.name] = builder
+        for guild, builders in self._commands_builders.items():
             synchronized[guild] = await self._bot.rest.set_application_commands(
-                self._app, list(commands_builders.values()), guild=guild
+                self._app, list(builders.values()), guild=guild
             )
         for entity, commands in synchronized.items():
             for partial_command in commands:
-                self.commands[command.name].set_app(partial_command)  # type: ignore
+                self.commands[partial_command.name].set_app(partial_command)
+                self.app_commands[partial_command.id] = self.commands[partial_command.name]
             if debug:
                 self.__logger.debug(
                     "Set commands for %s: %s",
                     entity,
                     ", ".join(command.name for command in commands),
                 )
+
+    def get_command_builder(self, command: AppCommand) -> CommandBuilder | None:
+        if isinstance(command, SlashCommand):
+            return command.get_builder(
+                self._bot.rest.slash_command_builder,
+                self._l10n,
+            )
+        elif isinstance(command, ContextMenuCommand):
+            return command.get_builder(
+                self._bot.rest.context_menu_command_builder,
+                self._l10n,
+            )
+        return None
 
     def load_commands_from_file(self, file: Path) -> Sequence[AppCommand]:
         commands: typing.List[AppCommand] = []

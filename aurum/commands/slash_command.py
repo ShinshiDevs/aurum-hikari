@@ -71,16 +71,16 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         === "With sub-commands"
             ```py
             class ABCCommand(SlashCommand):  # (1)
-            def __init__(self) -> None:
-                super().__init__(name="a")  # (2)
+                def __init__(self) -> None:
+                    super().__init__(name="a")  # (2)
 
-            @sub_command(name="b")  # (3)
-            async def b_command(self, context: InteractionContext) -> None:
-                ...  # (4)
-
-            @b_command.sub_command(name="c")
-            async def b_c_command(self, context: InteractionContext) -> None:
-                ...
+                @sub_command(name="b")  # (3)
+                async def b_command(self, context: InteractionContext) -> None:
+                    ...  # (4)
+                
+                @b_command.sub_command(name="c")
+                async def b_c_command(self, context: InteractionContext) -> None:
+                    ...
             ```
 
             1. When command has a sub-commands, callback will be ignored.
@@ -91,7 +91,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     """
 
     __slots__: Sequence[str] = (
-        "_app",
+        "app",
         "command_type",
         "name",
         "description",

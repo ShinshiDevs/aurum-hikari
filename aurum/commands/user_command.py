@@ -9,6 +9,8 @@ from hikari.undefined import UNDEFINED
 from aurum.internal.commands.context_menu_command import ContextMenuCommand
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from hikari.guilds import PartialGuild
     from hikari.interactions import InteractionMember
     from hikari.snowflakes import SnowflakeishOr
@@ -38,6 +40,16 @@ class UserCommand(ContextMenuCommand):
                 await context.create_response(f"Hi, {target.mention}!")
         ```
     """
+
+    __slots__: Sequence[str] = (
+        "app",
+        "command_type",
+        "name",
+        "guild",
+        "default_member_permissions",
+        "dm_enabled",
+        "is_nsfw",
+    )
 
     def __init__(
         self,

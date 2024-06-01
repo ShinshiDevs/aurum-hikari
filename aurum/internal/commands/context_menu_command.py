@@ -21,10 +21,9 @@ if typing.TYPE_CHECKING:
 
 class ContextMenuCommand(AppCommand):
     __slots__: Sequence[str] = (
-        "_app",
+        "app",
         "command_type",
         "name",
-        "display_name",
         "guild",
         "default_member_permissions",
         "dm_enabled",

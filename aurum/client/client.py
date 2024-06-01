@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import typing
-from collections.abc import Callable
 from logging import getLogger
 
 from hikari.commands import CommandType, OptionType
@@ -10,7 +9,6 @@ from hikari.errors import HikariError
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
 from hikari.interactions import CommandInteraction, ComponentInteraction
 
-from aurum.client.integration import IClientIntegration
 from aurum.commands import MessageCommand, SlashCommand, SubCommand, UserCommand
 from aurum.enum.sync_commands import SyncCommandsFlag
 from aurum.interactions import InteractionContext
@@ -23,12 +21,13 @@ if typing.TYPE_CHECKING:
     from collections.abc import Coroutine, Sequence
     from logging import Logger
 
-    from hikari.traits import GatewayBotAware
     from hikari.interactions import (
         CommandInteractionOption,
         PartialInteraction,
     )
+    from hikari.traits import GatewayBotAware
 
+    from aurum.client.integration import IClientIntegration
     from aurum.ext.plugins import PluginManager
     from aurum.internal.includable import Includable
     from aurum.l10n import LocalizationProviderInterface
@@ -157,14 +156,18 @@ class Client:
 
     async def proceed_command(self, interaction: CommandInteraction) -> None:
         context: InteractionContext = self.create_interaction_context(interaction)
-        parent_command: AppCommand | None = self.commands.commands.get(interaction.command_name)
+
+        parent_command: AppCommand | None = self.commands.app_commands.get(interaction.command_id)
         if not parent_command and not self._ignore_unknown_interactions:
             raise UnknownCommandException(interaction.command_name)
-        command: AppCommand | SubCommand | None = parent_command
+
         if interaction.command_type is CommandType.SLASH:
-            assert isinstance(command, SlashCommand)
+            assert isinstance(parent_command, SlashCommand)
+            command: SlashCommand | SubCommand = parent_command
+
             options: Sequence[CommandInteractionOption] | None = interaction.options
             arguments: typing.Dict[str, typing.Any] = {}
+
             if options:
                 option: CommandInteractionOption = options[0]
                 if option.type is OptionType.SUB_COMMAND:
@@ -185,31 +188,29 @@ class Client:
                             )
                 for option in options or ():
                     arguments[option.name] = context.resolve_command_argument(option)
-            callback: Callable[..., Coroutine[None, None, typing.Any]] = getattr(
-                command, "callback"
-            )
             try:
                 if isinstance(command, SlashCommand):
-                    await callback(context, **arguments)
+                    await command.callback(context, **arguments)
                     return
-                await callback(parent_command, context, **arguments)
+                await command.callback(parent_command, context, **arguments)
             except Exception as error:
                 self.__logger.exception(
                     "An unexcepted error occurred in command %s", command.name, exc_info=error
                 )
-                return await self.on_command_error(context, error)
+                await self.on_command_error(context, error)
+            return
         if interaction.command_type is CommandType.MESSAGE:
-            assert isinstance(command, MessageCommand)
+            assert isinstance(parent_command, MessageCommand)
             assert interaction.resolved
-            await command.callback(
+            await parent_command.callback(
                 context,
                 list(interaction.resolved.messages.values())[0],
             )
             return
         if interaction.command_type is CommandType.USER:
-            assert isinstance(command, UserCommand)
+            assert isinstance(parent_command, UserCommand)
             assert interaction.resolved
-            await command.callback(
+            await parent_command.callback(
                 context,
                 list(interaction.resolved.users.values())[0],
             )

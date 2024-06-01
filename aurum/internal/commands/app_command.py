@@ -37,7 +37,6 @@ class AppCommand(Includable):
     __slots__: Sequence[str] = (
         "app",
         "name",
-        "display_name",
         "guild",
         "default_member_permissions",
         "is_dm_enabled",
