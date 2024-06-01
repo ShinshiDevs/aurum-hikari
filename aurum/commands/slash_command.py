@@ -77,7 +77,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
                 @sub_command(name="b")  # (3)
                 async def b_command(self, context: InteractionContext) -> None:
                     ...  # (4)
-                
+
                 @b_command.sub_command(name="c")
                 async def b_c_command(self, context: InteractionContext) -> None:
                     ...
