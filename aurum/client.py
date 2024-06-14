@@ -11,11 +11,14 @@ from hikari.interactions import CommandInteraction, ComponentInteraction
 
 from aurum.commands import MessageCommand, SlashCommand, SubCommand, UserCommand
 from aurum.enum.sync_commands import SyncCommandsFlag
+from aurum.ext.plugins import PluginManager
 from aurum.interactions import InteractionContext
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.commands.command_handler import CommandHandler
-from aurum.internal.exceptions import AurumException, UnknownCommandException
+from aurum.internal.exceptions import UnknownCommandException
 from aurum.l10n.pass_localization_provider import PassLocalizationProvider
+
+__all__: Sequence[str] = ("Client",)
 
 if typing.TYPE_CHECKING:
     from collections.abc import Coroutine, Sequence
@@ -27,8 +30,6 @@ if typing.TYPE_CHECKING:
     )
     from hikari.traits import GatewayBotAware
 
-    from aurum.client.integration import IClientIntegration
-    from aurum.ext.plugins import PluginManager
     from aurum.internal.includable import Includable
     from aurum.l10n import LocalizationProviderInterface
 
@@ -40,10 +41,11 @@ class Client:
         At the moment, the wrapper only supports gateway connections.
 
     Attributes:
+        bot (GatewayBotAware): The bot instance.
         l10n (LocalizationProviderInterface): The localization provider instance for multi-language support.
             It is recommended to provide a localization provider if multi-language support is required.
-        bot (GatewayBotAware): The bot instance.
         commands (CommandHandler): The command handler.
+        plugins (PluginManager): The plugins manager.
 
     Args:
         bot (GatewayBotAware): The bot instance that this client will interact with.
@@ -58,11 +60,11 @@ class Client:
 
     __slots__: Sequence[str] = (
         "__logger",
-        "_starting_tasks",
+        "__starting_tasks",
         "_sync_commands",
         "_ignore_unknown_interactions",
-        "l10n",
         "bot",
+        "l10n",
         "commands",
         "plugins",
     )
@@ -72,15 +74,17 @@ class Client:
         bot: GatewayBotAware,
         *,
         l10n: LocalizationProviderInterface | None = None,
-        integrations: Sequence[IClientIntegration] = (),
         sync_commands: SyncCommandsFlag = SyncCommandsFlag.SYNC,
         ignore_l10n: bool = False,
         ignore_unknown_interactions: bool = False,
     ) -> None:
         self.__logger: Logger = getLogger("aurum.client")
-        self._starting_tasks: typing.List[Coroutine[None, None, typing.Any]] = []
+        self.__starting_tasks: typing.List[Coroutine[None, None, typing.Any]] = []
+
         self._sync_commands: SyncCommandsFlag = sync_commands
         self._ignore_unknown_interactions: bool = ignore_unknown_interactions
+
+        self.bot: GatewayBotAware = bot
 
         self.l10n: LocalizationProviderInterface = l10n or PassLocalizationProvider()
         if not l10n and not ignore_l10n:
@@ -90,54 +94,29 @@ class Client:
                 "or create your own implementation based on the LocalizationProviderInterface."
             )
         else:
-            self.add_starting_task(self.l10n.start())
+            self.__starting_tasks.append(l10n.start())
 
-        self.bot: GatewayBotAware = bot
         self.commands: CommandHandler = CommandHandler(bot, self.l10n)
-        self.plugins: PluginManager | None = None
+        self.plugins: PluginManager = PluginManager(bot, self)
 
-        for integration in integrations:
-            integration.install(self)
-            self.__logger.debug(f"installed integration: {type(integration).__qualname__}")
+        self.bot.event_manager.subscribe(StartingEvent, self.on_starting)
+        self.bot.event_manager.subscribe(StartedEvent, self.on_started)
 
-        for event, callback in {
-            StartingEvent: self._on_starting,
-            StartedEvent: self._on_started,
-        }.items():
-            self.bot.event_manager.subscribe(event, callback)  # type: ignore
+    async def on_starting(self, _: StartingEvent) -> None:
+        results: Sequence[typing.Any | Exception] = await asyncio.gather(
+            *self.__starting_tasks, return_exceptions=True
+        )
+        for exception in filter(lambda item: isinstance(item, Exception), results):
+            self.__logger.exception("Task raised exception", exc_info=exception)
 
-    async def _on_starting(self, _: StartingEvent) -> None:
-        try:
-            await asyncio.gather(*self._starting_tasks)
-            self.__logger.debug("completed all tasks")
-        except Exception as exception:
-            self.__logger.warning(
-                "some tasks weren't completed because of an exception", exc_info=exception
-            )
-
-    async def _on_started(self, _: StartedEvent) -> None:
+    async def on_started(self, _: StartedEvent) -> None:
         if self._sync_commands.value:
             self.__logger.debug("syncing commands")
             await self.commands.sync(debug=self._sync_commands == SyncCommandsFlag.DEBUG)
         self.bot.event_manager.subscribe(InteractionCreateEvent, self.on_interaction)
 
-    def add_starting_task(self, coro: Coroutine[None, None, typing.Any]) -> None:
-        """Add a starting task.
-
-        Args:
-            coro (Coroutine[None, None, typing.Any]): Any coroutine.
-        """
-        self._starting_tasks.append(coro)
-        self.__logger.debug(f"add starting task: {coro.__qualname__}")
-
-    def include(self, includable: typing.Type[Includable]) -> None:
-        """Decorator to include an includable object to client"""
-        if issubclass(includable, AppCommand):
-            try:
-                instance: AppCommand = includable()  # type: ignore
-            except TypeError:
-                raise AurumException("`__init__` of base includable wasn't overrided")
-            self.commands.commands[instance.name] = instance
+    async def add_starting_task(self, coro: Coroutine[None, None, typing.Any]) -> None:
+        self.__starting_tasks.append(coro)
 
     def create_interaction_context(
         self, interaction: ComponentInteraction | CommandInteraction
@@ -227,3 +206,9 @@ class Client:
     async def on_command_error(self, context: InteractionContext, error: Exception) -> None:
         """Handler of commands' errors"""
         await self.on_unexcepted_error(context, error)
+
+    def include(self, includable: typing.Type[Includable]) -> None:
+        """Decorator to include an includable object to client"""
+        if issubclass(includable, AppCommand):
+            instance: AppCommand = includable()  # type: ignore
+            self.commands.commands[instance.name] = instance
