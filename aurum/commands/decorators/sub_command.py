@@ -1,14 +1,8 @@
-from __future__ import annotations
-
-import typing
+from collections.abc import Awaitable, Callable, Sequence
 
 from aurum.commands.sub_command import SubCommand
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Sequence
-
-    from aurum.l10n import LocalizedOr
-    from aurum.options import Option
+from aurum.l10n import LocalizedOr
+from aurum.options import Option
 
 
 def sub_command(

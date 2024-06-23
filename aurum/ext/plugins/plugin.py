@@ -1,27 +1,24 @@
 from __future__ import annotations
 
-import typing
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Dict, List, Type
 
+from hikari.events.base_events import EventT
+from hikari.guilds import PartialGuild
 from hikari.permissions import Permissions
-from hikari.undefined import UNDEFINED
+from hikari.snowflakes import SnowflakeishOr
+from hikari.traits import GatewayBotAware
+from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.events import Event
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.exceptions.base_exception import AurumException
+from aurum.internal.includable import Includable
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-
-    from hikari.traits import GatewayBotAware
+if TYPE_CHECKING:
     from hikari.api.event_manager import CallbackT
-    from hikari.events.base_events import EventT
-    from hikari.guilds import PartialGuild
-    from hikari.snowflakes import SnowflakeishOr
-    from hikari.undefined import UndefinedType
 
     from aurum.client import Client
-    from aurum.internal.includable import Includable
-    from aurum.l10n import LocalizedOr
 
 
 class Plugin:
@@ -30,7 +27,6 @@ class Plugin:
 
     Attributes:
         name (str): The plugin name.
-        description (LocalizedOr[str] | None): Optional description of the plugin.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the plugin is available.
         default_member_permissions (Permissions): The permissions a user must have to use the plugin by default.
         dm_enabled (bool): Whether the plugin can be used in direct messages.
@@ -67,10 +63,9 @@ class Plugin:
     """
 
     __slots__: Sequence[str] = (
-        "_bot",
-        "_client",
+        "bot",
+        "client",
         "name",
-        "description",
         "guild",
         "default_member_permissions",
         "is_dm_enabled",
@@ -82,43 +77,33 @@ class Plugin:
     def __init__(
         self,
         name: str,
-        description: LocalizedOr[str] | None = None,
         *,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
         is_dm_enabled: bool = False,
         is_nsfw: bool = False,
     ) -> None:
-        self._bot: GatewayBotAware | None = None
-        self._client: Client | None = None
+        self.bot: GatewayBotAware
+        self.client: Client
 
         self.name: str = name
-        self.description: LocalizedOr[str] | None = description
 
         self.guild: SnowflakeishOr[PartialGuild] | UndefinedType = guild
         self.default_member_permissions: Permissions = default_member_permissions
         self.is_dm_enabled: bool = is_dm_enabled
         self.is_nsfw: bool = is_nsfw
 
-        self.included: typing.Dict[str, Includable] = {}
-        self.events: typing.List[Event] = []
+        self.included: Dict[str, Includable] = {}
+        self.events: List[Event] = []
 
     def __call__(self, bot: GatewayBotAware, client: Client) -> Plugin:
-        self._bot = bot
-        self._client = client
+        self.bot = bot
+        self.client = client
         for event in self.events:
             bot.event_manager.listen(*event.event_types)(event.callback)
         return self
 
-    @property
-    def bot(self) -> GatewayBotAware | None:
-        return self._bot
-
-    @property
-    def client(self) -> Client | None:
-        return self._client
-
-    def include(self, includable: typing.Type[Includable]) -> None:
+    def include(self, includable: Type[Includable]) -> None:
         if issubclass(includable, AppCommand):
             try:
                 instance: AppCommand = (
@@ -132,8 +117,8 @@ class Plugin:
                 raise AurumException("`__init__` of base includable wasn't overrided")
             self.included[instance.name] = instance
 
-    def listen(self, *event_types: typing.Type[EventT]) -> Callable[[CallbackT[EventT]], None]:
+    def listen(self, *event_types: Type[EventT]) -> Callable[[CallbackT[EventT]], None]:
         def decorator(callback: CallbackT[EventT]) -> None:
-            self.events.append(Event(event_types=event_types, callback=callback))
+            self.events.append(Event(event_types=event_types, callback=callback))  # type: ignore
 
         return decorator

@@ -1,28 +1,19 @@
-from __future__ import annotations
+from collections.abc import Callable, Sequence
 
-import typing
-
+from hikari.api import ContextMenuCommandBuilder
+from hikari.commands import CommandType
+from hikari.guilds import PartialGuild
 from hikari.permissions import Permissions
-from hikari.undefined import UNDEFINED
+from hikari.snowflakes import SnowflakeishOr
+from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.internal.commands.app_command import AppCommand
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-
-    from hikari.api import ContextMenuCommandBuilder
-    from hikari.commands import CommandType
-    from hikari.guilds import PartialGuild
-    from hikari.snowflakes import SnowflakeishOr
-    from hikari.undefined import UndefinedType
-
-    from aurum.l10n import LocalizationProviderInterface
+from aurum.l10n import LocalizationProviderInterface
 
 
 class ContextMenuCommand(AppCommand):
     __slots__: Sequence[str] = (
         "app",
-        "command_type",
         "name",
         "guild",
         "default_member_permissions",
@@ -32,7 +23,6 @@ class ContextMenuCommand(AppCommand):
 
     def __init__(
         self,
-        command_type: CommandType,
         name: str,
         *,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
@@ -41,9 +31,7 @@ class ContextMenuCommand(AppCommand):
         is_nsfw: bool = False,
     ) -> None:
         super().__init__(
-            command_type=command_type,
             name=name,
-            description=None,
             guild=guild,
             default_member_permissions=default_member_permissions,
             is_dm_enabled=is_dm_enabled,

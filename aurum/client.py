@@ -2,12 +2,19 @@ from __future__ import annotations
 
 import asyncio
 import typing
-from logging import getLogger
+from collections.abc import Coroutine, Sequence
+from logging import Logger, getLogger
 
 from hikari.commands import CommandType, OptionType
 from hikari.errors import HikariError
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
-from hikari.interactions import CommandInteraction, ComponentInteraction
+from hikari.interactions import (
+    CommandInteraction,
+    CommandInteractionOption,
+    ComponentInteraction,
+    PartialInteraction,
+)
+from hikari.traits import GatewayBotAware
 
 from aurum.commands import MessageCommand, SlashCommand, SubCommand, UserCommand
 from aurum.enum.sync_commands import SyncCommandsFlag
@@ -16,22 +23,10 @@ from aurum.interactions import InteractionContext
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.commands.command_handler import CommandHandler
 from aurum.internal.exceptions import UnknownCommandException
-from aurum.l10n.pass_localization_provider import PassLocalizationProvider
+from aurum.internal.includable import Includable
+from aurum.l10n import LocalizationProviderInterface
 
 __all__: Sequence[str] = ("Client",)
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Coroutine, Sequence
-    from logging import Logger
-
-    from hikari.interactions import (
-        CommandInteractionOption,
-        PartialInteraction,
-    )
-    from hikari.traits import GatewayBotAware
-
-    from aurum.internal.includable import Includable
-    from aurum.l10n import LocalizationProviderInterface
 
 
 class Client:
@@ -86,7 +81,7 @@ class Client:
 
         self.bot: GatewayBotAware = bot
 
-        self.l10n: LocalizationProviderInterface = l10n or PassLocalizationProvider()
+        self.l10n: LocalizationProviderInterface | None = l10n
         if not l10n and not ignore_l10n:
             self.__logger.warning(
                 "a localization provider has not been specified and localization will not be available. "
@@ -125,7 +120,7 @@ class Client:
             interaction=interaction,
             bot=self.bot,
             client=self,
-            locale=self.l10n.get_locale(interaction),
+            locale=self.l10n.get_locale(interaction) if self.l10n else None,
         )
 
     async def on_interaction(self, event: InteractionCreateEvent) -> None:

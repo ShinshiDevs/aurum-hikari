@@ -1,14 +1,11 @@
-from __future__ import annotations
+from typing import Any, Dict, Protocol
 
-import typing
+from hikari.interactions import CommandInteraction, ComponentInteraction
 
-if typing.TYPE_CHECKING:
-    from hikari import CommandInteraction, ComponentInteraction
-
-    from aurum.l10n.localized import Localized
+from aurum.l10n.localized import Localized
 
 
-class LocalizationProviderInterface(typing.Protocol):
+class LocalizationProviderInterface(Protocol):
     """Localization provider interface.
 
     It's used to localize commands, components, and provide a locale for interaction.
@@ -26,7 +23,7 @@ class LocalizationProviderInterface(typing.Protocol):
         """
         ...
 
-    def build_localized(self, value: Localized) -> typing.Dict[str, str]:
+    def build_localized(self, value: Localized) -> Dict[str, str]:
         """Build [Localized object][aurum.l10n.localized.Localized] for Discord API.
 
         Warning:
@@ -34,6 +31,6 @@ class LocalizationProviderInterface(typing.Protocol):
         """
         ...
 
-    def get_locale(self, by: str | CommandInteraction | ComponentInteraction) -> typing.Any:
+    def get_locale(self, by: str | CommandInteraction | ComponentInteraction) -> Any:
         """Get locale by name or interaction"""
         ...

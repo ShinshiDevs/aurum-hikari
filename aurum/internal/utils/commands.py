@@ -1,15 +1,9 @@
-from __future__ import annotations
-
-import typing
-
 from hikari.commands import CommandChoice, CommandOption
 
+from aurum.l10n import LocalizationProviderInterface
 from aurum.l10n.localized import Localized
 from aurum.l10n.types import LocalizedOr
-
-if typing.TYPE_CHECKING:
-    from aurum.l10n import LocalizationProviderInterface
-    from aurum.options import Choice, Option
+from aurum.options import Choice, Option
 
 
 def build_choice(choice: Choice, l10n: LocalizationProviderInterface) -> CommandChoice:

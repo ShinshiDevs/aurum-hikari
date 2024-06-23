@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-__author__: typing.Final[str] = "Shinshi Developers Team"
-__copyright__: typing.Final[str] = "Copyright (c) 2024 Shinshi Developers Team"
-__license__: typing.Final[str] = "MIT"
+__author__: Final[str] = "Shinshi Developers Team"
+__copyright__: Final[str] = "Copyright (c) 2024 Shinshi Developers Team"
+__license__: Final[str] = "MIT"
 
 __all__: Sequence[str] = (
     "__author__",
@@ -12,12 +12,10 @@ __all__: Sequence[str] = (
     "__version__",
 )
 
-import typing
+from collections.abc import Sequence
+from typing import Final
 
 from aurum.internal.version import Version
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-__version_tuple__: typing.Final[Version] = Version(0, 1, 5, 6)
-__version__: typing.Final[str] = str(__version_tuple__)
+__version_tuple__: Final[Version] = Version(0, 1, 5, 6)
+__version__: Final[str] = str(__version_tuple__)

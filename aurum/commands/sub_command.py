@@ -1,31 +1,28 @@
 from __future__ import annotations
 
-import typing
+from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass, field
+from typing import Any, Dict
 
 from hikari.commands import CommandOption, OptionType
 
 from aurum.internal.utils.commands import build_option
+from aurum.l10n import LocalizationProviderInterface
 from aurum.l10n.localized import Localized
+from aurum.l10n.types import LocalizedOr
 from aurum.options import Option
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Sequence
-
-    from aurum.l10n import LocalizationProviderInterface
-    from aurum.l10n.types import LocalizedOr
 
 
 @dataclass(slots=True, kw_only=True)
 class SubCommand:
-    callback: Callable[..., Awaitable[typing.Any]]
+    callback: Callable[..., Awaitable[Any]]
 
     name: str
     description: LocalizedOr[str] | None = None
 
-    options: Sequence[Option] = field(default_factory=tuple[Option])
+    options: Sequence[Option] = field(default_factory=tuple)
 
-    sub_commands: typing.Dict[str, SubCommand] = field(default_factory=dict)
+    sub_commands: Dict[str, SubCommand] = field(default_factory=dict)
 
     def sub_command(
         self,

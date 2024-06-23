@@ -1,3 +1,3 @@
-import typing
+from typing import Final
 
-SUB_COMMANDS_CONTAINER: typing.Final[str] = "_sub_commands"
+SUB_COMMANDS_CONTAINER: Final[str] = "_sub_commands"

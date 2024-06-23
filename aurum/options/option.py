@@ -1,18 +1,13 @@
 from __future__ import annotations
 
-import typing
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from hikari.channels import ChannelType
+from hikari.commands import OptionType
 
+from aurum.l10n.types import LocalizedOr
 from aurum.options.choice import Choice
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from hikari.commands import OptionType
-
-    from aurum.l10n.types import LocalizedOr
 
 
 @dataclass(slots=True, kw_only=True)
@@ -55,7 +50,7 @@ class Option:
     Note:
         Available only for the integer/float option type.
     """
-    channel_types: Sequence[ChannelType] = field(default_factory=tuple[ChannelType])
+    channel_types: Sequence[ChannelType] = field(default_factory=tuple)
     """An optional channel types are available for selection.
 
     Note:

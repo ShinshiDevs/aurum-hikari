@@ -4,28 +4,24 @@ import importlib.util
 import inspect
 import re
 import typing
-from logging import getLogger
+from collections.abc import Iterator, Sequence
+from importlib.machinery import ModuleSpec
+from logging import Logger, getLogger
+from os import PathLike
 from pathlib import Path
 
+from hikari.api import CommandBuilder
+from hikari.commands import PartialCommand
+from hikari.guilds import PartialApplication, PartialGuild
+from hikari.snowflakes import Snowflake, SnowflakeishOr
+from hikari.traits import GatewayBotAware
+from hikari.undefined import UndefinedType
+
 from aurum.commands import MessageCommand, SlashCommand, UserCommand
+from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.commands.context_menu_command import ContextMenuCommand
 from aurum.internal.exceptions.base_exception import AurumException
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-    from importlib.machinery import ModuleSpec
-    from logging import Logger
-    from os import PathLike
-
-    from hikari.api import CommandBuilder
-    from hikari.commands import PartialCommand
-    from hikari.guilds import PartialApplication, PartialGuild
-    from hikari.snowflakes import Snowflake, SnowflakeishOr
-    from hikari.traits import GatewayBotAware
-    from hikari.undefined import UndefinedType
-
-    from aurum.internal.commands.app_command import AppCommand
-    from aurum.l10n import LocalizationProviderInterface
+from aurum.l10n import LocalizationProviderInterface
 
 CommandsTypes = MessageCommand, SlashCommand, UserCommand
 
@@ -37,8 +33,8 @@ class CommandHandler:
     It registers commands, synchronizes them with the Discord API.
 
     Attributes:
-        commands (typing.Dict[str, AppCommand]): Dictionary that stores the AppCommand instances, keyed by their names.
-        app_commands (typing.Dict[Snowflake, AppCommand]): Dictionary that stores AppCommand instances, keyed by their application ID
+        commands (Dict[str, AppCommand]): Dictionary that stores the AppCommand instances, keyed by their names.
+        app_commands (Dict[Snowflake, AppCommand]): Dictionary that stores AppCommand instances, keyed by their application ID
     """
 
     __slots__: Sequence[str] = (
@@ -112,33 +108,24 @@ class CommandHandler:
             )
         return None
 
-    def load_commands_from_file(self, file: Path) -> Sequence[AppCommand]:
-        commands: typing.List[AppCommand] = []
+    def load_commands_from_file(self, file: Path) -> Iterator[AppCommand]:
         spec: ModuleSpec | None = importlib.util.spec_from_file_location(file.name, file)
-        if not spec:
-            raise
-        if not spec.loader:
+        if not spec or not getattr(spec, "loader", None):
             raise
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         for _, obj in inspect.getmembers(module):
             if inspect.isclass(obj) and issubclass(obj, CommandsTypes) and obj not in CommandsTypes:
+                # TODO!: Rewrite load_commands_from_file and Plugin part too
                 try:
-                    commands.append(obj())  # type: ignore
+                    yield obj()  # type: ignore
                 except TypeError:
                     raise AurumException("`__init__` of base includable wasn't overrided")
-        return commands
 
     def load_folder(self, directory: PathLike[str]) -> None:
         """Load commands from folder"""
         for file in Path(directory).rglob("*.py"):
             if re.compile("(^_.*|.*_$)").match(file.name):
                 continue
-            commands: Sequence[AppCommand] = self.load_commands_from_file(file)
-            if not commands:
-                return
-            for command in commands:
+            for command in self.load_commands_from_file(file):
                 self.commands[command.name] = command
-        self.__logger.debug(
-            "loaded %s", ", ".join([command.name for command in self.commands.values()])
-        )

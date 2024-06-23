@@ -6,11 +6,8 @@ __all__: Sequence[str] = (
     "LocalizedOr",
 )
 
-import typing
+from collections.abc import Sequence
 
 from .localization_provider_interface import LocalizationProviderInterface
 from .localized import Localized
 from .types import LocalizedOr
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence

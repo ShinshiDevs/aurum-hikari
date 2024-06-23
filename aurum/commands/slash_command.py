@@ -1,35 +1,30 @@
 from __future__ import annotations
 
-import typing
+from collections.abc import Callable, Sequence
+from typing import Any, Dict, Tuple, Type
 
+from hikari.api import SlashCommandBuilder
 from hikari.commands import CommandType
+from hikari.guilds import PartialGuild
 from hikari.permissions import Permissions
-from hikari.undefined import UNDEFINED
+from hikari.snowflakes import SnowflakeishOr
+from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.commands.sub_command import SubCommand
 from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.consts import SUB_COMMANDS_CONTAINER
 from aurum.internal.utils.commands import build_option
+from aurum.l10n import LocalizationProviderInterface, LocalizedOr
 from aurum.l10n.localized import Localized
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-
-    from hikari.api import SlashCommandBuilder
-    from hikari.guilds import PartialGuild
-    from hikari.snowflakes import SnowflakeishOr
-    from hikari.undefined import UndefinedType
-
-    from aurum.l10n import LocalizationProviderInterface, LocalizedOr
-    from aurum.options import Option
+from aurum.options import Option
 
 
 class SlashCommandMeta(type):
     def __new__(
-        mcs: typing.Type[SlashCommandMeta],
+        mcs: Type[SlashCommandMeta],
         name: str,
-        bases: typing.Tuple[type, ...],
-        attrs: typing.Dict[str, typing.Any],
+        bases: Tuple[type, ...],
+        attrs: Dict[str, Any],
     ) -> SlashCommandMeta:
         cls: SlashCommandMeta = super().__new__(mcs, name, bases, attrs)
         setattr(cls, SUB_COMMANDS_CONTAINER, {})
@@ -90,9 +85,10 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             4. If sub-command have another sub-command, callback of parent sub-command will be ignored too.
     """
 
+    command_type: CommandType = CommandType.SLASH
+
     __slots__: Sequence[str] = (
         "app",
-        "command_type",
         "name",
         "description",
         "guild",
@@ -115,16 +111,15 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         options: Sequence[Option] = (),
     ) -> None:
         super().__init__(
-            command_type=CommandType.SLASH,
             name=name,
-            description=description,
             guild=guild,
             default_member_permissions=default_member_permissions,
             is_dm_enabled=is_dm_enabled,
             is_nsfw=is_nsfw,
         )
+        self.description: LocalizedOr[str] | None = description
         self.options: Sequence[Option] = options
-        self.sub_commands: typing.Dict[str, SubCommand] = getattr(self, SUB_COMMANDS_CONTAINER, {})
+        self.sub_commands: Dict[str, SubCommand] = getattr(self, SUB_COMMANDS_CONTAINER, {})
 
     def get_builder(
         self,

@@ -1,22 +1,10 @@
-from __future__ import annotations
-
-import typing
+from collections.abc import Sequence
 
 from hikari.commands import CommandType
-from hikari.permissions import Permissions
-from hikari.undefined import UNDEFINED
+from hikari.messages import Message
 
+from aurum.interactions import InteractionContext
 from aurum.internal.commands.context_menu_command import ContextMenuCommand
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from hikari.guilds import PartialGuild
-    from hikari.messages import Message
-    from hikari.snowflakes import SnowflakeishOr
-    from hikari.undefined import UndefinedType
-
-    from aurum.interactions import InteractionContext
 
 
 class MessageCommand(ContextMenuCommand):
@@ -40,33 +28,16 @@ class MessageCommand(ContextMenuCommand):
         ```
     """
 
+    command_type: CommandType = CommandType.MESSAGE
+
     __slots__: Sequence[str] = (
         "app",
-        "command_type",
         "name",
         "guild",
         "default_member_permissions",
         "dm_enabled",
         "is_nsfw",
     )
-
-    def __init__(
-        self,
-        name: str,
-        *,
-        guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
-        default_member_permissions: Permissions = Permissions.NONE,
-        is_dm_enabled: bool = False,
-        is_nsfw: bool = False,
-    ) -> None:
-        super().__init__(
-            command_type=CommandType.MESSAGE,
-            name=name,
-            guild=guild,
-            default_member_permissions=default_member_permissions,
-            is_dm_enabled=is_dm_enabled,
-            is_nsfw=is_nsfw,
-        )
 
     async def callback(self, context: InteractionContext, message: Message) -> None:
         """A callback of the command.

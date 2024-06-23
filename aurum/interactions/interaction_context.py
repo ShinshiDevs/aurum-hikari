@@ -1,34 +1,33 @@
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING, Any
 from dataclasses import dataclass
 
+from collections.abc import Sequence
+
+from hikari.traits import GatewayBotAware
+from hikari.api import ComponentBuilder
+from hikari.channels import PartialChannel
+from hikari.embeds import Embed
+from hikari.files import Resourceish
+from hikari.guilds import GatewayGuild, PartialRole
+from hikari.interactions import (
+    CommandInteraction,
+    CommandInteractionOption,
+    ComponentInteraction,
+    InteractionMember,
+)
+from hikari.messages import Message
+from hikari.snowflakes import SnowflakeishSequence
+from hikari.undefined import UndefinedOr
+from hikari.users import PartialUser
 from hikari.commands import OptionType
 from hikari.interactions import ResponseType
 from hikari.messages import MessageFlag
 from hikari.snowflakes import Snowflake
 from hikari.undefined import UNDEFINED
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from hikari.traits import GatewayBotAware
-    from hikari.api import ComponentBuilder
-    from hikari.channels import PartialChannel
-    from hikari.embeds import Embed
-    from hikari.files import Resourceish
-    from hikari.guilds import GatewayGuild, PartialRole
-    from hikari.interactions import (
-        CommandInteraction,
-        CommandInteractionOption,
-        ComponentInteraction,
-        InteractionMember,
-    )
-    from hikari.messages import Message
-    from hikari.snowflakes import SnowflakeishSequence
-    from hikari.undefined import UndefinedOr
-    from hikari.users import PartialUser
-
+if TYPE_CHECKING:
     from aurum.client import Client
 
 
@@ -40,7 +39,7 @@ class InteractionContext:
         interaction (CommandInteraction | ComponentInteraction): The interaction.
         bot (GatewayBotAware): The instance of the bot.
         client (Client): The client.
-        locale (typing.Any): An any locale object for the interaction.
+        locale (Any): An any locale object for the interaction.
     """
 
     interaction: CommandInteraction | ComponentInteraction
@@ -48,7 +47,7 @@ class InteractionContext:
     bot: GatewayBotAware
     client: Client
 
-    locale: typing.Any
+    locale: Any
 
     @property
     def user(self) -> PartialUser | None:
@@ -93,7 +92,7 @@ class InteractionContext:
 
     async def create_response(
         self,
-        content: UndefinedOr[typing.Any] = UNDEFINED,
+        content: UndefinedOr[Any] = UNDEFINED,
         *,
         flags: MessageFlag = MessageFlag.NONE,
         ephemeral: bool = False,
@@ -157,7 +156,7 @@ class InteractionContext:
 
     async def edit_response(
         self,
-        content: UndefinedOr[typing.Any] = UNDEFINED,
+        content: UndefinedOr[Any] = UNDEFINED,
         *,
         attachment: UndefinedOr[Resourceish] = UNDEFINED,
         attachments: UndefinedOr[Sequence[Resourceish]] = UNDEFINED,
@@ -195,7 +194,7 @@ class InteractionContext:
             application=self.interaction.application_id, token=self.interaction.token
         )
 
-    def resolve_command_argument(self, option: CommandInteractionOption) -> typing.Any:
+    def resolve_command_argument(self, option: CommandInteractionOption) -> Any:
         if not self.interaction.resolved or not isinstance(option.value, Snowflake):
             return option.value
         match option.type:
