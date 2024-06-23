@@ -47,7 +47,6 @@ class Client:
         l10n (LocalizationProviderInterface): Localization provider.
             If a localization provider is not provided, an `EmptyLocalizationProvider`
             will be used, which will pass all functions and return the key.
-        integrations: (Sequence[IClientIntegration]): A list of integrations for client.
         sync_commands (SyncCommandFlag): An optional SyncCommandsFlag enum value, indicating how to handle command synchronization.
         ignore_l10n (bool): An optional flag. If `True`, the client will not emit a warning when a localization provider is not provided.
         ignore_unknown_interactions (bool): An optional flag that, if set to `True`, will disable the warning message for unknown interactions.

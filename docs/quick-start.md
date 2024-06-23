@@ -99,7 +99,7 @@ You need to import the [MessageCommand class][aurum.commands.message_command.Mes
 
 
 #### Work with plugins
-Look out a [plugins integration](reference/integrations/plugins.md).
+For clarity, you can see a sample [project](https://github.com/ShinshiDevs/aurum-hikari/tree/main/examples/plugins/bot) with plugins in the examples.
 
 #### Work with components
 Sadly, but at the moment Aurum don't have a components. :octicons-clock-fill-24:
