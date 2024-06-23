@@ -9,12 +9,14 @@ from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.internal.commands.app_command import AppCommand
 from aurum.l10n import LocalizationProviderInterface
+from aurum.l10n.types import LocalizedOr
 
 
 class ContextMenuCommand(AppCommand):
     __slots__: Sequence[str] = (
         "app",
         "name",
+        "display_name",
         "guild",
         "default_member_permissions",
         "dm_enabled",
@@ -25,6 +27,7 @@ class ContextMenuCommand(AppCommand):
         self,
         name: str,
         *,
+        display_name: LocalizedOr[str] | None = None,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
         is_dm_enabled: bool = False,
@@ -32,6 +35,7 @@ class ContextMenuCommand(AppCommand):
     ) -> None:
         super().__init__(
             name=name,
+            display_name=display_name,
             guild=guild,
             default_member_permissions=default_member_permissions,
             is_dm_enabled=is_dm_enabled,
@@ -41,10 +45,13 @@ class ContextMenuCommand(AppCommand):
     def get_builder(
         self,
         factory: Callable[[CommandType | int, str], ContextMenuCommandBuilder],
-        l10n: LocalizationProviderInterface,  # type: ignore  # TODO: display name
+        l10n: LocalizationProviderInterface,
     ) -> ContextMenuCommandBuilder:
         builder = (
             factory(self.command_type, self.name)
+            .set_name_localizations(
+                l10n.build_localized(self.display_name) if self.display_name else {}
+            )
             .set_default_member_permissions(self.default_member_permissions)
             .set_is_dm_enabled(self.is_dm_enabled)
             .set_is_nsfw(self.is_nsfw)

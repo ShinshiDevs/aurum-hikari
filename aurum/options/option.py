@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from hikari.channels import ChannelType
 from hikari.commands import OptionType
 
+from aurum.l10n.localized import Localized
 from aurum.l10n.types import LocalizedOr
 from aurum.options.choice import Choice
 
@@ -16,8 +17,12 @@ class Option:
 
     type: OptionType
     """The option type"""
-    name: str  # TODO: make a display_name soon
+    name: str
     """The unique name of the option"""
+    display_name: LocalizedOr[str] | None = None
+    """Display name of option.
+    
+    Can be localized."""
     description: LocalizedOr[str] | None = None
     """The description of the option"""
     is_required: bool = True

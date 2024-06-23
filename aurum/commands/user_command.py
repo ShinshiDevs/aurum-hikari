@@ -13,6 +13,8 @@ class UserCommand(ContextMenuCommand):
 
     Args:
         name (str): The unique name of the command.
+        display_name (LocalizedOr[str] | None): A display name of command.
+            Can be localized.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the command is available.
         default_member_permissions (Permissions): The permissions a user must have to use the command by default.
         is_dm_enabled (bool): Whether the command can be used in direct messages.
@@ -34,6 +36,7 @@ class UserCommand(ContextMenuCommand):
     __slots__: Sequence[str] = (
         "app",
         "name",
+        "display_name",
         "guild",
         "default_member_permissions",
         "dm_enabled",

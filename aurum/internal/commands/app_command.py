@@ -9,6 +9,7 @@ from hikari.snowflakes import SnowflakeishOr
 from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.internal.includable import Includable
+from aurum.l10n.types import LocalizedOr
 
 
 class AppCommand(Includable):
@@ -17,6 +18,8 @@ class AppCommand(Includable):
     Attributes:
         app (PartialCommand): Command application instance, available after sync.
         name (str): The command name.
+        display_name (LocalizedOr[str] | None): A display name of command.
+            Can be localized.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): An optional guild (server) where the command is available.
         default_member_permissions (Permissions): The permissions a user must have to use the command by default.
         dm_enabled (bool): Whether the command can be used in direct messages.
@@ -28,6 +31,7 @@ class AppCommand(Includable):
     __slots__: Sequence[str] = (
         "app",
         "name",
+        "display_name",
         "guild",
         "default_member_permissions",
         "is_dm_enabled",
@@ -38,6 +42,7 @@ class AppCommand(Includable):
         self,
         name: str,
         *,
+        display_name: LocalizedOr[str] | None = None,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
         is_dm_enabled: bool = False,
@@ -45,6 +50,8 @@ class AppCommand(Includable):
     ) -> None:
         super().__init__(name=name)
         self.app: PartialCommand | None = None
+
+        self.display_name: LocalizedOr[str] | None = display_name
 
         self.guild: SnowflakeishOr[PartialGuild] | UndefinedType = guild
         self.default_member_permissions: Permissions = default_member_permissions

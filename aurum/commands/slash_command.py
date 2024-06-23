@@ -40,6 +40,8 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     Args:
         name (str): The unique name of the command.
         description (LocalizedOr[str] | None): A description of command.
+        display_name (LocalizedOr[str] | None): A display name of command.
+            Can be localized.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): The guild in which the command is available.
         default_member_permissions (Permissions): Permissions required to use the command, if any. Defaults to NONE.
         is_dm_enabled (bool): Flag indicating whether the command is available in direct messages. Defaults to `False`.
@@ -90,6 +92,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     __slots__: Sequence[str] = (
         "app",
         "name",
+        "display_name",
         "description",
         "guild",
         "default_member_permissions",
@@ -104,6 +107,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         name: str,
         description: LocalizedOr[str] | None = None,
         *,
+        display_name: LocalizedOr[str] | None = None,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
         is_dm_enabled: bool = False,
@@ -112,6 +116,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     ) -> None:
         super().__init__(
             name=name,
+            display_name=display_name,
             guild=guild,
             default_member_permissions=default_member_permissions,
             is_dm_enabled=is_dm_enabled,

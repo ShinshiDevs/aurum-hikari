@@ -19,6 +19,8 @@ class SubCommand:
 
     name: str
     description: LocalizedOr[str] | None = None
+    
+    display_name: LocalizedOr[str] | None = None
 
     options: Sequence[Option] = field(default_factory=tuple)
 
@@ -28,6 +30,7 @@ class SubCommand:
         self,
         name: str,
         description: LocalizedOr[str] | None = None,
+        display_name: LocalizedOr[str] | None = None,
         options: Sequence[Option] = (),
     ) -> Callable[..., None]:
         """Decorator for the sub-command.
@@ -38,6 +41,8 @@ class SubCommand:
         Args:
             name (str): The unique name for the sub-command.
             description (LocalizedOr[str] | None): Optional description for the sub-command.
+            display_name (LocalizedOr[str] | None): A display name of command.
+                Can be localized.
             options (Sequence[Option]): Optional options of the sub-command.
 
         Note:
@@ -49,6 +54,7 @@ class SubCommand:
                 callback=func,
                 name=name,
                 description=description or "No description",
+                display_name=display_name,
                 options=options,
             )
 

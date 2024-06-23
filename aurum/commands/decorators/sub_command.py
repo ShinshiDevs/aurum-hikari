@@ -8,6 +8,7 @@ from aurum.options import Option
 def sub_command(
     name: str,
     description: LocalizedOr[str] | None = None,
+    display_name: LocalizedOr[str] | None = None,
     options: Sequence[Option] = (),
 ) -> Callable[..., SubCommand]:
     """Decorator for the sub-command.
@@ -17,6 +18,8 @@ def sub_command(
     Args:
         name (str): The unique name for the sub-command.
         description (LocalizedOr[str] | None): Optional description for the sub-command.
+        display_name (LocalizedOr[str] | None): A display name of command.
+            Can be localized.
         options (Sequence[Option]): Optional options of the sub-command.
 
     Note:
@@ -28,6 +31,7 @@ def sub_command(
             callback=func,
             name=name,
             description=description,
+            display_name=display_name,
             options=options,
         )
 
