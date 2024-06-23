@@ -19,7 +19,7 @@ class SubCommand:
 
     name: str
     description: LocalizedOr[str] | None = None
-    
+
     display_name: LocalizedOr[str] | None = None
 
     options: Sequence[Option] = field(default_factory=tuple)
