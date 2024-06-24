@@ -18,8 +18,7 @@ class SubCommand:
     callback: Callable[..., Awaitable[Any]]
 
     name: str
-    description: LocalizedOr[str] | None = None
-
+    description: LocalizedOr[str] = "No description"
     display_name: LocalizedOr[str] | None = None
 
     options: Sequence[Option] = field(default_factory=tuple)
@@ -29,7 +28,7 @@ class SubCommand:
     def sub_command(
         self,
         name: str,
-        description: LocalizedOr[str] | None = None,
+        description: LocalizedOr[str] = "No description",
         display_name: LocalizedOr[str] | None = None,
         options: Sequence[Option] = (),
     ) -> Callable[..., None]:
@@ -53,7 +52,7 @@ class SubCommand:
             self.sub_commands[name] = SubCommand(
                 callback=func,
                 name=name,
-                description=description or "No description",
+                description=description,
                 display_name=display_name,
                 options=options,
             )
@@ -61,18 +60,19 @@ class SubCommand:
         return decorator
 
     def as_option(self, l10n: LocalizationProviderInterface) -> CommandOption:
-        options: Sequence[CommandOption]
-        if not self.sub_commands:
-            options = [build_option(option, l10n) for option in self.options]
-        else:
-            options = [sub_command.as_option(l10n) for sub_command in self.sub_commands.values()]
-        description: LocalizedOr[str] = self.description or "No description"
+        if isinstance(self.display_name, Localized):
+            l10n.build_localized(self.display_name)
+        if isinstance(self.description, Localized):
+            l10n.build_localized(self.description)
         return CommandOption(
             type=OptionType.SUB_COMMAND if not self.sub_commands else OptionType.SUB_COMMAND_GROUP,
-            name=str(self.name),  # TODO: display name
-            description=str(description),
-            description_localizations=(
-                l10n.build_localized(description) if isinstance(description, Localized) else {}
+            name=self.name,
+            name_localizations=getattr(self.display_name, "value", {}),
+            description=str(self.description),
+            description_localizations=getattr(self.description, "value", {}),
+            options=(
+                [build_option(option, l10n) for option in self.options]
+                if not self.sub_commands
+                else [sub_command.as_option(l10n) for sub_command in self.sub_commands.values()]
             ),
-            options=options,
         )

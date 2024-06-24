@@ -9,6 +9,7 @@ from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.internal.commands.app_command import AppCommand
 from aurum.l10n import LocalizationProviderInterface
+from aurum.l10n.localized import Localized
 from aurum.l10n.types import LocalizedOr
 
 
@@ -47,11 +48,11 @@ class ContextMenuCommand(AppCommand):
         factory: Callable[[CommandType | int, str], ContextMenuCommandBuilder],
         l10n: LocalizationProviderInterface,
     ) -> ContextMenuCommandBuilder:
+        if isinstance(self.display_name, Localized):
+            l10n.build_localized(self.display_name)
         builder = (
             factory(self.command_type, self.name)
-            .set_name_localizations(
-                l10n.build_localized(self.display_name) if self.display_name else {}
-            )
+            .set_name_localizations(getattr(self.display_name, "value", {}))
             .set_default_member_permissions(self.default_member_permissions)
             .set_is_dm_enabled(self.is_dm_enabled)
             .set_is_nsfw(self.is_nsfw)

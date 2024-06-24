@@ -23,13 +23,13 @@ class Option:
     """Display name of option.
     
     Can be localized."""
-    description: LocalizedOr[str] | None = None
+    description: LocalizedOr[str] = "No description"
     """The description of the option"""
     is_required: bool = True
     """An optional flag is the option is required.
     
     Default: True"""
-    choices: Sequence[Choice] = field(default_factory=tuple[Choice])
+    choices: Sequence[Choice] = field(default_factory=tuple)
     """A list of choices to the option"""
     max_length: int | None = None
     """An optional maximum length of the option value.

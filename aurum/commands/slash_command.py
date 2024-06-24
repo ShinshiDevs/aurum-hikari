@@ -105,7 +105,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     def __init__(
         self,
         name: str,
-        description: LocalizedOr[str] | None = None,
+        description: LocalizedOr[str] = "No description",
         *,
         display_name: LocalizedOr[str] | None = None,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
@@ -122,7 +122,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             is_dm_enabled=is_dm_enabled,
             is_nsfw=is_nsfw,
         )
-        self.description: LocalizedOr[str] | None = description
+        self.description: LocalizedOr[str] = description
         self.options: Sequence[Option] = options
         self.sub_commands: Dict[str, SubCommand] = getattr(self, SUB_COMMANDS_CONTAINER, {})
 
@@ -131,16 +131,19 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         factory: Callable[[str, str], SlashCommandBuilder],
         l10n: LocalizationProviderInterface,
     ) -> SlashCommandBuilder:
-        description: LocalizedOr[str] = self.description or "No description"
+        if isinstance(self.description, Localized):
+            l10n.build_localized(self.description)
         builder: SlashCommandBuilder = (
-            factory(self.name, str(description))
+            factory(self.name, str(self.description))
             .set_default_member_permissions(self.default_member_permissions)
             .set_is_dm_enabled(self.is_dm_enabled)
             .set_is_nsfw(self.is_nsfw)
         )
         if not self.sub_commands:
-            if isinstance(description, Localized):
-                builder.set_description_localizations(l10n.build_localized(description))
+            if isinstance(self.display_name, Localized):
+                l10n.build_localized(self.display_name)
+                builder.set_name_localizations(self.display_name.value)
+            builder.set_description_localizations(getattr(self.description, "value", {}))
             for option in self.options:
                 builder.add_option(build_option(option, l10n))
         else:

@@ -7,25 +7,26 @@ from aurum.options import Choice, Option
 
 
 def build_choice(choice: Choice, l10n: LocalizationProviderInterface) -> CommandChoice:
+    if isinstance(choice.name, Localized):
+        l10n.build_localized(choice.name)
     return CommandChoice(
         name=str(choice.name),
-        name_localizations=(
-            l10n.build_localized(choice.name) if isinstance(choice, Localized) else {}
-        ),
+        name_localizations=getattr(choice.name, "value", {}),
         value=choice.value,
     )
 
 
 def build_option(option: Option, l10n: LocalizationProviderInterface) -> CommandOption:
-    description: LocalizedOr[str] = option.description or "No description"
+    if isinstance(option.description, Localized):
+        l10n.build_localized(option.description)
+    if isinstance(option.display_name, Localized):
+        l10n.build_localized(option.display_name)
     return CommandOption(
         type=option.type,
         name=option.name,
-        name_localizations=l10n.build_localized(option.display_name) if option.display_name else {},
-        description=str(description),
-        description_localizations=(
-            l10n.build_localized(description) if isinstance(description, Localized) else {}
-        ),
+        name_localizations=getattr(option.display_name, "value", {}),
+        description=str(option.description),
+        description_localizations=getattr(option.description, "value", {}),
         choices=[build_choice(choice, l10n) for choice in option.choices],
         is_required=option.is_required,
         max_length=option.max_length,

@@ -7,7 +7,7 @@ from aurum.options import Option
 
 def sub_command(
     name: str,
-    description: LocalizedOr[str] | None = None,
+    description: LocalizedOr[str] = "No description",
     display_name: LocalizedOr[str] | None = None,
     options: Sequence[Option] = (),
 ) -> Callable[..., SubCommand]:

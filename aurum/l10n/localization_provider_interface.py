@@ -9,25 +9,22 @@ class LocalizationProviderInterface(Protocol):
     """Localization provider interface.
 
     It's used to localize commands, components, and provide a locale for interaction.
-
-    To get started with localization, you can either use our existing implementation (which is not available yet :d)
-    or create your own.
     To create your own implementation, you need to inherit from this interface.
     """
 
     async def start(self) -> None:
-        """Start the localization provider.
-
-        Warning:
-            Important function, must be implemented.
-        """
+        """Start the localization provider"""
         ...
 
     def build_localized(self, value: Localized) -> Dict[str, str]:
-        """Build [Localized object][aurum.l10n.localized.Localized] for Discord API.
+        """Build [Localized object][aurum.l10n.localized.Localized] for Discord API
 
-        Warning:
-            Important function, must be implemented.
+        !!! warning
+            This function must change Localized object.
+
+            The new value should include translations for the localized object and any new fallback.
+            With the fallback, you can either use the first translation, translation with your default language, 
+            or take no action if there's a fallback.
         """
         ...
 
