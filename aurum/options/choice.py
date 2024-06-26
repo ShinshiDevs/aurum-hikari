@@ -1,10 +1,11 @@
 from typing import Any
-from dataclasses import dataclass
+
+import attrs
 
 from aurum.l10n.types import LocalizedOr
 
 
-@dataclass(slots=True, kw_only=True)
+@attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class Choice:
     """Represents the option's choice"""
 

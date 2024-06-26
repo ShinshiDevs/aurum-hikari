@@ -1,8 +1,6 @@
 from hikari.commands import CommandChoice, CommandOption
 
-from aurum.l10n import LocalizationProviderInterface
-from aurum.l10n.localized import Localized
-from aurum.l10n.types import LocalizedOr
+from aurum.l10n import LocalizationProviderInterface, Localized
 from aurum.options import Choice, Option
 
 

@@ -1,14 +1,16 @@
-from collections.abc import Awaitable, Callable, Sequence
+from collections.abc import Callable, Sequence
 
 from aurum.commands.sub_command import SubCommand
+from aurum.commands.typing import CommandCallbackT
 from aurum.l10n import LocalizedOr
 from aurum.options import Option
 
 
 def sub_command(
     name: str,
-    description: LocalizedOr[str] = "No description",
+    *,
     display_name: LocalizedOr[str] | None = None,
+    description: LocalizedOr[str] = "No description",
     options: Sequence[Option] = (),
 ) -> Callable[..., SubCommand]:
     """Decorator for the sub-command.
@@ -26,7 +28,7 @@ def sub_command(
         The callback must be asynchronous.
     """
 
-    def decorator(func: Callable[..., Awaitable[None]]) -> SubCommand:
+    def decorator(func: CommandCallbackT) -> SubCommand:
         return SubCommand(
             callback=func,
             name=name,

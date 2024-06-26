@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable, Sequence
-from dataclasses import dataclass, field
-from typing import Any, Dict
+from collections.abc import Callable, Sequence
+from typing import Dict
 
+import attrs
 from hikari.commands import CommandOption, OptionType
 
+from aurum.commands.typing import CommandCallbackT
 from aurum.internal.utils.commands import build_option
 from aurum.l10n import LocalizationProviderInterface
 from aurum.l10n.localized import Localized
@@ -13,23 +14,23 @@ from aurum.l10n.types import LocalizedOr
 from aurum.options import Option
 
 
-@dataclass(slots=True, kw_only=True)
+@attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class SubCommand:
-    callback: Callable[..., Awaitable[Any]]
+    callback: CommandCallbackT
 
     name: str
-    description: LocalizedOr[str] = "No description"
-    display_name: LocalizedOr[str] | None = None
+    display_name: LocalizedOr[str] | None = attrs.field(default=None, repr=False, eq=False)
+    description: LocalizedOr[str] = attrs.field(default="No description", repr=False, eq=False)
 
-    options: Sequence[Option] = field(default_factory=tuple)
-
-    sub_commands: Dict[str, SubCommand] = field(default_factory=dict)
+    options: Sequence[Option] = attrs.field(factory=tuple, repr=False, eq=False)
+    sub_commands: Dict[str, SubCommand] = attrs.field(factory=dict, repr=False, eq=False)
 
     def sub_command(
         self,
         name: str,
-        description: LocalizedOr[str] = "No description",
+        *,
         display_name: LocalizedOr[str] | None = None,
+        description: LocalizedOr[str] = "No description",
         options: Sequence[Option] = (),
     ) -> Callable[..., None]:
         """Decorator for the sub-command.
@@ -48,7 +49,7 @@ class SubCommand:
             The callback must be asynchronous.
         """
 
-        def decorator(func: Callable[..., Awaitable[None]]) -> None:
+        def decorator(func: CommandCallbackT) -> None:
             self.sub_commands[name] = SubCommand(
                 callback=func,
                 name=name,

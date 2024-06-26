@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-from dataclasses import dataclass
-
 from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
 
-from hikari.traits import GatewayBotAware
+import attrs
 from hikari.api import ComponentBuilder
 from hikari.channels import PartialChannel
+from hikari.commands import OptionType
 from hikari.embeds import Embed
 from hikari.files import Resourceish
 from hikari.guilds import GatewayGuild, PartialRole
@@ -16,22 +15,19 @@ from hikari.interactions import (
     CommandInteractionOption,
     ComponentInteraction,
     InteractionMember,
+    ResponseType,
 )
-from hikari.messages import Message
-from hikari.snowflakes import SnowflakeishSequence
-from hikari.undefined import UndefinedOr
+from hikari.messages import Message, MessageFlag
+from hikari.snowflakes import Snowflake, SnowflakeishSequence
+from hikari.traits import GatewayBotAware
+from hikari.undefined import UNDEFINED, UndefinedOr
 from hikari.users import PartialUser
-from hikari.commands import OptionType
-from hikari.interactions import ResponseType
-from hikari.messages import MessageFlag
-from hikari.snowflakes import Snowflake
-from hikari.undefined import UNDEFINED
 
 if TYPE_CHECKING:
     from aurum.client import Client
 
 
-@dataclass(slots=True, kw_only=True)
+@attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class InteractionContext:
     """Represents a interaction context.
 

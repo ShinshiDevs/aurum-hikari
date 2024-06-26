@@ -1,6 +1,8 @@
+import typing
 from enum import Enum
 
 
+@typing.final
 class SyncCommandsFlag(Enum):
     """Defines the modes of synchronization for commands in the Discord API.
 

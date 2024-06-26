@@ -1,10 +1,11 @@
-from dataclasses import dataclass
-from typing import Any
+from typing import Any, Dict
+
+import attrs
 
 
-@dataclass(slots=True)
+@attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class Localized:
-    value: str | dict[str, Any]
+    value: str | Dict[str, Any]
     """Key.
     
     After building it will be replaced by translations.

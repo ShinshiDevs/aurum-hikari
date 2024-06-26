@@ -82,7 +82,7 @@ class CommandHandler:
                 self._commands_builders[command.guild][command.name] = builder
         for guild, builders in self._commands_builders.items():
             synchronized[guild] = await self._bot.rest.set_application_commands(
-                self._app, list(builders.values()), guild=guild
+                self._app, builders.values(), guild=guild
             )
         for entity, commands in synchronized.items():
             for partial_command in commands:

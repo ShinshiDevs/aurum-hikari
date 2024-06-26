@@ -11,11 +11,10 @@ from hikari.snowflakes import SnowflakeishOr
 from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.commands.sub_command import SubCommand
+from aurum.commands.typing import SubCommandsDictT
 from aurum.internal.commands.app_command import AppCommand
-from aurum.internal.consts import SUB_COMMANDS_CONTAINER
 from aurum.internal.utils.commands import build_option
-from aurum.l10n import LocalizationProviderInterface, LocalizedOr
-from aurum.l10n.localized import Localized
+from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
 from aurum.options import Option
 
 
@@ -27,10 +26,11 @@ class SlashCommandMeta(type):
         attrs: Dict[str, Any],
     ) -> SlashCommandMeta:
         cls: SlashCommandMeta = super().__new__(mcs, name, bases, attrs)
-        setattr(cls, SUB_COMMANDS_CONTAINER, {})
+        sub_commands: SubCommandsDictT = {}
         for name, obj in attrs.items():
             if isinstance(obj, SubCommand):
-                getattr(cls, SUB_COMMANDS_CONTAINER)[obj.name] = obj
+                sub_commands[obj.name] = obj
+        setattr(cls, "sub_commands", sub_commands)
         return cls
 
 
@@ -105,9 +105,9 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     def __init__(
         self,
         name: str,
-        description: LocalizedOr[str] = "No description",
         *,
         display_name: LocalizedOr[str] | None = None,
+        description: LocalizedOr[str] = "No description",
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
         is_dm_enabled: bool = False,
@@ -124,7 +124,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         )
         self.description: LocalizedOr[str] = description
         self.options: Sequence[Option] = options
-        self.sub_commands: Dict[str, SubCommand] = getattr(self, SUB_COMMANDS_CONTAINER, {})
+        self.sub_commands: SubCommandsDictT = getattr(self, "sub_commands", {})
 
     def get_builder(
         self,
