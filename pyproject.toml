@@ -3,7 +3,7 @@ packages = [{ include = "aurum" }]
 version = "0.1.5.6"
 name = "aurum-hikari"
 authors = ["stefanlight8 <64615032+stefanlight8@users.noreply.github.com>"]
-description = "A flexible framework for handling commands and components with integrations."
+description = "A flexible framework for handling commands and components."
 readme = "README.md"
 license = "MIT"
 classifiers = [

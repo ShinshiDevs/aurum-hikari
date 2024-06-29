@@ -29,7 +29,7 @@
                 </a>
             </p>
             <p>
-                <text>A flexible framework for handling commands and components with integrations.</text>
+                <text>A flexible framework for handling commands and components.</text>
             </p>
             <p>
                 <text>

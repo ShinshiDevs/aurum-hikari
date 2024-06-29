@@ -6,7 +6,7 @@ title: Welcome
 The current version of the documentation is designed for Hikari. 
 
 ### Aurum
-A flexible framework for handling commands and components with integrations.
+A flexible framework for handling commands and components.
 
 Create your bot easily and simply without worrying about speed, resources usage. You can create your own custom implementations of Aurum's components – your freedom of action is our top priority.
 
