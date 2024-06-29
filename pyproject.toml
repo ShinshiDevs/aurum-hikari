@@ -28,7 +28,7 @@ keywords = [
     "components",
     "command-handler",
     "component-handler",
-    "integrations",
+    "framework",
 ]
 
 [tool.poetry.urls]
