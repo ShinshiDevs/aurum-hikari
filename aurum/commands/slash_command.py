@@ -10,9 +10,9 @@ from hikari.permissions import Permissions
 from hikari.snowflakes import SnowflakeishOr
 from hikari.undefined import UNDEFINED, UndefinedType
 
+from aurum.commands.app_command import AppCommand
 from aurum.commands.sub_command import SubCommand
 from aurum.commands.typing import SubCommandsDictT
-from aurum.internal.commands.app_command import AppCommand
 from aurum.internal.utils.commands import build_option
 from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
 from aurum.options import Option
@@ -29,6 +29,7 @@ class SlashCommandMeta(type):
         sub_commands: SubCommandsDictT = {}
         for name, obj in attrs.items():
             if isinstance(obj, SubCommand):
+                obj.parent = cls
                 sub_commands[obj.name] = obj
         setattr(cls, "sub_commands", sub_commands)
         return cls
@@ -129,9 +130,9 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     def get_builder(
         self,
         factory: Callable[[str, str], SlashCommandBuilder],
-        l10n: LocalizationProviderInterface,
+        l10n: LocalizationProviderInterface | None,
     ) -> SlashCommandBuilder:
-        if isinstance(self.description, Localized):
+        if l10n and isinstance(self.description, Localized):
             l10n.build_localized(self.description)
         builder: SlashCommandBuilder = (
             factory(self.name, str(self.description))
@@ -140,10 +141,13 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
             .set_is_nsfw(self.is_nsfw)
         )
         if not self.sub_commands:
-            if isinstance(self.display_name, Localized):
+            if l10n and isinstance(self.display_name, Localized):
                 l10n.build_localized(self.display_name)
-                builder.set_name_localizations(self.display_name.value)
-            builder.set_description_localizations(getattr(self.description, "value", {}))
+                builder.set_name_localizations(
+                    self.display_name.value if isinstance(self.display_name.value, dict) else {}
+                )
+            if isinstance(localizations := getattr(self.description, "value", {}), dict):
+                builder.set_description_localizations(localizations)
             for option in self.options:
                 builder.add_option(build_option(option, l10n))
         else:

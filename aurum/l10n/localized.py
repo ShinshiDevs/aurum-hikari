@@ -32,4 +32,4 @@ class Localized:
     """
 
     def __str__(self) -> str:
-        return str(self.fallback)
+        return str(self.fallback or self.value)

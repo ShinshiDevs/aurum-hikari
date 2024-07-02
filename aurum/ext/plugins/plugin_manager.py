@@ -13,8 +13,8 @@ from typing import TYPE_CHECKING, Dict
 from hikari.traits import GatewayBotAware
 
 from aurum.ext.plugins.plugin import Plugin
-from aurum.internal.commands.app_command import AppCommand
-from aurum.internal.commands.command_handler import CommandHandler
+from aurum.commands.app_command import AppCommand
+from aurum.internal.command_handler import CommandHandler
 
 if TYPE_CHECKING:
     from aurum.client import Client

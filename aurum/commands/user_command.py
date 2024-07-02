@@ -4,8 +4,8 @@ from hikari.commands import CommandType
 from hikari.interactions import InteractionMember
 from hikari.users import PartialUser
 
-from aurum.interactions import InteractionContext
-from aurum.internal.commands.context_menu_command import ContextMenuCommand
+from aurum.context import InteractionContext
+from aurum.commands.context_menu_command import ContextMenuCommand
 
 
 class UserCommand(ContextMenuCommand):

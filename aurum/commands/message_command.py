@@ -3,8 +3,8 @@ from collections.abc import Sequence
 from hikari.commands import CommandType
 from hikari.messages import Message
 
-from aurum.interactions import InteractionContext
-from aurum.internal.commands.context_menu_command import ContextMenuCommand
+from aurum.context import InteractionContext
+from aurum.commands.context_menu_command import ContextMenuCommand
 
 
 class MessageCommand(ContextMenuCommand):

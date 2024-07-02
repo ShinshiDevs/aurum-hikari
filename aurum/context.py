@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Dict
 
 import attrs
 from hikari.api import ComponentBuilder
@@ -23,8 +23,12 @@ from hikari.traits import GatewayBotAware
 from hikari.undefined import UNDEFINED, UndefinedOr
 from hikari.users import PartialUser
 
+from aurum.commands.app_command import AppCommand
+
 if TYPE_CHECKING:
     from aurum.client import Client
+
+__all__: Sequence[str] = ("InteractionContext",)
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
@@ -38,12 +42,14 @@ class InteractionContext:
         locale (Any): An any locale object for the interaction.
     """
 
-    interaction: CommandInteraction | ComponentInteraction
+    interaction: CommandInteraction | ComponentInteraction = attrs.field(eq=False)
 
-    bot: GatewayBotAware
-    client: Client
+    bot: GatewayBotAware = attrs.field(eq=False)
+    client: Client = attrs.field(eq=False)
 
-    locale: Any
+    command: AppCommand | None = attrs.field(eq=False, default=None)
+    locale: Any = attrs.field(eq=False)
+    arguments: Dict[str, Any] = attrs.field(factory=dict, eq=False)
 
     @property
     def user(self) -> PartialUser | None:

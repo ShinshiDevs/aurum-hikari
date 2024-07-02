@@ -1,35 +1,32 @@
 from __future__ import annotations
 
-import asyncio
+import sys
 from collections.abc import Coroutine, Sequence
 from logging import Logger, getLogger
-from typing import Any, Dict, List
+from typing import Any, Type
 
-from hikari.commands import CommandType, OptionType
-from hikari.errors import HikariError
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
 from hikari.interactions import (
     CommandInteraction,
-    CommandInteractionOption,
     ComponentInteraction,
     PartialInteraction,
 )
-from hikari.messages import Message
-from hikari.snowflakes import Snowflake
 from hikari.traits import GatewayBotAware
-from hikari.users import User
 
+from aurum.commands import MessageCommand, SlashCommand, SubCommand, UserCommand
+from aurum.commands.app_command import AppCommand
+from aurum.commands.context_menu_command import ContextMenuCommand
 from aurum.commands.enum import SyncCommandsFlag
-from aurum.commands.typing import CommandCallbackT
+from aurum.context import InteractionContext
+from aurum.events import CommandErrorEvent
 from aurum.ext.plugins import PluginManager
-from aurum.interactions import InteractionContext
-from aurum.internal.commands.app_command import AppCommand
-from aurum.internal.commands.command_handler import CommandHandler
-from aurum.internal.exceptions import UnknownCommandException
+from aurum.internal.command_handler import CommandHandler
 from aurum.internal.includable import Includable
 from aurum.l10n import LocalizationProviderInterface
 
 __all__: Sequence[str] = ("Client",)
+
+CommandT = SlashCommand | ContextMenuCommand | SubCommand
 
 
 class Client:
@@ -76,18 +73,15 @@ class Client:
         ignore_unknown_interactions: bool = False,
     ) -> None:
         self.__logger: Logger = getLogger("aurum.client")
-        self.__starting_tasks: List[Coroutine[None, None, Any]] = []
 
         self._sync_commands: SyncCommandsFlag = sync_commands
         self._ignore_unknown_interactions: bool = ignore_unknown_interactions
 
         self.bot: GatewayBotAware = bot
+
         self.l10n: LocalizationProviderInterface | None = l10n
         self.commands: CommandHandler = CommandHandler(bot, self.l10n)
         self.plugins: PluginManager = PluginManager(bot, self)
-
-        self.bot.event_manager.subscribe(StartingEvent, self.on_starting)
-        self.bot.event_manager.subscribe(StartedEvent, self.on_started)
 
         if not l10n and not ignore_l10n:
             self.__logger.warning(
@@ -96,24 +90,21 @@ class Client:
                 "or create your own implementation based on the LocalizationProviderInterface."
             )
         else:
-            self.__starting_tasks.append(l10n.start())
+            self.add_starting_task(l10n.start())
 
-    async def on_starting(self, _: StartingEvent) -> None:
-        completed: Sequence[Any | Exception] = await asyncio.gather(
-            *self.__starting_tasks, return_exceptions=True
-        )
-        for result in completed:
-            if isinstance(result, Exception):
-                self.__logger.exception("Task raised exception", exc_info=result)
+        self.bot.event_manager.subscribe(StartedEvent, self.on_started)
+        self.bot.event_manager.subscribe(InteractionCreateEvent, self.on_interaction)
+        self.bot.event_manager.subscribe(CommandErrorEvent, self.on_command_error)
 
     async def on_started(self, _: StartedEvent) -> None:
         if self._sync_commands.value:
-            self.__logger.debug("syncing commands")
             await self.commands.sync(debug=self._sync_commands == SyncCommandsFlag.DEBUG)
-        self.bot.event_manager.subscribe(InteractionCreateEvent, self.on_interaction)
 
-    async def add_starting_task(self, coro: Coroutine[None, None, Any]) -> None:
-        self.__starting_tasks.append(coro)
+    def add_starting_task(self, coro: Coroutine[None, None, Any]) -> None:
+        async def callback(_: StartingEvent) -> None:
+            await coro
+
+        self.bot.event_manager.subscribe(StartingEvent, callback)
 
     def create_interaction_context(
         self, interaction: ComponentInteraction | CommandInteraction
@@ -132,66 +123,41 @@ class Client:
 
     async def proceed_command(self, interaction: CommandInteraction) -> None:
         context: InteractionContext = self.create_interaction_context(interaction)
-        command: AppCommand | None = self.commands.app_commands.get(interaction.command_id)
-
+        command: CommandT = self.commands.get_command(context)
         try:
-            if interaction.command_type in (CommandType.USER, CommandType.MESSAGE):
-                resolved: Dict[Snowflake, User | Message] = (
-                    interaction.resolved.users  # interaction.resolved is weird thing actually, but it's not our care
-                    if interaction.command_type is CommandType.USER
-                    else interaction.resolved.messages
-                )  # type: ignore
-                await command.callback(
-                    context, tuple(resolved.values())[0]
-                )  # type of command must be UserCommand or MessageCommand
-                return
-
-            callback: CommandCallbackT | None = None
-            arguments: Dict[str, Any] = {}
-            options: Sequence[CommandInteractionOption] = interaction.options or ()
-
-            if (callback := getattr(command, "callback", None)) and not command.sub_commands:
-                for option in options:
-                    arguments[option.name] = context.resolve_command_argument(option)
-                return await callback(context, **arguments)
-
-            for option in options:
-                if option.type is OptionType.SUB_COMMAND:
-                    if sub_command := command.sub_commands.get(option.name):
-                        options = option.options or ()
-                        callback = sub_command.callback
-                if option.type is OptionType.SUB_COMMAND_GROUP:
-                    if sub_command_group := command.sub_commands.get(option.name):
-                        options = option.options or ()
-                        for option in options:
-                            if sub_command := sub_command_group.sub_commands.get(option.name):
-                                options = option.options or ()
-                                callback = sub_command.callback
-            if callback:
-                for option in options:
-                    arguments[option.name] = context.resolve_command_argument(option)
-                # command required, because it's must be a sub_command because of decorator, sub command don't see parent command class (self)
-                await callback(command, context, **arguments)
-                return
-        except UnknownCommandException:
-            raise
+            if isinstance(command, SlashCommand):
+                if not (callback := getattr(command, "callback", None)):
+                    raise
+                return await callback(context, **context.arguments)
+            elif isinstance(command, UserCommand):
+                return await command.callback(context, *interaction.resolved.users.values())  # type: ignore
+            elif isinstance(command, MessageCommand):
+                return await command.callback(context, *interaction.resolved.messages.values())  # type: ignore
+            elif isinstance(command, SubCommand):
+                return await command.callback(
+                    self.commands.app_commands.get(context.interaction.command_id, None),  # type: ignore
+                    context,
+                    **context.arguments,
+                )
         except Exception as error:
-            return await self.on_unexcepted_error(context, error)
+            self.bot.event_manager.dispatch(
+                CommandErrorEvent(
+                    app=self.bot,
+                    client=self,
+                    exc_info=sys.exc_info(),  # type: ignore
+                    exception=error,
+                    command=command,  # type: ignore
+                    context=context,
+                )
+            )
+            return
 
-    async def on_unexcepted_error(self, context: InteractionContext, error: Exception) -> None:
-        """Response on unexcepted error"""
-        self.__logger.error("exception occurred while command proceeding", exc_info=error)
-        try:
-            await context.create_response("An unexcepted error occurred.", ephemeral=True)
-        except HikariError:
-            await context.edit_response("An unexcepted error occurred.")
-        return
+    async def on_command_error(self, event: CommandErrorEvent) -> None:
+        self.__logger.error(
+            "error occurred while executing %s command", event.command.name, exc_info=event.exc_info
+        )
 
-    async def on_command_error(self, context: InteractionContext, error: Exception) -> None:
-        """Handler of commands' errors"""
-        await self.on_unexcepted_error(context, error)
-
-    def include(self, includable: typing.Type[Includable]) -> None:
+    def include(self, includable: Type[Includable]) -> None:
         """Decorator to include an includable object to client"""
         if issubclass(includable, AppCommand):
             instance: AppCommand = includable()  # type: ignore

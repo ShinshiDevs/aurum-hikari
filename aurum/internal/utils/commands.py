@@ -4,20 +4,10 @@ from aurum.l10n import LocalizationProviderInterface, Localized
 from aurum.options import Choice, Option
 
 
-def build_choice(choice: Choice, l10n: LocalizationProviderInterface) -> CommandChoice:
-    if isinstance(choice.name, Localized):
-        l10n.build_localized(choice.name)
-    return CommandChoice(
-        name=str(choice.name),
-        name_localizations=getattr(choice.name, "value", {}),
-        value=choice.value,
-    )
-
-
-def build_option(option: Option, l10n: LocalizationProviderInterface) -> CommandOption:
-    if isinstance(option.description, Localized):
+def build_option(option: Option, l10n: LocalizationProviderInterface | None) -> CommandOption:
+    if l10n and isinstance(option.description, Localized):
         l10n.build_localized(option.description)
-    if isinstance(option.display_name, Localized):
+    if l10n and isinstance(option.display_name, Localized):
         l10n.build_localized(option.display_name)
     return CommandOption(
         type=option.type,
@@ -32,4 +22,14 @@ def build_option(option: Option, l10n: LocalizationProviderInterface) -> Command
         max_value=option.max_value,
         min_value=option.min_value,
         channel_types=option.channel_types,
+    )
+
+
+def build_choice(choice: Choice, l10n: LocalizationProviderInterface | None) -> CommandChoice:
+    if l10n and isinstance(choice.name, Localized):
+        l10n.build_localized(choice.name)
+    return CommandChoice(
+        name=str(choice.name),
+        name_localizations=getattr(choice.name, "value", {}),
+        value=choice.value,
     )

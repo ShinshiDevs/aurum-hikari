@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Dict, List, Type
+from typing import TYPE_CHECKING, Dict, List, Tuple, Type
 
 from hikari.events.base_events import EventT
 from hikari.guilds import PartialGuild
@@ -10,9 +10,8 @@ from hikari.snowflakes import SnowflakeishOr
 from hikari.traits import GatewayBotAware
 from hikari.undefined import UNDEFINED, UndefinedType
 
-from aurum.events import Event
-from aurum.internal.commands.app_command import AppCommand
-from aurum.internal.exceptions.base_exception import AurumException
+from aurum.commands.app_command import AppCommand
+from aurum.exceptions import AurumException
 from aurum.internal.includable import Includable
 
 if TYPE_CHECKING:
@@ -94,13 +93,13 @@ class Plugin:
         self.is_nsfw: bool = is_nsfw
 
         self.included: Dict[str, Includable] = {}
-        self.events: List[Event] = []
+        self.events: List[Tuple[Sequence[EventT], CallbackT]] = []
 
     def __call__(self, bot: GatewayBotAware, client: Client) -> Plugin:
         self.bot = bot
         self.client = client
         for event in self.events:
-            bot.event_manager.listen(*event.event_types)(event.callback)
+            bot.event_manager.listen(*event[0])(event[1])
         return self
 
     def include(self, includable: Type[Includable]) -> None:
@@ -119,6 +118,6 @@ class Plugin:
 
     def listen(self, *event_types: Type[EventT]) -> Callable[[CallbackT[EventT]], None]:
         def decorator(callback: CallbackT[EventT]) -> None:
-            self.events.append(Event(event_types=event_types, callback=callback))  # type: ignore
+            self.events.append((event_types, callback))  # type: ignore
 
         return decorator

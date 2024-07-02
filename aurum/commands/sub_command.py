@@ -1,22 +1,24 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 import attrs
 from hikari.commands import CommandOption, OptionType
 
 from aurum.commands.typing import CommandCallbackT
 from aurum.internal.utils.commands import build_option
-from aurum.l10n import LocalizationProviderInterface
-from aurum.l10n.localized import Localized
-from aurum.l10n.types import LocalizedOr
+from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
 from aurum.options import Option
+
+if TYPE_CHECKING:
+    from aurum.commands.slash_command import SlashCommand
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class SubCommand:
-    callback: CommandCallbackT
+    parent: SlashCommand | SubCommand | None = attrs.field(default=None, eq=None, repr=False)
+    callback: CommandCallbackT = attrs.field()
 
     name: str
     display_name: LocalizedOr[str] | None = attrs.field(default=None, repr=False, eq=False)
@@ -51,6 +53,7 @@ class SubCommand:
 
         def decorator(func: CommandCallbackT) -> None:
             self.sub_commands[name] = SubCommand(
+                parent=self,
                 callback=func,
                 name=name,
                 description=description,
@@ -60,17 +63,25 @@ class SubCommand:
 
         return decorator
 
-    def as_option(self, l10n: LocalizationProviderInterface) -> CommandOption:
-        if isinstance(self.display_name, Localized):
+    def as_option(self, l10n: LocalizationProviderInterface | None) -> CommandOption:
+        if l10n and isinstance(self.display_name, Localized):
             l10n.build_localized(self.display_name)
-        if isinstance(self.description, Localized):
+        if l10n and isinstance(self.description, Localized):
             l10n.build_localized(self.description)
         return CommandOption(
             type=OptionType.SUB_COMMAND if not self.sub_commands else OptionType.SUB_COMMAND_GROUP,
             name=self.name,
-            name_localizations=getattr(self.display_name, "value", {}),
+            name_localizations=(
+                localizations
+                if isinstance(localizations := getattr(self.display_name, "value", {}), dict)
+                else {}
+            ),
             description=str(self.description),
-            description_localizations=getattr(self.description, "value", {}),
+            description_localizations=(
+                localizations
+                if isinstance(localizations := getattr(self.description, "value", {}), dict)
+                else {}
+            ),
             options=(
                 [build_option(option, l10n) for option in self.options]
                 if not self.sub_commands

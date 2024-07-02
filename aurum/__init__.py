@@ -21,6 +21,8 @@ from collections.abc import Sequence
 from aurum.client import *
 from aurum.commands import *
 from aurum.commands.decorators import *
-from aurum.interactions import *
+from aurum.context import *
+from aurum.events import *
+from aurum.exceptions import *
 from aurum.l10n import *
 from aurum.options import *
