@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Tuple, Type
 
 import attrs
 from hikari.events import Event
+from hikari.interactions import PartialInteraction
 from hikari.traits import RESTAware
 
 from aurum.commands.app_command import AppCommand
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
     from aurum.client import Client
 
 
-__all__: Sequence[str] = ("AurumEvent", "ExceptionEvent", "CommandErrorEvent")
+__all__: Sequence[str] = ("AurumEvent", "ExceptionEvent", "InteractionEvent", "CommandErrorEvent")
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
@@ -26,10 +27,10 @@ class AurumEvent(Event, abc.ABC):
     """
 
     app: RESTAware = attrs.field()
-    """Instance of main application"""
+    """Instance of main application."""
 
     client: Client = attrs.field()
-    """Client"""
+    """Client."""
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
@@ -46,17 +47,16 @@ class ExceptionEvent(AurumEvent, abc.ABC):
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
-class InteractionErrorEvent(ExceptionEvent, abc.ABC):
-    """
-    Event that being dispatched, when command execution has exceptions.
-    """
+class InteractionEvent(ExceptionEvent, abc.ABC):
+    interaction: PartialInteraction
+    """Interaction of event."""
 
-    context: InteractionContext
+    context: InteractionContext | None = attrs.field(default=None)
     """Context of interaction."""
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
-class CommandErrorEvent(InteractionErrorEvent, abc.ABC):
+class CommandErrorEvent(InteractionEvent, abc.ABC):
     """
     Event that being dispatched, when command execution has exceptions.
     """

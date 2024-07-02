@@ -1,4 +1,4 @@
-"""Aurum - A flexible framework for handling commands and components with integrations."""
+"""Aurum - A flexible framework for handling commands and components."""
 
 from __future__ import annotations
 

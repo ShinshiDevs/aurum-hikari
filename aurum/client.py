@@ -94,13 +94,14 @@ class Client:
 
         self.bot.event_manager.subscribe(StartedEvent, self.on_started)
         self.bot.event_manager.subscribe(InteractionCreateEvent, self.on_interaction)
-        self.bot.event_manager.subscribe(CommandErrorEvent, self.on_command_error)
 
     async def on_started(self, _: StartedEvent) -> None:
         if self._sync_commands.value:
             await self.commands.sync(debug=self._sync_commands == SyncCommandsFlag.DEBUG)
 
     def add_starting_task(self, coro: Coroutine[None, None, Any]) -> None:
+        """Add starting task."""
+
         async def callback(_: StartingEvent) -> None:
             await coro
 
@@ -150,15 +151,10 @@ class Client:
                     context=context,
                 )
             )
-            return
-
-    async def on_command_error(self, event: CommandErrorEvent) -> None:
-        self.__logger.error(
-            "error occurred while executing %s command", event.command.name, exc_info=event.exc_info
-        )
+            raise
 
     def include(self, includable: Type[Includable]) -> None:
-        """Decorator to include an includable object to client"""
+        """Decorator to include an includable object to client."""
         if issubclass(includable, AppCommand):
             instance: AppCommand = includable()  # type: ignore
             self.commands.commands[instance.name] = instance

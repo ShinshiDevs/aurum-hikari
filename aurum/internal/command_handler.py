@@ -174,7 +174,7 @@ class CommandHandler:
                     raise AurumException("`__init__` of base includable wasn't overrided")
 
     def load_folder(self, directory: PathLike[str]) -> None:
-        """Load commands from folder"""
+        """Load commands from folder."""
         for file in Path(directory).rglob("*.py"):
             if re.compile("(^_.*|.*_$)").match(file.name):
                 continue

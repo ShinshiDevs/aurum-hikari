@@ -53,12 +53,12 @@ class InteractionContext:
 
     @property
     def user(self) -> PartialUser | None:
-        """User of the interaction"""
+        """User of the interaction."""
         return self.interaction.user
 
     @property
     def member(self) -> InteractionMember | None:
-        """Member of the interaction"""
+        """Member of the interaction."""
         return self.interaction.member
 
     @property
@@ -191,7 +191,7 @@ class InteractionContext:
         )
 
     async def delete_response(self) -> None:
-        """Delete the interaction's response"""
+        """Delete the interaction's response."""
         await self.bot.rest.delete_interaction_response(
             application=self.interaction.application_id, token=self.interaction.token
         )

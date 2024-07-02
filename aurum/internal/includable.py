@@ -2,7 +2,7 @@ from collections.abc import Sequence
 
 
 class Includable:
-    """Class for includable objects"""
+    """Class for includable objects."""
 
     __slots__: Sequence[str] = ("name",)
 

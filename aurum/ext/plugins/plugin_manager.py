@@ -39,9 +39,9 @@ class PluginManager:
         self.plugins: Dict[str, Plugin] = {}
 
     def load_plugin_from_file(self, file: PathLike[str]) -> Plugin | None:
-        """Load plugin from file
+        """Load plugin from file.
 
-        File must have a `plugin` variable
+        File must have a `plugin` variable.
         """
         file = Path(file)
         if not file.is_file():
@@ -64,7 +64,7 @@ class PluginManager:
         return None
 
     async def load_folder(self, directory: PathLike[str], *, recursive: bool = True) -> None:
-        """Load plugins from folder"""
+        """Load plugins from folder."""
         path: Path = Path(directory)
         for file in (path.rglob if recursive else path.glob)("*.py"):
             plugin: Plugin | None = self.load_plugin_from_file(file)

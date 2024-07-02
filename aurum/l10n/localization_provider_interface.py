@@ -14,11 +14,11 @@ class LocalizationProviderInterface(Protocol):
     """
 
     async def start(self) -> None:
-        """Start the localization provider"""
+        """Start the localization provider."""
         ...
 
     def build_localized(self, value: Localized) -> Dict[Locale | str, str]:
-        """Build [Localized object][aurum.l10n.localized.Localized] for Discord API
+        """Build [Localized object][aurum.l10n.localized.Localized] for Discord API.
 
         !!! warning
             This function must change Localized object.
@@ -30,5 +30,5 @@ class LocalizationProviderInterface(Protocol):
         ...
 
     def get_locale(self, by: str | CommandInteraction | ComponentInteraction) -> Any:
-        """Get locale by name or interaction"""
+        """Get locale by name or interaction."""
         ...

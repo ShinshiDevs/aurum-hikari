@@ -15,21 +15,21 @@ class Option:
     """Represents the command option."""
 
     type: OptionType
-    """The option type"""
+    """The option type."""
     name: str
-    """The unique name of the option"""
+    """The unique name of the option."""
     display_name: LocalizedOr[str] | None = attrs.field(default=None, repr=False, eq=False)
     """Display name of option.
     
     Can be localized."""
     description: LocalizedOr[str] = attrs.field(default="No description", repr=False, eq=False)
-    """The description of the option"""
+    """The description of the option."""
     is_required: bool = attrs.field(default=True, repr=False, eq=False)
     """An optional flag is the option is required.
     
     Default: True"""
     choices: Sequence[Choice] = attrs.field(factory=tuple, repr=False, eq=False)
-    """A list of choices to the option"""
+    """A list of choices to the option."""
     max_length: int | None = attrs.field(default=None, repr=False, eq=False)
     """An optional maximum length of the option value.
 
