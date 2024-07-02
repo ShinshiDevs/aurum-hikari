@@ -17,5 +17,5 @@ from typing import Final
 
 from aurum.internal.version import Version
 
-__version_tuple__: Final[Version] = Version(0, 1, 5, 6)
+__version_tuple__: Final[Version] = Version(0, 1, 5, 7)
 __version__: Final[str] = str(__version_tuple__)
