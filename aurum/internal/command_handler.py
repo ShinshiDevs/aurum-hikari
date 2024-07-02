@@ -102,9 +102,9 @@ class CommandHandler:
         self, context: InteractionContext
     ) -> SlashCommand | ContextMenuCommand | SubCommand:
         """Get command from context.
-        
-        Because sub-commands are passed through the `options` field of the received interaction, 
-        the arguments for the command have already been processed and are located 
+
+        Because sub-commands are passed through the `options` field of the received interaction,
+        the arguments for the command have already been processed and are located
         in the `context.arguments` field (`InteractionContext.arguments`).
         """
         assert isinstance(context.interaction, CommandInteraction)
