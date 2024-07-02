@@ -39,7 +39,13 @@ class InteractionContext:
         interaction (CommandInteraction | ComponentInteraction): The interaction.
         bot (GatewayBotAware): The instance of the bot.
         client (Client): The client.
+        command (AppCommand): Command of interaction.
+            !!! note
+                Available only for commands.
         locale (Any): An any locale object for the interaction.
+        arguments (Dict[str, Any]): Arguments to the interaction.
+            !!! note
+                Available only for commands.
     """
 
     interaction: CommandInteraction | ComponentInteraction = attrs.field(eq=False)
@@ -52,7 +58,7 @@ class InteractionContext:
     arguments: Dict[str, Any] = attrs.field(factory=dict, eq=False)
 
     @property
-    def user(self) -> PartialUser | None:
+    def user(self) -> PartialUser:
         """User of the interaction."""
         return self.interaction.user
 
@@ -63,10 +69,12 @@ class InteractionContext:
 
     @property
     def guild(self) -> GatewayGuild | None:
+        """Guild of the interaction."""
         return self.interaction.get_guild()
 
     @property
     def channel(self) -> PartialChannel | None:
+        """Channel of the interaction."""
         return self.interaction.get_channel()
 
     async def defer(
