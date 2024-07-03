@@ -1,38 +1,37 @@
 from __future__ import annotations
 
-import typing
-from dataclasses import dataclass
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Dict
 
+import attrs
+from hikari.api import ComponentBuilder
+from hikari.channels import PartialChannel
 from hikari.commands import OptionType
-from hikari.interactions import ResponseType
-from hikari.messages import MessageFlag
-from hikari.snowflakes import Snowflake
-from hikari.undefined import UNDEFINED
+from hikari.embeds import Embed
+from hikari.files import Resourceish
+from hikari.guilds import GatewayGuild, PartialRole
+from hikari.interactions import (
+    CommandInteraction,
+    CommandInteractionOption,
+    ComponentInteraction,
+    InteractionMember,
+    ResponseType,
+)
+from hikari.messages import Message, MessageFlag
+from hikari.snowflakes import Snowflake, SnowflakeishSequence
+from hikari.traits import GatewayBotAware
+from hikari.undefined import UNDEFINED, UndefinedOr
+from hikari.users import PartialUser
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+from aurum.commands.app_command import AppCommand
 
-    from hikari.traits import GatewayBotAware
-    from hikari.api import ComponentBuilder
-    from hikari.channels import PartialChannel
-    from hikari.embeds import Embed
-    from hikari.files import Resourceish
-    from hikari.guilds import GatewayGuild, PartialRole
-    from hikari.interactions import (
-        CommandInteraction,
-        CommandInteractionOption,
-        ComponentInteraction,
-        InteractionMember,
-    )
-    from hikari.messages import Message
-    from hikari.snowflakes import SnowflakeishSequence
-    from hikari.undefined import UndefinedOr
-    from hikari.users import PartialUser
-
+if TYPE_CHECKING:
     from aurum.client import Client
 
+__all__: Sequence[str] = ("InteractionContext",)
 
-@dataclass(slots=True, kw_only=True)
+
+@attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class InteractionContext:
     """Represents a interaction context.
 
@@ -40,32 +39,42 @@ class InteractionContext:
         interaction (CommandInteraction | ComponentInteraction): The interaction.
         bot (GatewayBotAware): The instance of the bot.
         client (Client): The client.
-        locale (typing.Any): An any locale object for the interaction.
+        command (AppCommand): Command of interaction.
+            !!! note
+                Available only for commands.
+        locale (Any): An any locale object for the interaction.
+        arguments (Dict[str, Any]): Arguments to the interaction.
+            !!! note
+                Available only for commands.
     """
 
-    interaction: CommandInteraction | ComponentInteraction
+    interaction: CommandInteraction | ComponentInteraction = attrs.field(eq=False)
 
-    bot: GatewayBotAware
-    client: Client
+    bot: GatewayBotAware = attrs.field(eq=False)
+    client: Client = attrs.field(eq=False)
 
-    locale: typing.Any
+    command: AppCommand | None = attrs.field(eq=False, default=None)
+    locale: Any = attrs.field(eq=False)
+    arguments: Dict[str, Any] = attrs.field(factory=dict, eq=False)
 
     @property
-    def user(self) -> PartialUser | None:
-        """User of the interaction"""
+    def user(self) -> PartialUser:
+        """User of the interaction."""
         return self.interaction.user
 
     @property
     def member(self) -> InteractionMember | None:
-        """Member of the interaction"""
+        """Member of the interaction."""
         return self.interaction.member
 
     @property
     def guild(self) -> GatewayGuild | None:
+        """Guild of the interaction."""
         return self.interaction.get_guild()
 
     @property
     def channel(self) -> PartialChannel | None:
+        """Channel of the interaction."""
         return self.interaction.get_channel()
 
     async def defer(
@@ -93,7 +102,7 @@ class InteractionContext:
 
     async def create_response(
         self,
-        content: UndefinedOr[typing.Any] = UNDEFINED,
+        content: UndefinedOr[Any] = UNDEFINED,
         *,
         flags: MessageFlag = MessageFlag.NONE,
         ephemeral: bool = False,
@@ -157,7 +166,7 @@ class InteractionContext:
 
     async def edit_response(
         self,
-        content: UndefinedOr[typing.Any] = UNDEFINED,
+        content: UndefinedOr[Any] = UNDEFINED,
         *,
         attachment: UndefinedOr[Resourceish] = UNDEFINED,
         attachments: UndefinedOr[Sequence[Resourceish]] = UNDEFINED,
@@ -190,12 +199,12 @@ class InteractionContext:
         )
 
     async def delete_response(self) -> None:
-        """Delete the interaction's response"""
+        """Delete the interaction's response."""
         await self.bot.rest.delete_interaction_response(
             application=self.interaction.application_id, token=self.interaction.token
         )
 
-    def resolve_command_argument(self, option: CommandInteractionOption) -> typing.Any:
+    def resolve_command_argument(self, option: CommandInteractionOption) -> Any:
         if not self.interaction.resolved or not isinstance(option.value, Snowflake):
             return option.value
         match option.type:

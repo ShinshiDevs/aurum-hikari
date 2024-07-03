@@ -6,7 +6,7 @@ title: Welcome
 The current version of the documentation is designed for Hikari. 
 
 ### Aurum
-A flexible framework for handling commands and components with integrations.
+A flexible framework for handling commands and components.
 
 Create your bot easily and simply without worrying about speed, resources usage. You can create your own custom implementations of Aurum's components – your freedom of action is our top priority.
 
@@ -32,7 +32,7 @@ Create your bot easily and simply without worrying about speed, resources usage.
 
     We don't implement our own hikari and our flexibility lies in your independence in your project.
 
-    [:octicons-arrow-right-24: API Reference](reference/client/client.md)
+    [:octicons-arrow-right-24: API Reference](reference/client.md)
 
 -   :octicons-package-24:{ .lg .middle } __3 in 1, like coffee__
 

@@ -1,8 +1,9 @@
 [tool.poetry]
-version = "0.1.5.6"
+packages = [{ include = "aurum" }]
+version = "0.1.5.7"
 name = "aurum-hikari"
 authors = ["stefanlight8 <64615032+stefanlight8@users.noreply.github.com>"]
-description = "A flexible framework for handling commands and components with integrations."
+description = "A flexible framework for handling commands and components."
 readme = "README.md"
 license = "MIT"
 classifiers = [
@@ -27,10 +28,8 @@ keywords = [
     "components",
     "command-handler",
     "component-handler",
-    "integrations",
+    "framework",
 ]
-packages = [{ include = "aurum" }]
-include = ["./VERSION"]
 
 [tool.poetry.urls]
 repository = "https://github.com/ShinshiDevs/aurum-hikari"
@@ -40,6 +39,7 @@ documentation = "https://shinshidevs.github.io/aurum-hikari/"
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
 hikari = ">=2.0.0.dev122"
+attrs = "^23.2.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = ">=1.5.3,<1.7"

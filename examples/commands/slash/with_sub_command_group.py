@@ -42,7 +42,7 @@ class StatsCommand(SlashCommand):
             )
         ],
     )
-    async def channel_massages(
+    async def channel_messages(
         self, context: InteractionContext, channel: PartialChannel | None = None
     ) -> None:
         channel = await context.bot.rest.fetch_channel(channel) if channel else context.channel

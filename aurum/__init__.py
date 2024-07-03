@@ -1,4 +1,4 @@
-"""Aurum - A flexible framework for handling commands and components with integrations."""
+"""Aurum - A flexible framework for handling commands and components."""
 
 from __future__ import annotations
 
@@ -16,14 +16,13 @@ __all__: Sequence[str] = (
     "Choice",
 )
 
-import typing
+from collections.abc import Sequence
 
 from aurum.client import *
 from aurum.commands import *
 from aurum.commands.decorators import *
-from aurum.interactions import *
+from aurum.context import *
+from aurum.events import *
+from aurum.exceptions import *
 from aurum.l10n import *
 from aurum.options import *
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Sequence

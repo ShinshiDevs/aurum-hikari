@@ -1,36 +1,38 @@
 from __future__ import annotations
 
-import typing
-from dataclasses import dataclass, field
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Dict
 
+import attrs
 from hikari.commands import CommandOption, OptionType
 
+from aurum.commands.typing import CommandCallbackT
 from aurum.internal.utils.commands import build_option
-from aurum.l10n.localized import Localized
+from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
 from aurum.options import Option
 
-if typing.TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Sequence
-
-    from aurum.l10n import LocalizationProviderInterface
-    from aurum.l10n.types import LocalizedOr
+if TYPE_CHECKING:
+    from aurum.commands.slash_command import SlashCommand
 
 
-@dataclass(slots=True, kw_only=True)
+@attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class SubCommand:
-    callback: Callable[..., Awaitable[typing.Any]]
+    parent: SlashCommand | SubCommand | None = attrs.field(default=None, eq=None, repr=False)
+    callback: CommandCallbackT = attrs.field()
 
     name: str
-    description: LocalizedOr[str] | None = None
+    display_name: LocalizedOr[str] | None = attrs.field(default=None, repr=False, eq=False)
+    description: LocalizedOr[str] = attrs.field(default="No description", repr=False, eq=False)
 
-    options: Sequence[Option] = field(default_factory=tuple[Option])
-
-    sub_commands: typing.Dict[str, SubCommand] = field(default_factory=dict)
+    options: Sequence[Option] = attrs.field(factory=tuple, repr=False, eq=False)
+    sub_commands: Dict[str, SubCommand] = attrs.field(factory=dict, repr=False, eq=False)
 
     def sub_command(
         self,
         name: str,
-        description: LocalizedOr[str] | None = None,
+        *,
+        display_name: LocalizedOr[str] | None = None,
+        description: LocalizedOr[str] = "No description",
         options: Sequence[Option] = (),
     ) -> Callable[..., None]:
         """Decorator for the sub-command.
@@ -41,35 +43,48 @@ class SubCommand:
         Args:
             name (str): The unique name for the sub-command.
             description (LocalizedOr[str] | None): Optional description for the sub-command.
+            display_name (LocalizedOr[str] | None): A display name of command.
+                Can be localized.
             options (Sequence[Option]): Optional options of the sub-command.
 
         Note:
             The callback must be asynchronous.
         """
 
-        def decorator(func: Callable[..., Awaitable[None]]) -> None:
+        def decorator(func: CommandCallbackT) -> None:
             self.sub_commands[name] = SubCommand(
+                parent=self,
                 callback=func,
                 name=name,
-                description=description or "No description",
+                description=description,
+                display_name=display_name,
                 options=options,
             )
 
         return decorator
 
-    def as_option(self, l10n: LocalizationProviderInterface) -> CommandOption:
-        options: Sequence[CommandOption]
-        if not self.sub_commands:
-            options = [build_option(option, l10n) for option in self.options]
-        else:
-            options = [sub_command.as_option(l10n) for sub_command in self.sub_commands.values()]
-        description: LocalizedOr[str] = self.description or "No description"
+    def as_option(self, l10n: LocalizationProviderInterface | None) -> CommandOption:
+        if l10n and isinstance(self.display_name, Localized):
+            l10n.build_localized(self.display_name)
+        if l10n and isinstance(self.description, Localized):
+            l10n.build_localized(self.description)
         return CommandOption(
             type=OptionType.SUB_COMMAND if not self.sub_commands else OptionType.SUB_COMMAND_GROUP,
-            name=str(self.name),  # TODO: display name
-            description=str(description),
-            description_localizations=(
-                l10n.build_localized(description) if isinstance(description, Localized) else {}
+            name=self.name,
+            name_localizations=(
+                localizations
+                if isinstance(localizations := getattr(self.display_name, "value", {}), dict)
+                else {}
             ),
-            options=options,
+            description=str(self.description),
+            description_localizations=(
+                localizations
+                if isinstance(localizations := getattr(self.description, "value", {}), dict)
+                else {}
+            ),
+            options=(
+                [build_option(option, l10n) for option in self.options]
+                if not self.sub_commands
+                else [sub_command.as_option(l10n) for sub_command in self.sub_commands.values()]
+            ),
         )

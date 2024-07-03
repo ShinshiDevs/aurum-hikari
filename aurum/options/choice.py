@@ -1,15 +1,13 @@
-from __future__ import annotations
+from typing import Any
 
-import typing
-from dataclasses import dataclass
+import attrs
 
-if typing.TYPE_CHECKING:
-    from aurum.l10n.types import LocalizedOr
+from aurum.l10n.types import LocalizedOr
 
 
-@dataclass(slots=True, kw_only=True)
+@attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class Choice:
-    """Represents the option's choice"""
+    """Represents the option's choice."""
 
     name: LocalizedOr[str]
-    value: typing.Any
+    value: Any

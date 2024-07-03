@@ -1,29 +1,23 @@
-from __future__ import annotations
+from collections.abc import Callable, Sequence
 
-import typing
-
+from hikari.api import ContextMenuCommandBuilder
+from hikari.commands import CommandType
+from hikari.guilds import PartialGuild
 from hikari.permissions import Permissions
-from hikari.undefined import UNDEFINED
+from hikari.snowflakes import SnowflakeishOr
+from hikari.undefined import UNDEFINED, UndefinedType
 
-from aurum.internal.commands.app_command import AppCommand
-
-if typing.TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-
-    from hikari.api import ContextMenuCommandBuilder
-    from hikari.commands import CommandType
-    from hikari.guilds import PartialGuild
-    from hikari.snowflakes import SnowflakeishOr
-    from hikari.undefined import UndefinedType
-
-    from aurum.l10n import LocalizationProviderInterface
+from aurum.commands.app_command import AppCommand
+from aurum.l10n import LocalizationProviderInterface
+from aurum.l10n.localized import Localized
+from aurum.l10n.types import LocalizedOr
 
 
 class ContextMenuCommand(AppCommand):
     __slots__: Sequence[str] = (
         "app",
-        "command_type",
         "name",
+        "display_name",
         "guild",
         "default_member_permissions",
         "dm_enabled",
@@ -32,18 +26,17 @@ class ContextMenuCommand(AppCommand):
 
     def __init__(
         self,
-        command_type: CommandType,
         name: str,
         *,
+        display_name: LocalizedOr[str] | None = None,
         guild: SnowflakeishOr[PartialGuild] | UndefinedType = UNDEFINED,
         default_member_permissions: Permissions = Permissions.NONE,
         is_dm_enabled: bool = False,
         is_nsfw: bool = False,
     ) -> None:
         super().__init__(
-            command_type=command_type,
             name=name,
-            description=None,
+            display_name=display_name,
             guild=guild,
             default_member_permissions=default_member_permissions,
             is_dm_enabled=is_dm_enabled,
@@ -53,10 +46,17 @@ class ContextMenuCommand(AppCommand):
     def get_builder(
         self,
         factory: Callable[[CommandType | int, str], ContextMenuCommandBuilder],
-        l10n: LocalizationProviderInterface,  # type: ignore  # TODO: display name
+        l10n: LocalizationProviderInterface | None,
     ) -> ContextMenuCommandBuilder:
+        if l10n and isinstance(self.display_name, Localized):
+            l10n.build_localized(self.display_name)
         builder = (
             factory(self.command_type, self.name)
+            .set_name_localizations(
+                localizations
+                if isinstance(localizations := getattr(self.display_name, "value", {}), dict)
+                else {}
+            )
             .set_default_member_permissions(self.default_member_permissions)
             .set_is_dm_enabled(self.is_dm_enabled)
             .set_is_nsfw(self.is_nsfw)
