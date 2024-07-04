@@ -50,12 +50,14 @@ class CommandHandler:
         "app_commands",
     )
 
-    def __init__(self, bot: GatewayBotAware, l10n: LocalizationProviderInterface) -> None:
+    def __init__(
+        self, bot: GatewayBotAware, l10n: LocalizationProviderInterface | None = None
+    ) -> None:
         self.__logger: Logger = getLogger("aurum.commands")
 
         self._app: PartialApplication | None = None
         self._bot: GatewayBotAware = bot
-        self._l10n: LocalizationProviderInterface = l10n
+        self._l10n: LocalizationProviderInterface | None = l10n
 
         self._commands_builders: Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, Dict[str, CommandBuilder]
@@ -74,6 +76,7 @@ class CommandHandler:
             debug: A boolean flag that, when set to True, enables more verbose logging
                    of the synchronization process for debugging purposes.
         """
+        self.__logger.info("synchronizing commands")
         if not self._app:
             self._app = await self._bot.rest.fetch_application()
         synchronized: Dict[
@@ -85,18 +88,20 @@ class CommandHandler:
                 self._commands_builders[command.guild][command.name] = builder
         for guild, builders in self._commands_builders.items():
             synchronized[guild] = await self._bot.rest.set_application_commands(
-                self._app, builders.values(), guild=guild
+                self._app,
+                builders.values(),  # type: ignore
+                guild=guild,
             )
         for entity, commands in synchronized.items():
             for partial_command in commands:
                 self.commands[partial_command.name].set_app(partial_command)
                 self.app_commands[partial_command.id] = self.commands[partial_command.name]
             if debug:
-                self.__logger.debug(
-                    "Set commands for %s: %s",
-                    entity,
+                self.__logger.getChild(str(entity).replace("UNDEFINED", "global")).debug(
+                    "set commands: %s",
                     ", ".join(command.name for command in commands),
                 )
+        self.__logger.info("synchronized successfully")
 
     def get_command(
         self, context: InteractionContext
@@ -164,10 +169,9 @@ class CommandHandler:
         if not spec or not getattr(spec, "loader", None):
             raise
         module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        spec.loader.exec_module(module)  # type: ignore
         for _, obj in inspect.getmembers(module):
             if inspect.isclass(obj) and issubclass(obj, CommandsTypes) and obj not in CommandsTypes:
-                # TODO!: Rewrite load_commands_from_file and Plugin part too
                 try:
                     yield obj()  # type: ignore
                 except TypeError:

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Coroutine, Sequence
+from asyncio import iscoroutine
+from collections.abc import Callable, Coroutine, Sequence
 from logging import Logger, getLogger
 from typing import Any, Type
 
@@ -90,7 +91,7 @@ class Client:
                 "or create your own implementation based on the LocalizationProviderInterface."
             )
         else:
-            self.add_starting_task(l10n.start())
+            self.add_starting_task(l10n.start())  # type: ignore
 
         self.bot.event_manager.subscribe(StartedEvent, self.on_started)
         self.bot.event_manager.subscribe(InteractionCreateEvent, self.on_interaction)
@@ -99,11 +100,19 @@ class Client:
         if self._sync_commands.value:
             await self.commands.sync(debug=self._sync_commands == SyncCommandsFlag.DEBUG)
 
-    def add_starting_task(self, coro: Coroutine[None, None, Any]) -> None:
-        """Add starting task."""
+    def add_starting_task(
+        self, task: Callable[..., Any] | Coroutine[None, None, Any], **kwargs: Any
+    ) -> None:
+        """Add starting task.
+
+        With coroutine function: `Client.add_starting_task(coroutine_function(...))`
+        With sync function: `Client.add_starting_task(some_function, integer=956)` or `Client.add_starting_task(labmda: some_function(956))`
+        """
 
         async def callback(_: StartingEvent) -> None:
-            await coro
+            if iscoroutine(task):
+                return await task
+            return task(**kwargs)
 
         self.bot.event_manager.subscribe(StartingEvent, callback)
 
