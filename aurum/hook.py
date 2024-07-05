@@ -25,14 +25,11 @@ class Hook:
     """Represents a hook."""
 
     callback: HookCallbackT
+    """The callback function."""
 
 
 def hook() -> Callable[[HookCallbackT], Hook]:
-    """Decorator for defining a hook.
-
-    Arguments:
-        callback: The callback function to be associated with the hook.
-    """
+    """Decorator for defining a hook."""
 
     def decorator(callback: HookCallbackT) -> Hook:
         return Hook(
