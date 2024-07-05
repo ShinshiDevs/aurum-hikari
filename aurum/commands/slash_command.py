@@ -13,6 +13,7 @@ from hikari.undefined import UNDEFINED, UndefinedType
 from aurum.commands.app_command import AppCommand
 from aurum.commands.sub_command import SubCommand
 from aurum.commands.typing import SubCommandsDictT
+from aurum.hook import Hook
 from aurum.internal.utils.commands import build_option
 from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
 from aurum.options import Option
@@ -100,6 +101,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         "dm_enabled",
         "is_nsfw",
         "options",
+        "hooks",
         "sub_commands",
     )
 
@@ -114,6 +116,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         is_dm_enabled: bool = False,
         is_nsfw: bool = False,
         options: Sequence[Option] = (),
+        hooks: Sequence[Hook] = (),
     ) -> None:
         super().__init__(
             name=name,
@@ -125,6 +128,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         )
         self.description: LocalizedOr[str] = description
         self.options: Sequence[Option] = options
+        self.hooks: Sequence[Hook] = hooks
         self.sub_commands: SubCommandsDictT = getattr(self, "sub_commands", {})
 
     def get_builder(

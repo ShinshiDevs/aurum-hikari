@@ -8,6 +8,7 @@ from hikari.snowflakes import SnowflakeishOr
 from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.commands.app_command import AppCommand
+from aurum.hook import Hook
 from aurum.l10n import LocalizationProviderInterface
 from aurum.l10n.localized import Localized
 from aurum.l10n.types import LocalizedOr
@@ -22,6 +23,7 @@ class ContextMenuCommand(AppCommand):
         "default_member_permissions",
         "dm_enabled",
         "is_nsfw",
+        "hooks",
     )
 
     def __init__(
@@ -33,6 +35,7 @@ class ContextMenuCommand(AppCommand):
         default_member_permissions: Permissions = Permissions.NONE,
         is_dm_enabled: bool = False,
         is_nsfw: bool = False,
+        hooks: Sequence[Hook] = (),
     ) -> None:
         super().__init__(
             name=name,
@@ -42,6 +45,7 @@ class ContextMenuCommand(AppCommand):
             is_dm_enabled=is_dm_enabled,
             is_nsfw=is_nsfw,
         )
+        self.hooks: Sequence[Hook] = hooks
 
     def get_builder(
         self,

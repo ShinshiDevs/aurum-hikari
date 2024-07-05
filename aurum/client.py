@@ -135,6 +135,9 @@ class Client:
         context: InteractionContext = self.create_interaction_context(interaction)
         command: CommandT = self.commands.get_command(context)
         try:
+            for hook in command.hooks:
+                if (await hook.callback(context)).stop:
+                    return
             if isinstance(command, SlashCommand):
                 if not (callback := getattr(command, "callback", None)):
                     raise
@@ -145,22 +148,27 @@ class Client:
                 return await command.callback(context, *interaction.resolved.messages.values())  # type: ignore
             elif isinstance(command, SubCommand):
                 return await command.callback(
-                    self.commands.app_commands.get(context.interaction.command_id, None),  # type: ignore
+                    self.commands.app_commands[context.interaction.command_id],  # type: ignore
                     context,
                     **context.arguments,
                 )
         except Exception as error:
+            exc_info = sys.exc_info()
+            if not self.bot.event_manager.get_listeners(CommandErrorEvent):
+                return self.__logger.error(
+                    "unhandled command %s error", command.name, exc_info=exc_info
+                )
             self.bot.event_manager.dispatch(
                 CommandErrorEvent(
                     app=self.bot,
                     client=self,
-                    exc_info=sys.exc_info(),  # type: ignore
+                    exc_info=exc_info,  # type: ignore
                     exception=error,
                     command=command,  # type: ignore
+                    interaction=interaction,
                     context=context,
                 )
             )
-            raise
 
     def include(self, includable: Type[Includable]) -> None:
         """Decorator to include an includable object to client."""

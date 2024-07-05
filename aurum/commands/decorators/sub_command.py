@@ -2,6 +2,7 @@ from collections.abc import Callable, Sequence
 
 from aurum.commands.sub_command import SubCommand
 from aurum.commands.typing import CommandCallbackT
+from aurum.hook import Hook
 from aurum.l10n import LocalizedOr
 from aurum.options import Option
 
@@ -12,6 +13,7 @@ def sub_command(
     display_name: LocalizedOr[str] | None = None,
     description: LocalizedOr[str] = "No description",
     options: Sequence[Option] = (),
+    hooks: Sequence[Hook] = (),
 ) -> Callable[..., SubCommand]:
     """Decorator for the sub-command.
 
@@ -35,6 +37,7 @@ def sub_command(
             description=description,
             display_name=display_name,
             options=options,
+            hooks=hooks,
         )
 
     return decorator

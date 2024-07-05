@@ -7,6 +7,7 @@ import attrs
 from hikari.commands import CommandOption, OptionType
 
 from aurum.commands.typing import CommandCallbackT
+from aurum.hook import Hook
 from aurum.internal.utils.commands import build_option
 from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
 from aurum.options import Option
@@ -25,6 +26,8 @@ class SubCommand:
     description: LocalizedOr[str] = attrs.field(default="No description", repr=False, eq=False)
 
     options: Sequence[Option] = attrs.field(factory=tuple, repr=False, eq=False)
+    hooks: Sequence[Hook] = attrs.field(factory=tuple, repr=False, eq=False)
+
     sub_commands: Dict[str, SubCommand] = attrs.field(factory=dict, repr=False, eq=False)
 
     def sub_command(
@@ -34,6 +37,7 @@ class SubCommand:
         display_name: LocalizedOr[str] | None = None,
         description: LocalizedOr[str] = "No description",
         options: Sequence[Option] = (),
+        hooks: Sequence[Hook] = (),
     ) -> Callable[..., None]:
         """Decorator for the sub-command.
 
@@ -59,6 +63,7 @@ class SubCommand:
                 description=description,
                 display_name=display_name,
                 options=options,
+                hooks=hooks,
             )
 
         return decorator
