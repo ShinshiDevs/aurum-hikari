@@ -15,7 +15,6 @@ from aurum.ext.cooldown.bucket import BucketType
 class CooldownEntity:
     """Represents an entity for managing cooldown information."""
 
-    created_at: float = attrs.field(eq=False)
     capacity: int = attrs.field(default=0, eq=False)
     handler: asyncio.TimerHandle | None = attrs.field(default=None, eq=False, repr=False)
 
@@ -61,7 +60,7 @@ class Cooldown:
         """
         target: Snowflake = self.bucket[context.interaction]
 
-        entity = self.limited.setdefault(target, CooldownEntity(created_at=self.event_loop.time()))
+        entity = self.limited.setdefault(target, CooldownEntity())
         entity.capacity += 1
 
         if entity.capacity > self.capacity:
