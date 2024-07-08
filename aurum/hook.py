@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Sequence
 from typing import TypeVar
 
 import attrs
 
 from aurum.context import InteractionContext
+
+__all__: Sequence[str] = ("HookResult", "Hook", "hook")
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)

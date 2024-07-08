@@ -4,13 +4,11 @@ from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING, Dict
 
 import attrs
-from hikari.commands import CommandOption, OptionType
 
 from aurum.commands.typing import CommandCallbackT
 from aurum.hook import Hook
-from aurum.internal.utils.commands import build_option
-from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
-from aurum.options import Option
+from aurum.l10n import LocalizedOr
+from aurum.option import Option
 
 if TYPE_CHECKING:
     from aurum.commands.slash_command import SlashCommand
@@ -67,29 +65,3 @@ class SubCommand:
             )
 
         return decorator
-
-    def as_option(self, l10n: LocalizationProviderInterface | None) -> CommandOption:
-        if l10n and isinstance(self.display_name, Localized):
-            l10n.build_localized(self.display_name)
-        if l10n and isinstance(self.description, Localized):
-            l10n.build_localized(self.description)
-        return CommandOption(
-            type=OptionType.SUB_COMMAND if not self.sub_commands else OptionType.SUB_COMMAND_GROUP,
-            name=self.name,
-            name_localizations=(
-                localizations
-                if isinstance(localizations := getattr(self.display_name, "value", {}), dict)
-                else {}
-            ),
-            description=str(self.description),
-            description_localizations=(
-                localizations
-                if isinstance(localizations := getattr(self.description, "value", {}), dict)
-                else {}
-            ),
-            options=(
-                [build_option(option, l10n) for option in self.options]
-                if not self.sub_commands
-                else [sub_command.as_option(l10n) for sub_command in self.sub_commands.values()]
-            ),
-        )

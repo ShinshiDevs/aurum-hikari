@@ -18,11 +18,13 @@ __all__: Sequence[str] = (
 
 from collections.abc import Sequence
 
+from aurum.autocomplete import *
 from aurum.client import *
 from aurum.commands import *
 from aurum.commands.decorators import *
 from aurum.context import *
 from aurum.events import *
 from aurum.exceptions import *
+from aurum.hook import *
 from aurum.l10n import *
-from aurum.options import *
+from aurum.option import *

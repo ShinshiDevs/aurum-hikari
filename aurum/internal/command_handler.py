@@ -10,8 +10,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Dict
 
-from hikari.api import CommandBuilder
-from hikari.commands import OptionType, PartialCommand
+from hikari.commands import CommandType, OptionType, PartialCommand
 from hikari.guilds import PartialApplication, PartialGuild
 from hikari.interactions import CommandInteraction, CommandInteractionOption
 from hikari.snowflakes import Snowflake, SnowflakeishOr
@@ -24,6 +23,7 @@ from aurum.commands.context_menu_command import ContextMenuCommand
 from aurum.commands.sub_command import SubCommand
 from aurum.context import InteractionContext
 from aurum.exceptions import AurumException
+from aurum.internal.command_builder import CommandBuilder
 from aurum.l10n import LocalizationProviderInterface
 
 CommandsTypes = MessageCommand, SlashCommand, UserCommand
@@ -42,10 +42,11 @@ class CommandHandler:
 
     __slots__: Sequence[str] = (
         "__logger",
-        "_app",
-        "_bot",
-        "_l10n",
-        "_commands_builders",
+        "app",
+        "bot",
+        "l10n",
+        "builder",
+        "commands_builders",
         "commands",
         "app_commands",
     )
@@ -55,14 +56,15 @@ class CommandHandler:
     ) -> None:
         self.__logger: Logger = getLogger("aurum.commands")
 
-        self._app: PartialApplication | None = None
-        self._bot: GatewayBotAware = bot
-        self._l10n: LocalizationProviderInterface | None = l10n
+        self.app: PartialApplication | None = None
+        self.bot: GatewayBotAware = bot
+        self.l10n: LocalizationProviderInterface | None = l10n
 
-        self._commands_builders: Dict[
+        self.builder: CommandBuilder = CommandBuilder(bot, self, l10n)
+
+        self.commands_builders: Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, Dict[str, CommandBuilder]
         ] = {}
-
         self.commands: Dict[str, AppCommand] = {}
         self.app_commands: Dict[Snowflake, AppCommand] = {}
 
@@ -77,18 +79,21 @@ class CommandHandler:
                    of the synchronization process for debugging purposes.
         """
         self.__logger.info("synchronizing commands")
-        if not self._app:
-            self._app = await self._bot.rest.fetch_application()
+        if not self.app:
+            self.app = await self.bot.rest.fetch_application()
         synchronized: Dict[
             SnowflakeishOr[PartialGuild] | UndefinedType, Sequence[PartialCommand]
         ] = {}
         for command in self.commands.values():
-            self._commands_builders.setdefault(command.guild, {})
-            if builder := self.get_command_builder(command):
-                self._commands_builders[command.guild][command.name] = builder
-        for guild, builders in self._commands_builders.items():
-            synchronized[guild] = await self._bot.rest.set_application_commands(
-                self._app,
+            self.commands_builders.setdefault(command.guild, {})
+            self.commands_builders[command.guild][command.name] = {
+                CommandType.SLASH: lambda: self.builder.get_slash_command(command),
+                CommandType.MESSAGE: lambda: self.builder.get_context_menu_command(command),
+                CommandType.USER: lambda: self.builder.get_context_menu_command(command),
+            }[command.command_type]()
+        for guild, builders in self.commands_builders.items():
+            synchronized[guild] = await self.bot.rest.set_application_commands(
+                self.app,
                 builders.values(),  # type: ignore
                 guild=guild,
             )
@@ -97,8 +102,9 @@ class CommandHandler:
                 self.commands[partial_command.name].set_app(partial_command)
                 self.app_commands[partial_command.id] = self.commands[partial_command.name]
             if debug:
-                self.__logger.getChild(str(entity).replace("UNDEFINED", "global")).debug(
-                    "set commands: %s",
+                self.__logger.debug(
+                    "set commands for %s: %s",
+                    entity,
                     ", ".join(command.name for command in commands),
                 )
         self.__logger.info("synchronized successfully")
@@ -150,19 +156,6 @@ class CommandHandler:
             return command
         else:
             raise
-
-    def get_command_builder(self, command: AppCommand) -> CommandBuilder | None:
-        if isinstance(command, SlashCommand):
-            return command.get_builder(
-                self._bot.rest.slash_command_builder,
-                self._l10n,
-            )
-        elif isinstance(command, ContextMenuCommand):
-            return command.get_builder(
-                self._bot.rest.context_menu_command_builder,
-                self._l10n,
-            )
-        return None
 
     def load_commands_from_file(self, file: Path) -> Iterator[AppCommand]:
         spec: ModuleSpec | None = importlib.util.spec_from_file_location(file.name, file)

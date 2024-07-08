@@ -4,7 +4,7 @@ from aurum.commands.sub_command import SubCommand
 from aurum.commands.typing import CommandCallbackT
 from aurum.hook import Hook
 from aurum.l10n import LocalizedOr
-from aurum.options import Option
+from aurum.option import Option
 
 
 def sub_command(

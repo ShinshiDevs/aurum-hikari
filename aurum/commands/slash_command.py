@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from typing import Any, Dict, Tuple, Type
 
-from hikari.api import SlashCommandBuilder
 from hikari.commands import CommandType
 from hikari.guilds import PartialGuild
 from hikari.permissions import Permissions
@@ -14,9 +13,8 @@ from aurum.commands.app_command import AppCommand
 from aurum.commands.sub_command import SubCommand
 from aurum.commands.typing import SubCommandsDictT
 from aurum.hook import Hook
-from aurum.internal.utils.commands import build_option
-from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
-from aurum.options import Option
+from aurum.l10n import LocalizedOr
+from aurum.option import Option
 
 
 class SlashCommandMeta(type):
@@ -130,31 +128,3 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         self.options: Sequence[Option] = options
         self.hooks: Sequence[Hook] = hooks
         self.sub_commands: SubCommandsDictT = getattr(self, "sub_commands", {})
-
-    def get_builder(
-        self,
-        factory: Callable[[str, str], SlashCommandBuilder],
-        l10n: LocalizationProviderInterface | None,
-    ) -> SlashCommandBuilder:
-        if l10n and isinstance(self.description, Localized):
-            l10n.build_localized(self.description)
-        builder: SlashCommandBuilder = (
-            factory(self.name, str(self.description))
-            .set_default_member_permissions(self.default_member_permissions)
-            .set_is_dm_enabled(self.is_dm_enabled)
-            .set_is_nsfw(self.is_nsfw)
-        )
-        if not self.sub_commands:
-            if l10n and isinstance(self.display_name, Localized):
-                l10n.build_localized(self.display_name)
-                builder.set_name_localizations(
-                    self.display_name.value if isinstance(self.display_name.value, dict) else {}
-                )
-            if isinstance(localizations := getattr(self.description, "value", {}), dict):
-                builder.set_description_localizations(localizations)
-            for option in self.options:
-                builder.add_option(build_option(option, l10n))
-        else:
-            for sub_command in self.sub_commands.values():
-                builder.add_option(sub_command.as_option(l10n))
-        return builder
