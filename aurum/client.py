@@ -6,10 +6,10 @@ from collections.abc import Callable, Coroutine, Sequence
 from logging import Logger, getLogger
 from typing import Any, Type, overload
 
-from hikari import AutocompleteInteractionOption
 from hikari.events import InteractionCreateEvent, StartedEvent, StartingEvent
 from hikari.interactions import (
     AutocompleteInteraction,
+    AutocompleteInteractionOption,
     CommandInteraction,
     ComponentInteraction,
     PartialInteraction,
