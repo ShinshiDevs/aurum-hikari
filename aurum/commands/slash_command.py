@@ -12,7 +12,7 @@ from hikari.undefined import UNDEFINED, UndefinedType
 from aurum.commands.app_command import AppCommand
 from aurum.commands.sub_command import SubCommand
 from aurum.commands.typing import AutocompletesDictT, SubCommandsDictT
-from aurum.hook import Hook
+from aurum.hooks import Hook
 from aurum.l10n import LocalizedOr
 from aurum.option import Option
 

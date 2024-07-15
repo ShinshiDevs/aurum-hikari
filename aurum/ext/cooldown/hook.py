@@ -5,7 +5,7 @@ from aurum.context import InteractionContext
 from aurum.exceptions import CooldownException
 from aurum.ext.cooldown.bucket import BucketType
 from aurum.ext.cooldown.cooldown import Cooldown
-from aurum.hook import Hook, HookResult, hook
+from aurum.hooks import Hook, HookResult, hook
 
 
 async def default_response(context: InteractionContext, error: CooldownException) -> None:

@@ -15,7 +15,13 @@ __all__: Sequence[str] = ("AutocompleteChoice",)
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class AutocompleteChoice:
-    """Represents the autocomplete choice."""
+    """Represents the autocomplete choice.
+    
+    Attributes:
+        name (str): Name of choice.
+            That will be displayed to user.
+        value (int | str | float): Internal value of choice.
+    """
 
     name: str = attrs.field(eq=False)
     value: int | str | float = attrs.field(eq=False)

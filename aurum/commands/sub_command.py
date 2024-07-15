@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import attrs
 
 from aurum.commands.typing import AutocompletesDictT, CommandCallbackT, SubCommandsDictT
-from aurum.hook import Hook
+from aurum.hooks import Hook
 from aurum.l10n import LocalizedOr
 from aurum.option import Option
 

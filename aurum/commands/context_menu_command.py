@@ -6,7 +6,7 @@ from hikari.snowflakes import SnowflakeishOr
 from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.commands.app_command import AppCommand
-from aurum.hook import Hook
+from aurum.hooks import Hook
 from aurum.l10n.types import LocalizedOr
 
 

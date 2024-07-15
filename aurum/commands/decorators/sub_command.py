@@ -2,7 +2,7 @@ from collections.abc import Callable, Sequence
 
 from aurum.commands.sub_command import SubCommand
 from aurum.commands.typing import CommandCallbackT
-from aurum.hook import Hook
+from aurum.hooks import Hook
 from aurum.l10n import LocalizedOr
 from aurum.option import Option
 
