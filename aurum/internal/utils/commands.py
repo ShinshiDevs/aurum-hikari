@@ -1,7 +1,7 @@
 from hikari.commands import CommandChoice, CommandOption
 
 from aurum.l10n import LocalizationProviderInterface, Localized
-from aurum.options import Choice, Option
+from aurum.option import Choice, Option
 
 
 def build_option(option: Option, l10n: LocalizationProviderInterface | None) -> CommandOption:
@@ -17,6 +17,7 @@ def build_option(option: Option, l10n: LocalizationProviderInterface | None) -> 
         description_localizations=getattr(option.description, "value", {}),
         choices=[build_choice(choice, l10n) for choice in option.choices],
         is_required=option.is_required,
+        autocomplete=bool(option.autocomplete),
         max_length=option.max_length,
         min_length=option.min_length,
         max_value=option.max_value,

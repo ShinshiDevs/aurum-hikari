@@ -3,7 +3,7 @@ from typing import Any
 
 from aurum.context import InteractionContext
 
-__all__: Sequence[str] = ("AurumException",)
+__all__: Sequence[str] = ("AurumException", "TaskException", "CooldownException")
 
 
 class AurumException(Exception):

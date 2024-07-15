@@ -18,7 +18,7 @@ plugins:
       handlers:
         python:
           options:
-            heading_level: 2
+            heading_level: 4
             annotations_path: source
             inherited_members: true
             docstring_style: google
