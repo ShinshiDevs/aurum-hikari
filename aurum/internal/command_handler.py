@@ -125,7 +125,7 @@ class CommandHandler:
         in the `context.arguments` field (`InteractionContext.arguments`).
         """
         assert isinstance(context.interaction, (CommandInteraction, AutocompleteInteraction))
-        
+
         command: AppCommand | SubCommand | None = self.commands.get(
             context.interaction.command_name
         )

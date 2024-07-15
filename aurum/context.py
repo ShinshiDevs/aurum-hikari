@@ -239,6 +239,7 @@ class AutocompleteContext:
         client (Client): The client.
         locale (Any): An any locale object for the interaction.
     """
+
     interaction: AutocompleteInteraction = attrs.field(eq=False)
 
     bot: GatewayBotAware = attrs.field(eq=False, repr=False)
