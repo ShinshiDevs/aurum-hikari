@@ -8,12 +8,14 @@ from importlib.machinery import ModuleSpec
 from logging import Logger, getLogger
 from os import PathLike
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
+from hikari import AutocompleteInteraction
+from hikari.api import CommandBuilder as APICommandBuilder
 from hikari.commands import CommandType, OptionType, PartialCommand
 from hikari.guilds import PartialApplication, PartialGuild
 from hikari.interactions import CommandInteraction, CommandInteractionOption
-from hikari.snowflakes import Snowflake, SnowflakeishOr
+from hikari.snowflakes import SnowflakeishOr
 from hikari.traits import GatewayBotAware
 from hikari.undefined import UndefinedType
 
@@ -21,7 +23,7 @@ from aurum.commands import MessageCommand, SlashCommand, UserCommand
 from aurum.commands.app_command import AppCommand
 from aurum.commands.context_menu_command import ContextMenuCommand
 from aurum.commands.sub_command import SubCommand
-from aurum.context import InteractionContext
+from aurum.context import AutocompleteContext, InteractionContext
 from aurum.exceptions import AurumException
 from aurum.internal.command_builder import CommandBuilder
 from aurum.l10n import LocalizationProviderInterface
@@ -46,7 +48,7 @@ class CommandHandler:
         "bot",
         "l10n",
         "builder",
-        "commands_builders",
+        "builders_dict",
         "commands",
         "app_commands",
     )
@@ -56,61 +58,65 @@ class CommandHandler:
     ) -> None:
         self.__logger: Logger = getLogger("aurum.commands")
 
-        self.app: PartialApplication | None = None
         self.bot: GatewayBotAware = bot
         self.l10n: LocalizationProviderInterface | None = l10n
-
         self.builder: CommandBuilder = CommandBuilder(bot, self, l10n)
 
-        self.commands_builders: Dict[
-            SnowflakeishOr[PartialGuild] | UndefinedType, Dict[str, CommandBuilder]
-        ] = {}
+        self.app: PartialApplication | None = None
         self.commands: Dict[str, AppCommand] = {}
-        self.app_commands: Dict[Snowflake, AppCommand] = {}
 
     async def sync(self, *, debug: bool = False) -> None:
         """Synchronizes the builders of commands with the Discord API for the bot application.
 
-        This method will handle both global commands and guild-specific commands,
-        ensuring they are up-to-date with the currently stored command builders.
+        This method will handle both global commands and guild-specific commands.
 
         Args:
             debug: A boolean flag that, when set to True, enables more verbose logging
                    of the synchronization process for debugging purposes.
         """
-        self.__logger.info("synchronizing commands")
-        if not self.app:
+        self.__logger.info("synchronizing commands...")
+
+        if self.app is None:
             self.app = await self.bot.rest.fetch_application()
-        synchronized: Dict[
-            SnowflakeishOr[PartialGuild] | UndefinedType, Sequence[PartialCommand]
-        ] = {}
+
+        guilds: Dict[SnowflakeishOr[PartialGuild] | UndefinedType, List[AppCommand]] = {}
         for command in self.commands.values():
-            self.commands_builders.setdefault(command.guild, {})
-            self.commands_builders[command.guild][command.name] = {
-                CommandType.SLASH: lambda: self.builder.get_slash_command(command),
-                CommandType.MESSAGE: lambda: self.builder.get_context_menu_command(command),
-                CommandType.USER: lambda: self.builder.get_context_menu_command(command),
-            }[command.command_type]()
-        for guild, builders in self.commands_builders.items():
-            synchronized[guild] = await self.bot.rest.set_application_commands(
+            guilds.setdefault(command.guild, [])
+            guilds[command.guild].append(command)
+
+        for guild, commands in guilds.items():
+            assert self.app is not None
+            app_commands: Sequence[PartialCommand] = await self.bot.rest.set_application_commands(
                 self.app,
-                builders.values(),  # type: ignore
+                list(map(self.get_builder, commands)),
                 guild=guild,
             )
-        for entity, commands in synchronized.items():
-            for partial_command in commands:
-                self.commands[partial_command.name].set_app(partial_command)
-                self.app_commands[partial_command.id] = self.commands[partial_command.name]
+            for command in app_commands:
+                self.commands[command.name].set_app(command)
+            self.__logger.info("set commands for %s", guild)
+
             if debug:
-                self.__logger.debug(
-                    "set commands for %s: %s",
-                    entity,
-                    ", ".join(command.name for command in commands),
+                debug_log = "\n".join(
+                    f"- {command.name} {command.app.id} ({command})"
+                    for command in self.commands.values()
+                    if command.app
                 )
+                self.__logger.debug("commands for %s:\n%s", guild, debug_log)
+
         self.__logger.info("synchronized successfully")
 
+    def get_builder(
+        self, command: AppCommand | SlashCommand | ContextMenuCommand
+    ) -> APICommandBuilder:
+        assert isinstance(command, (SlashCommand, ContextMenuCommand))
+        return {
+            CommandType.SLASH: self.builder.get_slash_command,
+            CommandType.MESSAGE: self.builder.get_context_menu_command,
+            CommandType.USER: self.builder.get_context_menu_command,
+        }[command.command_type](command)
+
     def get_command(
-        self, context: InteractionContext
+        self, context: InteractionContext | AutocompleteContext
     ) -> SlashCommand | ContextMenuCommand | SubCommand:
         """Get command from context.
 
@@ -118,41 +124,29 @@ class CommandHandler:
         the arguments for the command have already been processed and are located
         in the `context.arguments` field (`InteractionContext.arguments`).
         """
-        assert isinstance(context.interaction, CommandInteraction)
-        options: Sequence[CommandInteractionOption] = context.interaction.options or ()
-        command: AppCommand | SubCommand | None = self.app_commands.get(
-            context.interaction.command_id
+        assert isinstance(context.interaction, (CommandInteraction, AutocompleteInteraction))
+        
+        command: AppCommand | SubCommand | None = self.commands.get(
+            context.interaction.command_name
         )
-        # there's SubCommand type only because soon this variable will be used and for sub command too
+
         if isinstance(command, ContextMenuCommand):
             return command
+
         elif isinstance(command, SlashCommand):
-            if command.sub_commands and not any(
-                option.type in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP)
-                for option in options
-            ):
-                raise AurumException(
-                    "Something seems to be wrong. Your command has subcommands, but we didn't receive any subcommands from the interaction. "
-                    "Please check your command and the logs, and let us know if you want."
-                )
-            if not command.sub_commands:
-                for option in options:
+            options: List[CommandInteractionOption] = list(context.interaction.options or [])
+
+            while options:
+                option: CommandInteractionOption = options.pop()
+
+                if option.type in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP):
+                    assert isinstance(command, (SlashCommand, SubCommand))
+                    command = command.sub_commands.get(option.name, None)
+                    options = list(option.options or [])
+                elif not isinstance(context, AutocompleteContext):
                     context.arguments[option.name] = context.resolve_command_argument(option)
-                return command
-            for option in options:
-                if option.type is OptionType.SUB_COMMAND:
-                    if sub_command := command.sub_commands.get(option.name):
-                        options = option.options or ()
-                        command = sub_command
-                if option.type is OptionType.SUB_COMMAND_GROUP:
-                    if sub_command_group := command.sub_commands.get(option.name):
-                        options = option.options or ()
-                        for option in options:
-                            if sub_command := sub_command_group.sub_commands.get(option.name):
-                                options = option.options or ()
-                                command = sub_command
-                for option in options:
-                    context.arguments[option.name] = context.resolve_command_argument(option)
+
+            assert isinstance(command, (SlashCommand, SubCommand))
             return command
         else:
             raise

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 import attrs
 
-from aurum.commands.typing import CommandCallbackT
+from aurum.commands.typing import AutocompletesDictT, CommandCallbackT, SubCommandsDictT
 from aurum.hook import Hook
 from aurum.l10n import LocalizedOr
 from aurum.option import Option
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class SubCommand:
-    parent: SlashCommand | SubCommand | None = attrs.field(default=None, eq=None, repr=False)
+    parent: SlashCommand | None = attrs.field(default=None, eq=None, repr=False)
     callback: CommandCallbackT = attrs.field()
 
     name: str
@@ -26,7 +26,8 @@ class SubCommand:
     options: Sequence[Option] = attrs.field(factory=tuple, repr=False, eq=False)
     hooks: Sequence[Hook] = attrs.field(factory=tuple, repr=False, eq=False)
 
-    sub_commands: Dict[str, SubCommand] = attrs.field(factory=dict, repr=False, eq=False)
+    sub_commands: SubCommandsDictT = attrs.field(factory=dict, repr=False, eq=False)
+    autocompletes: AutocompletesDictT = attrs.field(factory=dict, repr=False, eq=False)
 
     def sub_command(
         self,
@@ -55,7 +56,7 @@ class SubCommand:
 
         def decorator(func: CommandCallbackT) -> None:
             self.sub_commands[name] = SubCommand(
-                parent=self,
+                parent=self.parent,
                 callback=func,
                 name=name,
                 description=description,

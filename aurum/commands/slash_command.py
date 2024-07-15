@@ -11,7 +11,7 @@ from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.commands.app_command import AppCommand
 from aurum.commands.sub_command import SubCommand
-from aurum.commands.typing import SubCommandsDictT
+from aurum.commands.typing import AutocompletesDictT, SubCommandsDictT
 from aurum.hook import Hook
 from aurum.l10n import LocalizedOr
 from aurum.option import Option
@@ -101,6 +101,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         "options",
         "hooks",
         "sub_commands",
+        "autocompletes",
     )
 
     def __init__(
@@ -128,3 +129,4 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         self.options: Sequence[Option] = options
         self.hooks: Sequence[Hook] = hooks
         self.sub_commands: SubCommandsDictT = getattr(self, "sub_commands", {})
+        self.autocompletes: AutocompletesDictT = {}

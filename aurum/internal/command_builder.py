@@ -3,9 +3,8 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
-from hikari import OptionType
 from hikari.api import ContextMenuCommandBuilder, SlashCommandBuilder
-from hikari.commands import CommandChoice, CommandOption
+from hikari.commands import CommandChoice, CommandOption, OptionType
 from hikari.traits import GatewayBotAware
 
 from aurum.commands.context_menu_command import ContextMenuCommand
@@ -50,13 +49,13 @@ class CommandBuilder:
             value=choice.value,
         )
 
-    def get_option(self, option: Option) -> CommandOption:
+    def get_option(self, option: Option, command: SlashCommand | SubCommand) -> CommandOption:
         if self.l10n and isinstance(option.description, Localized):
             self.l10n.build_localized(option.description)
         if self.l10n and isinstance(option.display_name, Localized):
             self.l10n.build_localized(option.display_name)
         if option.autocomplete:
-            ...
+            command.autocompletes[option.name] = option
         return CommandOption(
             type=option.type,
             name=option.name,
@@ -97,7 +96,7 @@ class CommandBuilder:
             name_localizations=self.get_localizations(command.display_name),
             description=str(command.description),
             description_localizations=self.get_localizations(command.description),
-            options=[self.get_option(option) for option in command.options],
+            options=[self.get_option(option, command) for option in command.options],
         )
 
     def get_slash_command(self, command: SlashCommand) -> SlashCommandBuilder:
@@ -115,7 +114,7 @@ class CommandBuilder:
                 builder.set_name_localizations(self.get_localizations(command.display_name))
             builder.set_description_localizations(self.get_localizations(command.description))
             for option in command.options:
-                builder.add_option(self.get_option(option))
+                builder.add_option(self.get_option(option, command))
         else:
             for sub_command in command.sub_commands.values():
                 builder.add_option(self.get_sub_command(sub_command))
