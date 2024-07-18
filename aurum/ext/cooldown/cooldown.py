@@ -71,4 +71,5 @@ class Cooldown:
             raise CooldownException(
                 context=context,
                 retry_after=max(0, entity.handler.when() - self.event_loop.time()),
+                bucket=self.bucket,
             )
