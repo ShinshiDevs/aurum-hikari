@@ -22,7 +22,6 @@ __all__: Sequence[str] = (
     "CommandErrorEvent",
     "AurumException",
     "TaskException",
-    "CooldownException",
     "HookResult",
     "Hook",
     "hook",

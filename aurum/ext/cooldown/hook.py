@@ -2,9 +2,9 @@ from collections.abc import Awaitable, Callable
 from datetime import timedelta
 
 from aurum.context import InteractionContext
-from aurum.exceptions import CooldownException
 from aurum.ext.cooldown.bucket import BucketType
 from aurum.ext.cooldown.cooldown import Cooldown
+from aurum.ext.cooldown.exceptions import CooldownException
 from aurum.hooks import Hook, HookResult, hook
 
 
