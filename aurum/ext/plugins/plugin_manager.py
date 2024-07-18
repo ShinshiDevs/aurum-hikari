@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING, Dict
 
 from hikari.traits import GatewayBotAware
 
-from aurum.ext.plugins.plugin import Plugin
 from aurum.commands.app_command import AppCommand
+from aurum.ext.plugins.plugin import Plugin
 from aurum.internal.command_handler import CommandHandler
 
 if TYPE_CHECKING:
@@ -65,12 +65,14 @@ class PluginManager:
 
     async def load_folder(self, directory: PathLike[str], *, recursive: bool = True) -> None:
         """Load plugins from folder."""
-        path: Path = Path(directory)
-        for file in (path.rglob if recursive else path.glob)("*.py"):
+        directory = Path(directory)
+        self.__logger.debug("exploring %s directory", directory)
+        for file in (directory.rglob if recursive else directory.glob)("*.py"):
             plugin: Plugin | None = self.load_plugin_from_file(file)
             if not plugin or re.compile("(^_.*|.*_$)").match(file.name):
                 continue
             for includable in plugin.included.values():
                 if isinstance(includable, AppCommand):
                     self._commands.commands[includable.name] = includable
-            self.__logger.debug("loaded %s", plugin.name)
+            self.plugins[plugin.name] = plugin
+        self.__logger.debug("loaded plugins %s", ", ".join(key for key in self.plugins.keys()))

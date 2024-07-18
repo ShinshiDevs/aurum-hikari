@@ -31,7 +31,7 @@ class StatsCommand(SlashCommand):
 
     @channel.sub_command(
         "messages",
-        "Message statistic for channel",
+        description="Message statistic for channel",
         options=[
             Option(
                 type=OptionType.CHANNEL,

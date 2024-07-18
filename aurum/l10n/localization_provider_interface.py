@@ -1,6 +1,6 @@
 from typing import Any, Dict, Protocol
 
-from hikari.interactions import CommandInteraction, ComponentInteraction
+from hikari.interactions import AutocompleteInteraction, CommandInteraction, ComponentInteraction
 from hikari.locales import Locale
 
 from aurum.l10n.localized import Localized
@@ -29,6 +29,8 @@ class LocalizationProviderInterface(Protocol):
         """
         ...
 
-    def get_locale(self, by: str | CommandInteraction | ComponentInteraction) -> Any:
+    def get_locale(
+        self, by: str | CommandInteraction | ComponentInteraction | AutocompleteInteraction
+    ) -> Any:
         """Get locale by name or interaction."""
         ...
