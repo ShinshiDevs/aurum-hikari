@@ -15,16 +15,18 @@ __all__: Sequence[str] = ("AutocompleteChoice",)
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class AutocompleteChoice:
-    """Represents the autocomplete choice.
-
-    Attributes:
-        name (str): Name of choice.
-            That will be displayed to user.
-        value (int | str | float): Internal value of choice.
-    """
+    """Represents the autocomplete choice."""
 
     name: str = attrs.field(eq=False)
+    """
+    Name of choice.
+    
+    That will be displayed to user.        
+    """
     value: int | str | float = attrs.field(eq=False)
+    """
+    Internal value of choice.
+    """
 
     def to_builder(self) -> AutocompleteChoiceBuilder:
         return AutocompleteChoiceBuilder(name=self.name, value=self.value)

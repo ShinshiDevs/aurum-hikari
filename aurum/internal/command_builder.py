@@ -31,9 +31,6 @@ class CommandBuilder:
         self.l10n: LocalizationProviderInterface | None = l10n
 
     def get_localizations(self, localized: Localized | Any) -> dict[str, str]:
-        # localizations
-        # if isinstance(localizations := getattr(self.display_name, "value", {}), dict)
-        # else {}
         return (
             localized.value
             if isinstance(localized, Localized) and isinstance(localized.value, dict)

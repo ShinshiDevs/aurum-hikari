@@ -12,13 +12,10 @@ __all__: Sequence[str] = ("HookResult", "Hook", "hook")
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class HookResult:
-    """The result of a hook callback.
-
-    Attributes:
-        stop (bool): Will hook stop execution or not.
-    """
+    """The result of a hook callback."""
 
     stop: bool = attrs.field(default=False, eq=False)
+    """Will hook stop execution or not."""
 
 
 HookCallbackT = TypeVar(
@@ -28,13 +25,10 @@ HookCallbackT = TypeVar(
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class Hook:
-    """Represents a hook.
-
-    Attributes:
-        callback (HookCallbackT): Callback of hook.
-    """
+    """Represents a hook."""
 
     callback: HookCallbackT
+    """Callback of hook."""
 
 
 def hook() -> Callable[[HookCallbackT], Hook]:

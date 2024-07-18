@@ -34,29 +34,32 @@ __all__: Sequence[str] = ("InteractionContext", "AutocompleteContext")
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class InteractionContext:
-    """Represents an interaction context.
-
-    Attributes:
-        interaction (CommandInteraction | ComponentInteraction): The interaction of context.
-        bot (GatewayBotAware): The instance of the bot.
-        client (Client): The client.
-        command (AppCommand): Command of interaction.
-            !!! note
-                Available only for commands.
-        locale (Any): An any locale object for the interaction.
-        arguments (Dict[str, Any]): Arguments to the interaction.
-            !!! note
-                Available only for commands.
-    """
+    """Represents an interaction context."""
 
     interaction: CommandInteraction | ComponentInteraction = attrs.field(eq=False)
+    """The interaction of context."""
 
     bot: GatewayBotAware = attrs.field(eq=False, repr=False)
+    """The instance of the bot."""
     client: Client = attrs.field(eq=False, repr=False)
+    """The client."""
 
     command: AppCommand | None = attrs.field(eq=False, default=None, repr=False)
+    """
+    Command of interaction.
+    
+    !!! note
+        Available only for commands.
+    """
     locale: Any = attrs.field(eq=False)
+    """An any locale object for the interaction."""
     arguments: Dict[str, Any] = attrs.field(factory=dict, eq=False)
+    """
+    Arguments to the interaction.
+    
+    !!! note
+        Available only for commands.
+    """
 
     @property
     def user(self) -> PartialUser:

@@ -10,7 +10,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Dict, List
 
-from hikari import AutocompleteInteraction
+from hikari import AutocompleteInteraction, Snowflake, Snowflakeish
 from hikari.api import CommandBuilder as APICommandBuilder
 from hikari.commands import CommandType, OptionType, PartialCommand
 from hikari.guilds import PartialApplication, PartialGuild
@@ -39,18 +39,15 @@ class CommandHandler:
 
     Attributes:
         commands (Dict[str, AppCommand]): Dictionary that stores the AppCommand instances, keyed by their names.
-        app_commands (Dict[Snowflake, AppCommand]): Dictionary that stores AppCommand instances, keyed by their application ID
     """
 
     __slots__: Sequence[str] = (
         "__logger",
-        "app",
         "bot",
+        "application_id",
         "l10n",
         "builder",
-        "builders_dict",
         "commands",
-        "app_commands",
     )
 
     def __init__(
@@ -59,10 +56,12 @@ class CommandHandler:
         self.__logger: Logger = getLogger("aurum.commands")
 
         self.bot: GatewayBotAware = bot
+        self.application_id: Snowflake | None = None
+
         self.l10n: LocalizationProviderInterface | None = l10n
+
         self.builder: CommandBuilder = CommandBuilder(bot, self, l10n)
 
-        self.app: PartialApplication | None = None
         self.commands: Dict[str, AppCommand] = {}
 
     async def sync(self, *, debug: bool = False) -> None:
@@ -76,8 +75,9 @@ class CommandHandler:
         """
         self.__logger.info("synchronizing commands...")
 
-        if self.app is None:
-            self.app = await self.bot.rest.fetch_application()
+        if self.application_id is None:
+            application: PartialApplication = await self.bot.rest.fetch_application()
+            self.application_id = application.id
 
         guilds: Dict[SnowflakeishOr[PartialGuild] | UndefinedType, List[AppCommand]] = {}
         for command in self.commands.values():
@@ -85,9 +85,9 @@ class CommandHandler:
             guilds[command.guild].append(command)
 
         for guild, commands in guilds.items():
-            assert self.app is not None
+            assert self.application_id is not None
             app_commands: Sequence[PartialCommand] = await self.bot.rest.set_application_commands(
-                self.app,
+                self.application_id,
                 list(map(self.get_builder, commands)),
                 guild=guild,
             )
