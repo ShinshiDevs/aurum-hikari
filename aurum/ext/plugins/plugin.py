@@ -73,6 +73,7 @@ class Plugin:
         "default_member_permissions",
         "is_dm_enabled",
         "is_nsfw",
+        "override",
         "included",
         "events",
     )
@@ -96,6 +97,7 @@ class Plugin:
         self.default_member_permissions: Permissions = default_member_permissions
         self.is_dm_enabled: bool = is_dm_enabled
         self.is_nsfw: bool = is_nsfw
+        self.override: bool = override
 
         self.included: Dict[str, Includable] = {}
         self.events: List[Tuple[Sequence[EventT], CallbackT]] = []  # type: ignore
@@ -110,10 +112,11 @@ class Plugin:
     def include(self, includable: Type[Includable]) -> None:
         if issubclass(includable, AppCommand):
             command: AppCommand = includable()  # type: ignore
-            command.guild = self.guild
-            command.default_member_perimssions = self.default_member_permissions
-            command.is_dm_enabled = self.is_dm_enabled
-            command.is_nsfw = self.is_nsfw
+            if self.override:
+                command.guild = self.guild
+                command.default_member_perimssions = self.default_member_permissions
+                command.is_dm_enabled = self.is_dm_enabled
+                command.is_nsfw = self.is_nsfw
             self.included[command.name] = command
 
     def listen(self, *event_types: Type[EventT]) -> Callable[[CallbackT[EventT]], None]:
