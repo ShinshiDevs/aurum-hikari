@@ -34,11 +34,7 @@ def cooldown(
     Returns:
         Hook: The cooldown hook.
     """
-    cls: Cooldown = Cooldown(
-        delay=delay,
-        capacity=capacity,
-        bucket=bucket,
-    )
+    cls: Cooldown = Cooldown(delay=delay, capacity=capacity, bucket=bucket)
 
     @hook()
     async def cooldown_hook(context: InteractionContext) -> HookResult:

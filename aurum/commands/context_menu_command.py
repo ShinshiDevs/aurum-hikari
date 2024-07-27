@@ -11,16 +11,7 @@ from aurum.l10n.types import LocalizedOr
 
 
 class ContextMenuCommand(AppCommand):
-    __slots__: Sequence[str] = (
-        "app",
-        "name",
-        "display_name",
-        "guild",
-        "default_member_permissions",
-        "dm_enabled",
-        "is_nsfw",
-        "hooks",
-    )
+    __slots__: Sequence[str] = ("name", "display_name", "dm_enabled", "hooks")
 
     def __init__(
         self,

@@ -19,13 +19,13 @@ from hikari.traits import GatewayBotAware
 from aurum.autocomplete import AutocompleteChoice
 from aurum.commands import MessageCommand, SlashCommand, SubCommand, UserCommand
 from aurum.commands.app_command import AppCommand
+from aurum.commands.command_handler import CommandHandler
 from aurum.commands.context_menu_command import ContextMenuCommand
 from aurum.commands.enum import SyncCommandsFlag
 from aurum.context import AutocompleteContext, InteractionContext
 from aurum.events import CommandErrorEvent
 from aurum.ext.plugins import PluginManager
-from aurum.internal.command_handler import CommandHandler
-from aurum.internal.includable import Includable
+from aurum.includable import Includable
 from aurum.l10n import LocalizationProviderInterface
 
 __all__: Sequence[str] = ("Client",)
@@ -155,24 +155,19 @@ class Client:
     async def proceed_command(self, interaction: CommandInteraction) -> None:
         context: InteractionContext = self.create_context(interaction)
         command: CommandT = self.commands.get_command(context)
+        parent_command: CommandT = command
         try:
             for hook in command.hooks:
                 if (await hook.callback(context)).stop:
                     return
             if isinstance(command, SlashCommand):
-                if not (callback := getattr(command, "callback", None)):
-                    raise
-                return await callback(context, **context.arguments)
+                return await getattr(command, "callback")(context, **context.arguments)
+            elif isinstance(command, SubCommand):
+                return await command.callback(parent_command, context, **context.arguments)
             elif isinstance(command, UserCommand):
                 return await command.callback(context, *interaction.resolved.users.values())  # type: ignore
             elif isinstance(command, MessageCommand):
                 return await command.callback(context, *interaction.resolved.messages.values())  # type: ignore
-            elif isinstance(command, SubCommand):
-                return await command.callback(
-                    command.parent,  # type: ignore
-                    context,
-                    **context.arguments,
-                )
         except Exception as error:
             exc_info = sys.exc_info()
             if not self.bot.event_manager.get_listeners(CommandErrorEvent):
@@ -210,5 +205,5 @@ class Client:
     def include(self, includable: Type[Includable]) -> None:
         """Decorator to include an includable object to client."""
         if issubclass(includable, AppCommand):
-            instance: AppCommand = includable()  # type: ignore
-            self.commands.commands[instance.name] = instance
+            command: AppCommand = includable()  # type: ignore
+            self.commands.commands[command.name] = command

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+__author__: Final[str] = "Shinshi Developers Team"
+__copyright__: Final[str] = "Copyright (c) 2024 Shinshi Developers Team"
+__license__: Final[str] = "MIT"
 __all__: Sequence[str] = (
     "Client",
     "MessageCommand",
@@ -30,6 +33,7 @@ __all__: Sequence[str] = (
 )
 
 from collections.abc import Sequence
+from typing import Final
 
 from aurum.autocomplete import *
 from aurum.client import *
@@ -42,3 +46,6 @@ from aurum.exceptions import *
 from aurum.hooks import *
 from aurum.l10n import *
 from aurum.option import *
+from aurum.version import Version
+
+__version__: Version = Version(0, 1, 5, 7)

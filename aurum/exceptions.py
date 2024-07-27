@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from aurum.context import InteractionContext
-from aurum.ext.cooldown.bucket import BucketType
+
+if TYPE_CHECKING:
+    from aurum.ext.cooldown.bucket import BucketType
 
 __all__: Sequence[str] = ("AurumException", "TaskException", "CooldownException")
 
@@ -24,7 +28,9 @@ class CooldownException(AurumException):
         bucket (BucketType): The type of rate limit bucket associated with the error.
     """
 
-    def __init__(self, *args: Any, context: InteractionContext, retry_after: float, bucket: BucketType) -> None:
+    def __init__(
+        self, *args: Any, context: InteractionContext, retry_after: float, bucket: BucketType
+    ) -> None:
         super().__init__(*args)
         self.context: InteractionContext = context
         self.retry_after: float = retry_after

@@ -50,11 +50,7 @@ class CronTask(BaseTask):
     )
 
     def __init__(
-        self,
-        callback: TaskCallbackT[CronTask],
-        crontab: str,
-        *,
-        name: str | None = None,
+        self, callback: TaskCallbackT[CronTask], crontab: str, *, name: str | None = None
     ) -> None:
         self.__logger: Logger = getLogger(f"aurum.tasks.{name or callback.__name__}")
 
@@ -105,17 +101,11 @@ class CronTask(BaseTask):
 
 
 def cron_task(
-    crontab: str,
-    *,
-    name: str | None = None,
+    crontab: str, *, name: str | None = None
 ) -> Callable[[TaskCallbackT[CronTask]], CronTask]:
     """Decorator for task definition."""
 
     def decorator(callback: TaskCallbackT[CronTask]) -> CronTask:
-        return CronTask(
-            callback=callback,
-            crontab=crontab,
-            name=name,
-        )
+        return CronTask(callback=callback, crontab=crontab, name=name)
 
     return decorator

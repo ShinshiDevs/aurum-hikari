@@ -14,7 +14,7 @@ from aurum.l10n import LocalizationProviderInterface, Localized
 from aurum.option import Choice, Option
 
 if TYPE_CHECKING:
-    from aurum.internal.command_handler import CommandHandler
+    from aurum.commands.command_handler import CommandHandler
 
 
 class CommandBuilder:
@@ -59,9 +59,11 @@ class CommandBuilder:
             name_localizations=self.get_localizations(option.display_name),
             description=str(option.description),
             description_localizations=self.get_localizations(option.description),
-            choices=[self.get_choice(choice) for choice in option.choices]
-            if not option.autocomplete
-            else [],
+            choices=(
+                [self.get_choice(choice) for choice in option.choices]
+                if not option.autocomplete
+                else []
+            ),
             is_required=option.is_required,
             autocomplete=bool(option.autocomplete),
             max_length=option.max_length,

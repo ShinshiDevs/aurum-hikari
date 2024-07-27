@@ -45,11 +45,7 @@ class Task(BaseTask):
     )
 
     def __init__(
-        self,
-        callback: TaskCallbackT[Task],
-        delay: timedelta,
-        *,
-        name: str | None = None,
+        self, callback: TaskCallbackT[Task], delay: timedelta, *, name: str | None = None
     ) -> None:
         self.__logger: Logger = getLogger(f"aurum.tasks.{name or callback.__name__}")
 
@@ -96,18 +92,10 @@ class Task(BaseTask):
             self.__logger.debug("updated delay, next execution will be in %s", self.delay)
 
 
-def task(
-    delay: timedelta,
-    *,
-    name: str | None = None,
-) -> Callable[[TaskCallbackT[Task]], Task]:
+def task(delay: timedelta, *, name: str | None = None) -> Callable[[TaskCallbackT[Task]], Task]:
     """Decorator for task definition."""
 
     def decorator(callback: TaskCallbackT[Task]) -> Task:
-        return Task(
-            callback=callback,
-            delay=delay,
-            name=name,
-        )
+        return Task(callback=callback, delay=delay, name=name)
 
     return decorator

@@ -44,8 +44,6 @@ def hook() -> Callable[[HookCallbackT], Hook]:
     """
 
     def decorator(callback: HookCallbackT) -> Hook:
-        return Hook(
-            callback=callback,
-        )
+        return Hook(callback=callback)
 
     return decorator

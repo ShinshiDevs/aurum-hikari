@@ -11,8 +11,7 @@ from hikari.traits import GatewayBotAware
 from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.commands.app_command import AppCommand
-from aurum.exceptions import AurumException
-from aurum.internal.includable import Includable
+from aurum.includable import Includable
 
 if TYPE_CHECKING:
     from hikari.api.event_manager import CallbackT
@@ -24,12 +23,17 @@ class Plugin:
     """
     Plugins include commands and components and provide bot, client, and etc.
 
-    Attributes:
+    Arguments:
         name (str): The plugin name.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the plugin is available.
         default_member_permissions (Permissions): The permissions a user must have to use the plugin by default.
         dm_enabled (bool): Whether the plugin can be used in direct messages.
         is_nsfw (bool): Indicates whether the plugin is age-restricted.
+        override (bool): Boolean flag to override commands attributes.
+            If override is set to True, the values for guild, default_member_permissions, dm_enabled,
+            and is_nsfw will be overridden.
+
+    Attributes:
         included (Dict[str, Includable]): Included objects of plugin.
         events (List[Event]): Events of plugin.
 
@@ -81,6 +85,7 @@ class Plugin:
         default_member_permissions: Permissions = Permissions.NONE,
         is_dm_enabled: bool = False,
         is_nsfw: bool = False,
+        override: bool = True,
     ) -> None:
         self.bot: GatewayBotAware
         self.client: Client
@@ -93,28 +98,23 @@ class Plugin:
         self.is_nsfw: bool = is_nsfw
 
         self.included: Dict[str, Includable] = {}
-        self.events: List[Tuple[Sequence[EventT], CallbackT]] = []
+        self.events: List[Tuple[Sequence[EventT], CallbackT]] = []  # type: ignore
 
     def __call__(self, bot: GatewayBotAware, client: Client) -> Plugin:
         self.bot = bot
         self.client = client
-        for event in self.events:
-            bot.event_manager.listen(*event[0])(event[1])
+        for event in self.events:  # type: ignore
+            bot.event_manager.listen(*event[0])(event[1])  # type: ignore
         return self
 
     def include(self, includable: Type[Includable]) -> None:
         if issubclass(includable, AppCommand):
-            try:
-                instance: AppCommand = (
-                    includable()  # type: ignore
-                    .set_guild(self.guild)
-                    .set_default_member_permissions(self.default_member_permissions)
-                    .set_is_dm_enabled(self.is_dm_enabled)
-                    .set_is_nsfw(self.is_nsfw)
-                )
-            except ValueError:
-                raise AurumException("`__init__` of base includable wasn't overrided")
-            self.included[instance.name] = instance
+            command: AppCommand = includable()  # type: ignore
+            command.guild = self.guild
+            command.default_member_perimssions = self.default_member_permissions
+            command.is_dm_enabled = self.is_dm_enabled
+            command.is_nsfw = self.is_nsfw
+            self.included[command.name] = command
 
     def listen(self, *event_types: Type[EventT]) -> Callable[[CallbackT[EventT]], None]:
         def decorator(callback: CallbackT[EventT]) -> None:

@@ -31,11 +31,7 @@ class Cooldown:
     __slots__: Sequence[str] = ("event_loop", "delay", "capacity", "bucket", "limited")
 
     def __init__(
-        self,
-        delay: float | timedelta,
-        *,
-        capacity: int = 1,
-        bucket: BucketType = BucketType.USER,
+        self, delay: float | timedelta, *, capacity: int = 1, bucket: BucketType = BucketType.USER
     ) -> None:
         self.event_loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
         self.delay: float = delay.total_seconds() if isinstance(delay, timedelta) else delay

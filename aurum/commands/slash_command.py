@@ -19,19 +19,12 @@ from aurum.option import Option
 
 class SlashCommandMeta(type):
     def __new__(
-        mcs: Type[SlashCommandMeta],
-        name: str,
-        bases: Tuple[type, ...],
-        attrs: Dict[str, Any],
+        mcs: Type[SlashCommandMeta], name: str, bases: Tuple[type, ...], attrs: Dict[str, Any]
     ) -> SlashCommandMeta:
-        cls: SlashCommandMeta = super().__new__(mcs, name, bases, attrs)
-        sub_commands: SubCommandsDictT = {}
-        for name, obj in attrs.items():
-            if isinstance(obj, SubCommand):
-                obj.parent = cls
-                sub_commands[obj.name] = obj
-        setattr(cls, "sub_commands", sub_commands)
-        return cls
+        attrs["sub_commands"] = {
+            obj.name: obj for obj in attrs.values() if isinstance(obj, SubCommand)
+        }
+        return super().__new__(mcs, name, bases, attrs)
 
 
 class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
@@ -90,17 +83,12 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     command_type: CommandType = CommandType.SLASH
 
     __slots__: Sequence[str] = (
-        "app",
         "name",
         "display_name",
         "description",
-        "guild",
-        "default_member_permissions",
         "dm_enabled",
-        "is_nsfw",
         "options",
         "hooks",
-        "sub_commands",
         "autocompletes",
     )
 
@@ -128,5 +116,5 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         self.description: LocalizedOr[str] = description
         self.options: Sequence[Option] = options
         self.hooks: Sequence[Hook] = hooks
-        self.sub_commands: SubCommandsDictT = getattr(self, "sub_commands", {})
+        self.sub_commands: SubCommandsDictT = getattr(self, "sub_commands", {})  # type: ignore
         self.autocompletes: AutocompletesDictT = {}
