@@ -108,9 +108,9 @@ class CommandBuilder:
             .set_is_nsfw(command.is_nsfw)
         )
         if not command.sub_commands:
-            if self.l10n and isinstance(command.display_name, Localized):
-                self.l10n.build_localized(command.display_name)
-                builder.set_name_localizations(self.get_localizations(command.display_name))
+            if self.l10n and isinstance(command._display_name, Localized):
+                self.l10n.build_localized(command._display_name)
+                builder.set_name_localizations(self.get_localizations(command._display_name))
             builder.set_description_localizations(self.get_localizations(command.description))
             for option in command.options:
                 builder.add_option(self.get_option(option, command))
