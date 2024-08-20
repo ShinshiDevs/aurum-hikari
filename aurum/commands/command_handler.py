@@ -105,9 +105,7 @@ class CommandHandler:
             CommandType.SLASH: self.builder.get_slash_command,
             CommandType.MESSAGE: self.builder.get_context_menu_command,
             CommandType.USER: self.builder.get_context_menu_command,
-        }[command.command_type](
-            command
-        )  # type: ignore
+        }[command.command_type](command)  # type: ignore
 
     def get_command(
         self, context: InteractionContext | AutocompleteContext

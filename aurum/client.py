@@ -200,7 +200,9 @@ class Client:
         if (autocomplete := command.autocompletes[option.name]) and option.is_focused:
             assert autocomplete.autocomplete
             choices: Sequence[AutocompleteChoice] = await autocomplete.autocomplete(context, option)
-            await interaction.create_response(list(choice.to_builder() for choice in choices))
+            await interaction.create_response(
+                list(choice.to_builder() for choice in choices)
+            )  # memory leak
 
     def include(self, includable: Type[Includable]) -> None:
         """Decorator to include an includable object to client."""
