@@ -39,7 +39,7 @@ documentation = "https://shinshidevs.github.io/aurum-hikari/"
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
 hikari = ">=2.0.0.dev122"
-attrs = "^23.2.0"
+attrs = ">=23.2,<25.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = ">=1.5.3,<1.7"
