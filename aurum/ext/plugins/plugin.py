@@ -27,10 +27,10 @@ class Plugin:
         name (str): The plugin name.
         guild (SnowflakeishOr[PartialGuild] | UndefinedType): Optional guild (server) where the plugin is available.
         default_member_permissions (Permissions): The permissions a user must have to use the plugin by default.
-        dm_enabled (bool): Whether the plugin can be used in direct messages.
+        is_dm_enabled (bool): Whether the plugin can be used in direct messages.
         is_nsfw (bool): Indicates whether the plugin is age-restricted.
         override (bool): Boolean flag to override commands attributes.
-            If override is set to True, the values for guild, default_member_permissions, dm_enabled,
+            If override is set to True, the values for guild, default_member_permissions, is_dm_enabled,
             and is_nsfw will be overridden.
 
     Attributes:
