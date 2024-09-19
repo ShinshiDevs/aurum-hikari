@@ -8,7 +8,7 @@ from hikari.permissions import Permissions
 from hikari.snowflakes import SnowflakeishOr
 from hikari.undefined import UNDEFINED, UndefinedType
 
-from aurum.internal.includable import Includable
+from aurum.includable import Includable
 from aurum.l10n.types import LocalizedOr
 
 
@@ -29,13 +29,13 @@ class AppCommand(Includable):
     command_type: CommandType
 
     __slots__: Sequence[str] = (
-        "app",
-        "name",
-        "display_name",
-        "guild",
-        "default_member_permissions",
-        "is_dm_enabled",
-        "is_nsfw",
+        "_app",
+        "_name",
+        "_display_name",
+        "_guild",
+        "_default_member_permissions",
+        "_is_dm_enabled",
+        "_is_nsfw",
     )
 
     def __init__(
@@ -49,31 +49,51 @@ class AppCommand(Includable):
         is_nsfw: bool = False,
     ) -> None:
         super().__init__(name=name)
-        self.app: PartialCommand | None = None
+        self._app: PartialCommand | None = None
 
-        self.display_name: LocalizedOr[str] | None = display_name
+        self._display_name: LocalizedOr[str] | None = display_name
 
-        self.guild: SnowflakeishOr[PartialGuild] | UndefinedType = guild
-        self.default_member_permissions: Permissions = default_member_permissions
-        self.is_dm_enabled: bool = is_dm_enabled
-        self.is_nsfw: bool = is_nsfw
+        self._guild: SnowflakeishOr[PartialGuild] | UndefinedType = guild
+        self._default_member_permissions: Permissions = default_member_permissions
+        self._is_dm_enabled: bool = is_dm_enabled
+        self._is_nsfw: bool = is_nsfw
 
-    def set_app(self, application: PartialCommand) -> AppCommand:
-        self.app = application
-        return self
+    @property
+    def app(self) -> PartialCommand | None:
+        return self._app
 
-    def set_guild(self, guild: SnowflakeishOr[PartialGuild] | UndefinedType) -> AppCommand:
-        self.guild = guild
-        return self
+    @app.setter
+    def app(self, app: PartialCommand) -> None:
+        self._app = app
 
-    def set_default_member_permissions(self, permissions: Permissions) -> AppCommand:
-        self.default_member_permissions = permissions
-        return self
+    @property
+    def guild(self) -> SnowflakeishOr[PartialGuild] | UndefinedType:
+        return self._guild
 
-    def set_is_dm_enabled(self, dm_enabled: bool) -> AppCommand:
-        self.is_dm_enabled = dm_enabled
-        return self
+    @guild.setter
+    def guild(self, guild: SnowflakeishOr[PartialGuild] | UndefinedType) -> None:
+        self._guild = guild
 
-    def set_is_nsfw(self, nsfw: bool) -> AppCommand:
-        self.is_nsfw = nsfw
-        return self
+    @property
+    def default_member_permissions(self) -> Permissions:
+        return self._default_member_permissions
+
+    @default_member_permissions.setter
+    def default_member_perimssions(self, permissions: Permissions) -> None:
+        self._default_member_permissions = permissions
+
+    @property
+    def is_dm_enabled(self) -> bool:
+        return self._is_dm_enabled
+
+    @is_dm_enabled.setter
+    def is_dm_enabled(self, is_dm_enabled: bool) -> None:
+        self._is_dm_enabled = is_dm_enabled
+
+    @property
+    def is_nsfw(self) -> bool:
+        return self._is_nsfw
+
+    @is_nsfw.setter
+    def is_nsfw(self, is_nsfw: bool) -> None:
+        self._is_nsfw = is_nsfw

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Callable, Sequence
 
 from aurum.commands.sub_command import SubCommand
@@ -8,13 +10,13 @@ from aurum.option import Option
 
 
 def sub_command(
-    name: str,
+    name: str | None = None,
+    description: LocalizedOr[str] = "No description",
     *,
     display_name: LocalizedOr[str] | None = None,
-    description: LocalizedOr[str] = "No description",
     options: Sequence[Option] = (),
     hooks: Sequence[Hook] = (),
-) -> Callable[..., SubCommand]:
+) -> Callable[[CommandCallbackT], SubCommand]:
     """Decorator for the sub-command.
 
     Can be used only in a command class that inherits from `aurum.commands.slash_command.SlashCommand`.
@@ -33,7 +35,7 @@ def sub_command(
     def decorator(func: CommandCallbackT) -> SubCommand:
         return SubCommand(
             callback=func,
-            name=name,
+            name=name or func.__name__,
             description=description,
             display_name=display_name,
             options=options,

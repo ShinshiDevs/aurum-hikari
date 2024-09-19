@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING
 
 import attrs
 
@@ -10,18 +9,14 @@ from aurum.hooks import Hook
 from aurum.l10n import LocalizedOr
 from aurum.option import Option
 
-if TYPE_CHECKING:
-    from aurum.commands.slash_command import SlashCommand
-
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class SubCommand:
-    parent: SlashCommand | None = attrs.field(default=None, eq=None, repr=False)
     callback: CommandCallbackT = attrs.field()
 
-    name: str
-    display_name: LocalizedOr[str] | None = attrs.field(default=None, repr=False, eq=False)
+    name: str = attrs.field()
     description: LocalizedOr[str] = attrs.field(default="No description", repr=False, eq=False)
+    display_name: LocalizedOr[str] | None = attrs.field(default=None, repr=False, eq=False)
 
     options: Sequence[Option] = attrs.field(factory=tuple, repr=False, eq=False)
     hooks: Sequence[Hook] = attrs.field(factory=tuple, repr=False, eq=False)
@@ -31,13 +26,13 @@ class SubCommand:
 
     def sub_command(
         self,
-        name: str,
+        name: str | None = None,
+        description: LocalizedOr[str] = "No description",
         *,
         display_name: LocalizedOr[str] | None = None,
-        description: LocalizedOr[str] = "No description",
         options: Sequence[Option] = (),
         hooks: Sequence[Hook] = (),
-    ) -> Callable[..., None]:
+    ) -> Callable[[CommandCallbackT], None]:
         """Decorator for the sub-command.
 
         This object can only be created by using the decorator [@sub_command][aurum.commands.decorators.sub_command.sub_command]
@@ -55,10 +50,9 @@ class SubCommand:
         """
 
         def decorator(func: CommandCallbackT) -> None:
-            self.sub_commands[name] = SubCommand(
-                parent=self.parent,
+            self.sub_commands[name or func.__name__] = SubCommand(
                 callback=func,
-                name=name,
+                name=name or func.__name__,
                 description=description,
                 display_name=display_name,
                 options=options,

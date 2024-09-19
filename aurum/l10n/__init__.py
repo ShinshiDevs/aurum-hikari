@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-__all__: Sequence[str] = (
-    "LocalizationProviderInterface",
-    "Localized",
-    "LocalizedOr",
-)
+__all__: Sequence[str] = ("LocalizationProviderInterface", "Localized", "LocalizedOr")
 
 from collections.abc import Sequence
 

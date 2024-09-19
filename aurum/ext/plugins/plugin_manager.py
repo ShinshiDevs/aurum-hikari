@@ -14,7 +14,7 @@ from hikari.traits import GatewayBotAware
 
 from aurum.commands.app_command import AppCommand
 from aurum.ext.plugins.plugin import Plugin
-from aurum.internal.command_handler import CommandHandler
+from aurum.commands.command_handler import CommandHandler
 
 if TYPE_CHECKING:
     from aurum.client import Client
@@ -51,14 +51,11 @@ class PluginManager:
             return None
         module: ModuleType = importlib.util.module_from_spec(spec)
         try:
-            spec.loader.exec_module(module)
+            spec.loader.exec_module(module)  # type: ignore
             plugin: Plugin | None = getattr(module, "plugin", None)
             if isinstance(plugin, Plugin):
                 return plugin(self._bot, self._client)
-            self.__logger.warning(
-                "plugin in %s is not detected.",
-                file,
-            )
+            self.__logger.warning("plugin in %s is not detected.", file)
         except Exception as exception:
             self.__logger.error("couldn't load file %s due error", file, exc_info=exception)
         return None

@@ -10,22 +10,25 @@ from os import PathLike
 from pathlib import Path
 from typing import Dict, List
 
-from hikari import AutocompleteInteraction, Snowflake, Snowflakeish
 from hikari.api import CommandBuilder as APICommandBuilder
 from hikari.commands import CommandType, OptionType, PartialCommand
 from hikari.guilds import PartialApplication, PartialGuild
-from hikari.interactions import CommandInteraction, CommandInteractionOption
-from hikari.snowflakes import SnowflakeishOr
+from hikari.interactions import (
+    AutocompleteInteraction,
+    CommandInteraction,
+    CommandInteractionOption,
+)
+from hikari.snowflakes import Snowflake, SnowflakeishOr
 from hikari.traits import GatewayBotAware
 from hikari.undefined import UndefinedType
 
 from aurum.commands import MessageCommand, SlashCommand, UserCommand
 from aurum.commands.app_command import AppCommand
+from aurum.commands.command_builder import CommandBuilder
 from aurum.commands.context_menu_command import ContextMenuCommand
 from aurum.commands.sub_command import SubCommand
 from aurum.context import AutocompleteContext, InteractionContext
 from aurum.exceptions import AurumException
-from aurum.internal.command_builder import CommandBuilder
 from aurum.l10n import LocalizationProviderInterface
 
 CommandsTypes = MessageCommand, SlashCommand, UserCommand
@@ -41,14 +44,7 @@ class CommandHandler:
         commands (Dict[str, AppCommand]): Dictionary that stores the AppCommand instances, keyed by their names.
     """
 
-    __slots__: Sequence[str] = (
-        "__logger",
-        "bot",
-        "application_id",
-        "l10n",
-        "builder",
-        "commands",
-    )
+    __slots__: Sequence[str] = ("__logger", "bot", "application_id", "l10n", "builder", "commands")
 
     def __init__(
         self, bot: GatewayBotAware, l10n: LocalizationProviderInterface | None = None
@@ -57,11 +53,9 @@ class CommandHandler:
 
         self.bot: GatewayBotAware = bot
         self.application_id: Snowflake | None = None
-
         self.l10n: LocalizationProviderInterface | None = l10n
 
         self.builder: CommandBuilder = CommandBuilder(bot, self, l10n)
-
         self.commands: Dict[str, AppCommand] = {}
 
     async def sync(self, *, debug: bool = False) -> None:
@@ -87,12 +81,10 @@ class CommandHandler:
         for guild, commands in guilds.items():
             assert self.application_id is not None
             app_commands: Sequence[PartialCommand] = await self.bot.rest.set_application_commands(
-                self.application_id,
-                list(map(self.get_builder, commands)),
-                guild=guild,
+                self.application_id, list(map(self.get_builder, commands)), guild=guild
             )
             for command in app_commands:
-                self.commands[command.name].set_app(command)
+                self.commands[command.name].app = command
             self.__logger.info("set commands for %s", guild)
 
             if debug:
@@ -113,7 +105,7 @@ class CommandHandler:
             CommandType.SLASH: self.builder.get_slash_command,
             CommandType.MESSAGE: self.builder.get_context_menu_command,
             CommandType.USER: self.builder.get_context_menu_command,
-        }[command.command_type](command)
+        }[command.command_type](command)  # type: ignore
 
     def get_command(
         self, context: InteractionContext | AutocompleteContext

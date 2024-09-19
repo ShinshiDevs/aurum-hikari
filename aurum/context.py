@@ -214,8 +214,7 @@ class InteractionContext:
         match option.type:
             case OptionType.USER:
                 return self.interaction.resolved.members.get(
-                    option.value,
-                    self.interaction.resolved.users.get(option.value),
+                    option.value, self.interaction.resolved.users.get(option.value)
                 )
             case OptionType.CHANNEL:
                 return self.interaction.resolved.channels.get(option.value)
@@ -223,8 +222,7 @@ class InteractionContext:
                 return self.interaction.resolved.roles.get(option.value)
             case OptionType.MENTIONABLE:
                 return self.interaction.resolved.members.get(
-                    option.value,
-                    self.interaction.resolved.roles.get(option.value),
+                    option.value, self.interaction.resolved.roles.get(option.value)
                 )
             case OptionType.ATTACHMENT:
                 return self.interaction.resolved.attachments.get(option.value)
