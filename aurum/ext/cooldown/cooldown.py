@@ -7,8 +7,8 @@ import attrs
 from hikari.snowflakes import Snowflake
 
 from aurum.context import InteractionContext
-from aurum.exceptions import CooldownException
 from aurum.ext.cooldown.bucket import BucketType
+from aurum.ext.cooldown.exceptions import CooldownException
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
