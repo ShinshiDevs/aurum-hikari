@@ -155,7 +155,6 @@ class Client:
     async def proceed_command(self, interaction: CommandInteraction) -> None:
         context: InteractionContext = self.create_context(interaction)
         command: CommandT = self.commands.get_command(context)
-        parent_command: CommandT = command
         try:
             for hook in command.hooks:
                 if (await hook.callback(context)).stop:
@@ -163,7 +162,11 @@ class Client:
             if isinstance(command, SlashCommand):
                 return await getattr(command, "callback")(context, **context.arguments)
             elif isinstance(command, SubCommand):
-                return await command.callback(parent_command, context, **context.arguments)
+                return await command.callback(
+                    self.commands.commands.get(interaction.command_name, None),
+                    context,
+                    **context.arguments,
+                )
             elif isinstance(command, UserCommand):
                 return await command.callback(context, *interaction.resolved.users.values())  # type: ignore
             elif isinstance(command, MessageCommand):

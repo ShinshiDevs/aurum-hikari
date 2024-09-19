@@ -48,4 +48,4 @@ from aurum.l10n import *
 from aurum.option import *
 from aurum.version import Version
 
-__version__: Version = Version(0, 1, 5, 7)
+__version__: Version = Version(0, 1, 6, 0)
