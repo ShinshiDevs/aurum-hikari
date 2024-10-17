@@ -52,7 +52,7 @@ griffe-inherited-docstrings = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"
-ruff = ">=0.4.3,<0.7.0"
+ruff = ">=0.4.3,<0.8.0"
 black = "^24.4.2"
 pyright = "^1.1.364"
 
