@@ -1,1 +1,0 @@
-::: aurum.commands.enum.sync_commands

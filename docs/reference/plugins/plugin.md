@@ -1,1 +1,0 @@
-::: aurum.ext.plugins.plugin
