@@ -1,11 +1,20 @@
-[tool.poetry]
-packages = [{ include = "aurum" }]
-version = "0.1.5.7"
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "aurum.__version__"}
+
+[project]
 name = "aurum-hikari"
-authors = ["stefanlight8 <64615032+stefanlight8@users.noreply.github.com>"]
+dynamic = ["version"]
+authors = [
+  { name="stefanlight8", email="64615032+stefanlight8@users.noreply.github.com" },
+]
 description = "A flexible framework for handling commands and components."
 readme = "README.md"
-license = "MIT"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -26,67 +35,38 @@ keywords = [
     "hikari",
     "commands",
     "components",
-    "command-handler",
-    "component-handler",
     "framework",
 ]
+dependencies = [
+    "attrs>=24.2",
+    "hikari>=2.0.0.dev122",
+]
 
-[tool.poetry.urls]
-repository = "https://github.com/ShinshiDevs/aurum-hikari"
-documentation = "https://shinshidevs.github.io/aurum-hikari/"
-"Issue Tracker" = "https://github.com/ShinshiDevs/aurum-hikari/issues"
+[project.urls]
+Homepage = "https://github.com/ShinshiDevs/aurum-hikari"
+Issues = "https://github.com/ShinshiDevs/aurum-hikari/issues"
+Documentation = "https://shinshidevs.github.io/aurum-hikari/"
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.13"
-hikari = ">=2.0.0.dev122"
-attrs = ">=24.2,<25.0"
-
-[tool.poetry.extras]
+[project.optional-dependencies]
 cron-tasks = ["croniter"]
 
-[tool.poetry.group.docs.dependencies]
-mkdocs = ">=1.5.3,<1.7"
-
-mkdocs-material = { version = "^9.5.23", extras = ["imaging"] }
-mkdocs-material-extensions = "^1.3.1"
-
-mkdocstrings-python = ">=1.8.0,<1.11"
-griffe-inherited-docstrings = "^1.0.0"
-
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.10.0"
-ruff = ">=0.4.3,<0.6.0"
-black = "^24.4.2"
-pyright = "^1.1.364"
+[tool.uv]
+dev-dependencies = [
+    "pyright>=1.1.389",
+    "ruff>=0.7.4",
+]
 
 [tool.ruff]
-line-length = 100
-target-version = "py310"
+line-length = 120
+target-version = "py312"
 
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401", "F403", "F405"]
-
-[tool.mypy]
-python_version = "3.10"
-strict = true
-warn_unused_configs = true
-warn_return_any = true
-warn_redundant_casts = true
-namespace_packages = true
-
-[tool.pyright]
-include = ["aurum", "examples"]
-exclude = ["tests"]
-pythonVersion = "3.10"
-typeCheckingMode = "strict"
-reportPrivateUsage = false
-reportImportCycles = false
-
-[tool.black]
-line-length = 100
-target-version = ['py310']
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 80
+quote-style = "double"
+line-ending = "lf"
 skip-magic-trailing-comma = true
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"

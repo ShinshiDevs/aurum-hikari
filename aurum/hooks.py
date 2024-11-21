@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable, Sequence
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 import attrs
 
@@ -18,32 +18,31 @@ class HookResult:
     """Will hook stop execution or not."""
 
 
-HookCallbackT = TypeVar(
-    "HookCallbackT", bound=Callable[[InteractionContext], Awaitable[HookResult]]
-)
+ContextT = TypeVar("ContextT", bound=InteractionContext)
+HookCallbackT = Callable[[ContextT], Awaitable[HookResult]]
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
-class Hook:
+class Hook(Generic[ContextT]):
     """Represents a hook."""
 
-    callback: HookCallbackT
+    callback: HookCallbackT[ContextT]
     """Callback of hook."""
 
 
-def hook() -> Callable[[HookCallbackT], Hook]:
+def hook() -> Callable[[HookCallbackT[ContextT]], Hook[ContextT]]:
     """Decorator for defining a hook.
 
     Example:
         ```py
-        @hook
+        @hook()
         async def stop_hook(context: InteractionContext) -> HookResult:
             await context.create_response("No one will execute this command.")
             return HookResult(stop=True)
         ```
     """
 
-    def decorator(callback: HookCallbackT) -> Hook:
+    def decorator(callback: HookCallbackT[ContextT]) -> Hook[ContextT]:
         return Hook(callback=callback)
 
     return decorator
