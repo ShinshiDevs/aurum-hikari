@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Dict
 
 import attrs
+from hikari import AutocompleteInteraction
 from hikari.api import ComponentBuilder
 from hikari.channels import PartialChannel
 from hikari.commands import OptionType
@@ -28,34 +29,37 @@ from aurum.commands.app_command import AppCommand
 if TYPE_CHECKING:
     from aurum.client import Client
 
-__all__: Sequence[str] = ("InteractionContext",)
+__all__: Sequence[str] = ("InteractionContext", "AutocompleteContext")
 
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class InteractionContext:
-    """Represents a interaction context.
-
-    Attributes:
-        interaction (CommandInteraction | ComponentInteraction): The interaction.
-        bot (GatewayBotAware): The instance of the bot.
-        client (Client): The client.
-        command (AppCommand): Command of interaction.
-            !!! note
-                Available only for commands.
-        locale (Any): An any locale object for the interaction.
-        arguments (Dict[str, Any]): Arguments to the interaction.
-            !!! note
-                Available only for commands.
-    """
+    """Represents an interaction context."""
 
     interaction: CommandInteraction | ComponentInteraction = attrs.field(eq=False)
+    """The interaction of context."""
 
-    bot: GatewayBotAware = attrs.field(eq=False)
-    client: Client = attrs.field(eq=False)
+    bot: GatewayBotAware = attrs.field(eq=False, repr=False)
+    """The instance of the bot."""
+    client: Client = attrs.field(eq=False, repr=False)
+    """The client."""
 
-    command: AppCommand | None = attrs.field(eq=False, default=None)
+    command: AppCommand | None = attrs.field(eq=False, default=None, repr=False)
+    """
+    Command of interaction.
+    
+    !!! note
+        Available only for commands.
+    """
     locale: Any = attrs.field(eq=False)
+    """An any locale object for the interaction."""
     arguments: Dict[str, Any] = attrs.field(factory=dict, eq=False)
+    """
+    Arguments to the interaction.
+    
+    !!! note
+        Available only for commands.
+    """
 
     @property
     def user(self) -> PartialUser:
@@ -210,8 +214,7 @@ class InteractionContext:
         match option.type:
             case OptionType.USER:
                 return self.interaction.resolved.members.get(
-                    option.value,
-                    self.interaction.resolved.users.get(option.value),
+                    option.value, self.interaction.resolved.users.get(option.value)
                 )
             case OptionType.CHANNEL:
                 return self.interaction.resolved.channels.get(option.value)
@@ -219,10 +222,28 @@ class InteractionContext:
                 return self.interaction.resolved.roles.get(option.value)
             case OptionType.MENTIONABLE:
                 return self.interaction.resolved.members.get(
-                    option.value,
-                    self.interaction.resolved.roles.get(option.value),
+                    option.value, self.interaction.resolved.roles.get(option.value)
                 )
             case OptionType.ATTACHMENT:
                 return self.interaction.resolved.attachments.get(option.value)
             case _:
                 return None
+
+
+@attrs.define(kw_only=True, hash=False, weakref_slot=False)
+class AutocompleteContext:
+    """Represents an autocomplete interaction context.
+
+    Attributes:
+        interaction (AutocompleteInteraction): The interaction of context.
+        bot (GatewayBotAware): The instance of the bot.
+        client (Client): The client.
+        locale (Any): An any locale object for the interaction.
+    """
+
+    interaction: AutocompleteInteraction = attrs.field(eq=False)
+
+    bot: GatewayBotAware = attrs.field(eq=False, repr=False)
+    client: Client = attrs.field(eq=False, repr=False)
+
+    locale: Any = attrs.field(eq=False)

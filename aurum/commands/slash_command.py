@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from typing import Any, Dict, Tuple, Type
 
-from hikari.api import SlashCommandBuilder
 from hikari.commands import CommandType
 from hikari.guilds import PartialGuild
 from hikari.permissions import Permissions
@@ -12,27 +11,20 @@ from hikari.undefined import UNDEFINED, UndefinedType
 
 from aurum.commands.app_command import AppCommand
 from aurum.commands.sub_command import SubCommand
-from aurum.commands.typing import SubCommandsDictT
-from aurum.internal.utils.commands import build_option
-from aurum.l10n import LocalizationProviderInterface, Localized, LocalizedOr
-from aurum.options import Option
+from aurum.commands.typing import AutocompletesDictT, SubCommandsDictT
+from aurum.hooks import Hook
+from aurum.l10n import LocalizedOr
+from aurum.option import Option
 
 
 class SlashCommandMeta(type):
     def __new__(
-        mcs: Type[SlashCommandMeta],
-        name: str,
-        bases: Tuple[type, ...],
-        attrs: Dict[str, Any],
+        mcs: Type[SlashCommandMeta], name: str, bases: Tuple[type, ...], attrs: Dict[str, Any]
     ) -> SlashCommandMeta:
-        cls: SlashCommandMeta = super().__new__(mcs, name, bases, attrs)
-        sub_commands: SubCommandsDictT = {}
-        for name, obj in attrs.items():
-            if isinstance(obj, SubCommand):
-                obj.parent = cls
-                sub_commands[obj.name] = obj
-        setattr(cls, "sub_commands", sub_commands)
-        return cls
+        attrs["sub_commands"] = {
+            obj.name: obj for obj in attrs.values() if isinstance(obj, SubCommand)
+        }
+        return super().__new__(mcs, name, bases, attrs)
 
 
 class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
@@ -91,16 +83,13 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
     command_type: CommandType = CommandType.SLASH
 
     __slots__: Sequence[str] = (
-        "app",
         "name",
         "display_name",
         "description",
-        "guild",
-        "default_member_permissions",
         "dm_enabled",
-        "is_nsfw",
         "options",
-        "sub_commands",
+        "hooks",
+        "autocompletes",
     )
 
     def __init__(
@@ -114,6 +103,7 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         is_dm_enabled: bool = False,
         is_nsfw: bool = False,
         options: Sequence[Option] = (),
+        hooks: Sequence[Hook] = (),
     ) -> None:
         super().__init__(
             name=name,
@@ -125,32 +115,6 @@ class SlashCommand(AppCommand, metaclass=SlashCommandMeta):
         )
         self.description: LocalizedOr[str] = description
         self.options: Sequence[Option] = options
-        self.sub_commands: SubCommandsDictT = getattr(self, "sub_commands", {})
-
-    def get_builder(
-        self,
-        factory: Callable[[str, str], SlashCommandBuilder],
-        l10n: LocalizationProviderInterface | None,
-    ) -> SlashCommandBuilder:
-        if l10n and isinstance(self.description, Localized):
-            l10n.build_localized(self.description)
-        builder: SlashCommandBuilder = (
-            factory(self.name, str(self.description))
-            .set_default_member_permissions(self.default_member_permissions)
-            .set_is_dm_enabled(self.is_dm_enabled)
-            .set_is_nsfw(self.is_nsfw)
-        )
-        if not self.sub_commands:
-            if l10n and isinstance(self.display_name, Localized):
-                l10n.build_localized(self.display_name)
-                builder.set_name_localizations(
-                    self.display_name.value if isinstance(self.display_name.value, dict) else {}
-                )
-            if isinstance(localizations := getattr(self.description, "value", {}), dict):
-                builder.set_description_localizations(localizations)
-            for option in self.options:
-                builder.add_option(build_option(option, l10n))
-        else:
-            for sub_command in self.sub_commands.values():
-                builder.add_option(sub_command.as_option(l10n))
-        return builder
+        self.hooks: Sequence[Hook] = hooks
+        self.sub_commands: SubCommandsDictT = getattr(self, "sub_commands", {})  # type: ignore
+        self.autocompletes: AutocompletesDictT = {}

@@ -1,18 +1,14 @@
-.DS_STORE
-
 __pycache__/
 *.py[cod]
 *$py.class
+dist/
+*.egg-info
 
-.idea
-.vscode
+.venv
+.env
+venv
+env
 
-.cache
-.ruff_cache
-.mypy_cache
+*.lock
 
-poetry.lock
-
-*.env
-
-test_project
+.DS_STORE

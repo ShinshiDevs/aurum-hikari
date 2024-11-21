@@ -32,15 +32,7 @@ class MessageCommand(ContextMenuCommand):
 
     command_type: CommandType = CommandType.MESSAGE
 
-    __slots__: Sequence[str] = (
-        "app",
-        "name",
-        "display_name",
-        "guild",
-        "default_member_permissions",
-        "dm_enabled",
-        "is_nsfw",
-    )
+    __slots__: Sequence[str] = ("name", "display_name", "dm_enabled")
 
     async def callback(self, context: InteractionContext, message: Message) -> None:
         """A callback of the command.

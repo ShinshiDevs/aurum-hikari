@@ -1,7 +1,6 @@
-from typing import Any, Dict, Protocol
+from typing import Any, Protocol
 
-from hikari.interactions import CommandInteraction, ComponentInteraction
-from hikari.locales import Locale
+from hikari.interactions import AutocompleteInteraction, CommandInteraction, ComponentInteraction
 
 from aurum.l10n.localized import Localized
 
@@ -17,7 +16,7 @@ class LocalizationProviderInterface(Protocol):
         """Start the localization provider."""
         ...
 
-    def build_localized(self, value: Localized) -> Dict[Locale | str, str]:
+    def build_localized(self, value: Localized) -> None:
         """Build [Localized object][aurum.l10n.localized.Localized] for Discord API.
 
         !!! warning
@@ -29,6 +28,8 @@ class LocalizationProviderInterface(Protocol):
         """
         ...
 
-    def get_locale(self, by: str | CommandInteraction | ComponentInteraction) -> Any:
+    def get_locale(
+        self, by: str | CommandInteraction | ComponentInteraction | AutocompleteInteraction
+    ) -> Any:
         """Get locale by name or interaction."""
         ...
