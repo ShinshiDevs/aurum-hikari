@@ -1,4 +1,4 @@
-name: Publish on PyPi
+name: Publish on PyPI
 
 on:
   release:
@@ -8,21 +8,22 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  uv-example:
+    name: python
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-      - name: Poetry install
-        run: pip install poetry
-      - name: Build and upload
-        env:
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          poetry config pypi-token.pypi $PYPI_TOKEN
-          poetry version $(git describe --tags --abbrev=0)
-          poetry build
-          poetry publish
+        run: uv python install
+
+      - name: Build
+        run: uv build
+
+      - name: Publish
+        run: uv publish
+        

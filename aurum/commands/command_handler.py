@@ -153,8 +153,8 @@ class CommandHandler:
             if inspect.isclass(obj) and issubclass(obj, CommandsTypes) and obj not in CommandsTypes:
                 try:
                     yield obj()  # type: ignore
-                except TypeError:
-                    raise AurumException("`__init__` of base includable wasn't overrided")
+                except TypeError as exception:
+                    raise AurumException("`__init__` of base includable wasn't overrided") from exception
 
     def load_folder(self, directory: PathLike[str]) -> None:
         """Load commands from folder."""

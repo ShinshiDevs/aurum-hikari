@@ -14,21 +14,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: 3.11
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v4
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
         with:
-          key: mkdocs-material-${{ env.cache_id }}
+          key: mkdocs-material-${{ runner.os }}-${{ hashFiles('docs-requirements.txt') }}
           path: .cache
           restore-keys: |
-            mkdocs-material-
-      - name: Poetry install
-        run: pip install poetry
-      - run: poetry install --only docs
-      - run: poetry run mkdocs gh-deploy --force
+            mkdocs-material-${{ runner.os }}-
+
+      - name: Install dependencies with uv
+        run: |
+          pip install uv
+          uv --install docs-requirements.txt
+
+      - name: Deploy to GitHub Pages
+        run: |
+          mkdocs gh-deploy --force
