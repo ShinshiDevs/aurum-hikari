@@ -1,23 +1,19 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.dynamic]
-version = {attr = "aurum.__version__"}
-
 [project]
 name = "aurum-hikari"
-dynamic = ["version"]
+description = "A flexible framework for handling commands and components."
 authors = [
   { name="stefanlight8", email="64615032+stefanlight8@users.noreply.github.com" },
 ]
-description = "A flexible framework for handling commands and components."
+version = "0.1.6.0"
 readme = "README.md"
-requires-python = ">=3.10"
 license = {file = "LICENSE"}
+requires-python = ">=3.10"
+dependencies = [
+    "attrs>=24.2",
+    "hikari>=2.0.0.dev122",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
@@ -37,10 +33,6 @@ keywords = [
     "components",
     "framework",
 ]
-dependencies = [
-    "attrs>=24.2",
-    "hikari>=2.0.0.dev122",
-]
 
 [project.urls]
 Homepage = "https://github.com/ShinshiDevs/aurum-hikari"
@@ -51,6 +43,7 @@ Documentation = "https://shinshidevs.github.io/aurum-hikari/"
 cron-tasks = ["croniter"]
 
 [tool.uv]
+cache-keys = [{ file = "aurum/__init__.py" }]
 dev-dependencies = [
     "pyright>=1.1.389",
     "ruff>=0.7.4",
@@ -70,3 +63,7 @@ skip-magic-trailing-comma = true
 [tool.pyright]
 pythonVersion = "3.12"
 typeCheckingMode = "strict"
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
