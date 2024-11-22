@@ -52,6 +52,39 @@ dev-dependencies = [
 [tool.ruff]
 line-length = 120
 target-version = "py312"
+fix = true
+
+[tool.ruff.lint]
+preview = true
+extend-select = [
+    "I",    # isort
+    "ANN",  # flake8-annotations
+    "LOG",  # flake8-logging-format
+]
+select = [
+    "B",    # Bugbear rules
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "I",    # isort
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "PL",   # pylint rules
+]
+ignore = [
+    "E203", # Handled by Black
+    "E501", # Line length handled by Black
+]
+exclude = [
+    "build/",
+    "dist/",
+    "docs/",
+    "__pycache__/",
+    "*.egg-info/",
+]
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
 
 [tool.ruff.format]
 docstring-code-format = true

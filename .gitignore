@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 dist/
+build/
 *.egg-info
 
 .venv
@@ -12,3 +13,7 @@ env
 *.lock
 
 .DS_STORE
+
+.ropeproject
+# Thanks to Zed, that for some reason using something
+# by default, without my permission.
