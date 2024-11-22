@@ -1,5 +1,9 @@
-mkdocs>=1.5.3,<1.7
-mkdocs-material[imaging]>=9.5.23
-mkdocs-material-extensions>=1.3.1
-mkdocstrings-python>=1.8.0,<1.11
-griffe-inherited-docstrings>=1.0.0
+sphinx>=8.1.3
+sphinx-copybutton>=0.5.2
+sphinx-inline-tabs>=2023.04.21
+sphinx-notfound-page>=1.0.4
+sphinx-hoverxref>=1.4.2
+sphinx-last-updated-by-git>=0.3.8
+sphinx-autoapi>=3.3.2
+sphinxext-opengraph>=0.9.1
+furo>=2024.04.27

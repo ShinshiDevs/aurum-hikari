@@ -11,9 +11,12 @@ venv
 env
 
 *.lock
+*.cache
 
 .DS_STORE
 
 .ropeproject
 # Thanks to Zed, that for some reason using something
 # by default, without my permission.
+
+docs/_build
