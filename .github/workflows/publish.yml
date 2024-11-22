@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  uv-example:
+  main:
     name: python
     runs-on: ubuntu-latest
 
