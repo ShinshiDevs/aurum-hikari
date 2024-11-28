@@ -11,6 +11,8 @@ from aurum.commands.options import Choice, Option
 from aurum.commands.slash_command import SlashCommand, SlashCommandGroup
 from aurum.commands.sub_command import SubCommand
 
+__all__: Sequence[str] = ("CommandBuilder",)
+
 
 class CommandBuilder:
     """A class for building Discord application commands."""

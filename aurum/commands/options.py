@@ -7,6 +7,8 @@ from hikari.commands import OptionType
 
 from aurum.commands.types import Localized
 
+__all__: Sequence[str] = ("Choice", "Option")
+
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class Choice:

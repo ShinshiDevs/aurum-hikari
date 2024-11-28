@@ -20,6 +20,8 @@ if TYPE_CHECKING:
     from hikari.traits import GatewayBotAware
     from hikari.users import PartialUser
 
+__all__: Sequence[str] = ("InteractionContext",)
+
 
 @attrs.define(kw_only=True, hash=False, weakref_slot=False)
 class InteractionContext:

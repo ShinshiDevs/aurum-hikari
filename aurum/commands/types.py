@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
     from aurum.commands.base_command import BaseCommand
 
-    CommandMapping = dict[Snowflakeish, BaseCommand]
-    CommandCallbackT = Callable[..., Coroutine[Any, Any, None]]
 
 Localized = dict[Locale | str, str]
+CommandMapping = dict[Snowflakeish, "BaseCommand"]
+CommandCallbackT = Callable[..., Coroutine[Any, Any, None]]

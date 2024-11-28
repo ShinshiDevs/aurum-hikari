@@ -7,6 +7,8 @@ from hikari.snowflakes import SnowflakeishOr
 
 from aurum.commands.types import Localized
 
+__all__: Sequence[str] = ("BaseCommand",)
+
 
 class BaseCommand:
     """Base class for Discord application command.

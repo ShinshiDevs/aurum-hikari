@@ -1,6 +1,14 @@
+from collections.abc import Sequence
 from typing import Any
 
 from aurum.exceptions import AurumException
+
+__all__: Sequence[str] = (
+    "BaseCommandException",
+    "CommandCallbackNotImplemented",
+    "CommandNotFound",
+    "SubCommandNotFound",
+)
 
 
 class BaseCommandException(AurumException):

@@ -10,6 +10,8 @@ from aurum.commands.types import Localized
 if TYPE_CHECKING:
     from aurum.commands.types import CommandCallbackT
 
+__all__: Sequence[str] = ("sub_command",)
+
 
 def sub_command(
     name: str,

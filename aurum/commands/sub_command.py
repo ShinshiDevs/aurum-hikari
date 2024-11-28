@@ -14,6 +14,8 @@ if TYPE_CHECKING:
     from aurum.commands.slash_command import SlashCommandGroup
     from aurum.commands.types import CommandCallbackT
 
+__all__: Sequence[str] = ("SubCommandMethod", "SubCommand")
+
 
 @attrs.define(kw_only=True, eq=False, weakref_slot=False, hash=True)
 class SubCommandMethod:

@@ -1,10 +1,13 @@
 from abc import abstractmethod
+from collections.abc import Sequence
 
 from hikari.messages import Message
 from hikari.users import PartialUser
 
 from aurum.commands.base_command import BaseCommand
 from aurum.context import InteractionContext
+
+__all__: Sequence[str] = ("MessageCommand", "UserCommand")
 
 
 class ContextMenuCommand(BaseCommand):

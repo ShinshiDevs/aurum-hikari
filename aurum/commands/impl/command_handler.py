@@ -31,6 +31,8 @@ from aurum.utils.timeit import timeit
 if TYPE_CHECKING:
     from aurum.commands.types import CommandCallbackT, CommandMapping
 
+__all__: Sequence[str] = ("CommandHandler",)
+
 
 class CommandHandler:
     """This class handles the registration, synchronization, and execution of Discord commands.

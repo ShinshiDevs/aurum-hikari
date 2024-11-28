@@ -18,6 +18,8 @@ from aurum.commands.types import Localized
 if TYPE_CHECKING:
     from aurum.commands.types import CommandCallbackT
 
+__all__: Sequence[str] = ("SlashCommand", "SlashCommand")
+
 
 class SlashCommand(BaseCommand):
     """A class representing a slash command.

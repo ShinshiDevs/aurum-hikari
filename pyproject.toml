@@ -41,14 +41,21 @@ Documentation = "https://shinshidevs.github.io/aurum-hikari/"
 
 [project.optional-dependencies]
 cron-tasks = ["croniter"]
+docs = [
+    "sphinx-autobuild>=2024.10.3",
+]
+typing = [
+    "mypy>=1.13.0",
+    "pyright>=1.1.389",
+    "ruff>=0.7.4",
+]
+tests = [
+    "pytest>=8.3.3",
+]
 
 [tool.uv]
 cache-keys = [{ file = "aurum/__init__.py" }]
-dev-dependencies = [
-    "pyright>=1.1.389",
-    "ruff>=0.7.4",
-    "sphinx-autobuild>=2024.10.3",
-]
+dev-dependencies = ["nox>=2024.10.9"]
 
 [tool.ruff]
 line-length = 120

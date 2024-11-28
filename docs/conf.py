@@ -49,13 +49,13 @@ html_theme_options = {
         "font-stack--monospace": "Fira Code, monospace",
         "font-stack--headings": "Archivo, serif",
         "color-problematic": "#17181A",
-        "color-foreground-primary": "#2B2D30", # for main text and headings
-        "color-foreground-secondary": "#505359", # for secondary text
-        "color-foreground-muted": "#6b6f76", # for muted text
-        "color-background-primary": "#FBFDFF", # for content
-        "color-background-secondary": "#FBFDFF", # for navigation + ToC
-        "color-background-border": "#C8CDD2", # for UI borders
-        "color-background-item": "#C8CDD2", # for "background" items (eg: copybutton)
+        "color-foreground-primary": "#2B2D30",  # for main text and headings
+        "color-foreground-secondary": "#505359",  # for secondary text
+        "color-foreground-muted": "#6b6f76",  # for muted text
+        "color-background-primary": "#FBFDFF",  # for content
+        "color-background-secondary": "#FBFDFF",  # for navigation + ToC
+        "color-background-border": "#C8CDD2",  # for UI borders
+        "color-background-item": "#C8CDD2",  # for "background" items (eg: copybutton)
     },
     "dark_css_variables": {
         "color-brand-primary": "#54B8F0",
@@ -64,13 +64,13 @@ html_theme_options = {
         "font-stack--monospace": "Fira Code, monospace",
         "font-stack--headings": "Archivo, serif",
         "color-problematic": "#FBFDFF",
-        "color-foreground-primary": "#FBFDFF", # for main text and headings
-        "color-foreground-secondary": "#FBFDFF", # for secondary text
-        "color-foreground-muted": "#6b6f76", # for muted text,
-        "color-background-primary": "#17181A", # for content
-        "color-background-secondary": "#17181A", # for navigation + ToC
-        "color-background-border": "#2B2D30", # for UI borders
-        "color-background-item": "#505359", # for "background" items (eg: copybutton)
+        "color-foreground-primary": "#FBFDFF",  # for main text and headings
+        "color-foreground-secondary": "#FBFDFF",  # for secondary text
+        "color-foreground-muted": "#6b6f76",  # for muted text,
+        "color-background-primary": "#17181A",  # for content
+        "color-background-secondary": "#17181A",  # for navigation + ToC
+        "color-background-border": "#2B2D30",  # for UI borders
+        "color-background-item": "#505359",  # for "background" items (eg: copybutton)
     },
     "footer_icons": [
         {
