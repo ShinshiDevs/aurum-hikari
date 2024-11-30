@@ -1,10 +1,10 @@
 import nox
 
 NEED_STUB: list[str] = [
-    "aurum/__init__.py",
-    "aurum/commands/__init__.py",
-    "aurum/commands/decorators/__init__.py",
-    "aurum/commands/impl/__init__.py",
+    "src/aurum/__init__.py",
+    "src/aurum/commands/__init__.py",
+    "src/aurum/commands/decorators/__init__.py",
+    "src/aurum/commands/impl/__init__.py",
 ]
 
 
