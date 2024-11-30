@@ -10,15 +10,15 @@ from hikari.messages import MessageFlag
 from hikari.undefined import UNDEFINED, UndefinedOr
 
 if TYPE_CHECKING:
-    from hikari.channels import PartialChannel
+    from hikari.channels import TextableGuildChannel
     from hikari.embeds import Embed
     from hikari.files import Resourceish
     from hikari.guilds import GatewayGuild, PartialRole
+    from hikari.impl import GatewayBot
     from hikari.interactions import CommandInteraction, ComponentInteraction, InteractionMember
     from hikari.messages import Message
     from hikari.snowflakes import SnowflakeishSequence
-    from hikari.traits import GatewayBotAware
-    from hikari.users import PartialUser
+    from hikari.users import PartialUser, User
 
 __all__: Sequence[str] = ("InteractionContext",)
 
@@ -30,7 +30,7 @@ class InteractionContext:
     interaction: CommandInteraction | ComponentInteraction = attrs.field(eq=False)
     """The interaction object associated with this context."""
 
-    bot: GatewayBotAware = attrs.field(eq=False, repr=False)
+    bot: GatewayBot = attrs.field(eq=False, repr=False)
     """The bot instance handling this interaction."""
 
     arguments: dict[str, Any] = attrs.field(factory=dict, eq=False)
@@ -43,7 +43,7 @@ class InteractionContext:
     """
 
     @property
-    def user(self) -> PartialUser:
+    def user(self) -> User:
         """Returns the user who triggered this interaction."""
         return self.interaction.user
 
@@ -58,7 +58,7 @@ class InteractionContext:
         return self.interaction.get_guild()
 
     @property
-    def channel(self) -> PartialChannel | None:
+    def channel(self) -> TextableGuildChannel | None:
         """Returns the channel where this interaction occurred."""
         return self.interaction.get_channel()
 

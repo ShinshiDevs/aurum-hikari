@@ -12,9 +12,9 @@ from hikari.errors import BadRequestError
 from hikari.events.interaction_events import InteractionCreateEvent
 from hikari.events.lifetime_events import StartedEvent, StoppingEvent
 from hikari.guilds import PartialGuild
+from hikari.impl.gateway_bot import GatewayBot
 from hikari.interactions import CommandInteraction, CommandInteractionOption
 from hikari.snowflakes import SnowflakeishOr
-from hikari.traits import GatewayBotAware
 
 from aurum.commands.base_command import BaseCommand
 from aurum.commands.context_menu_command import MessageCommand, UserCommand
@@ -39,14 +39,14 @@ class CommandHandler:
 
     Parameters
     ----------
-    bot : GatewayBotAware
+    bot : GatewayBot
         The Discord bot instance this handler will work with.
     sync_commands : bool, optional
         Whether to automatically sync commands on startup, by default False.
 
     Attributes
     ----------
-    bot : GatewayBotAware
+    bot : GatewayBot
         The Discord bot instance.
     sync_commands_flag : bool
         Whether commands should be synced on startup.
@@ -71,11 +71,11 @@ class CommandHandler:
         "_builder",
     )
 
-    def __init__(self, bot: GatewayBotAware, *, sync_commands: bool = False) -> None:
+    def __init__(self, bot: GatewayBot, *, sync_commands: bool = False) -> None:
         self.__logger: Logger = getLogger("aurum.commands")
         self.__application: Application | None = None
 
-        self.bot: GatewayBotAware = bot
+        self.bot: GatewayBot = bot
         self.bot.event_manager.subscribe(StartedEvent, self.start)
         self.bot.event_manager.subscribe(StoppingEvent, self.stop)
         self.bot.event_manager.subscribe(InteractionCreateEvent, self.on_command_interaction)
