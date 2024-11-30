@@ -1,11 +1,10 @@
-from logging import Handler, Logger, getLogger
+from logging import Logger, getLogger
 from typing import Any
 
 from hikari.internal.ux import TRACE
 
-_TRACE_HANDLER: Handler = Handler(level=TRACE)
 _TRACE_LOGGER: Logger = getLogger("aurum.trace")
-_TRACE_LOGGER.addHandler(_TRACE_HANDLER)
+_TRACE_LOGGER.setLevel(TRACE)  # do something normal ASAP
 
 
 def trace(message: str, *args: Any, **kwargs: Any) -> None:
